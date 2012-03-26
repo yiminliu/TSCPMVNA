@@ -1245,9 +1245,11 @@ public class TruConnect {
     quantity = Double.parseDouble(paymentTransaction.getPaymentAmount()) / Double.parseDouble(custTopUp.getTopupAmount());
     notificationParameterList.add(new NotificationParameter("quantity", df.format(quantity)));
     // topupAmount
-    notificationParameterList.add(new NotificationParameter("topupAmount", NumberFormat.getCurrencyInstance().format(Double.parseDouble(custTopUp.getTopupAmount()))));
+    notificationParameterList.add(new NotificationParameter("topupAmount", NumberFormat.getCurrencyInstance().format(
+      Double.parseDouble(custTopUp.getTopupAmount()))));
     // total = quantity*topupAmount
-    notificationParameterList.add(new NotificationParameter("total", NumberFormat.getCurrencyInstance().format(Double.parseDouble(custTopUp.getTopupAmount()) * quantity)));
+    notificationParameterList.add(new NotificationParameter("total", NumberFormat.getCurrencyInstance().format(
+      Double.parseDouble(custTopUp.getTopupAmount()) * quantity)));
 
     // subTotal = sum(items)
     Double subTotal = Double.parseDouble(custTopUp.getTopupAmount()) * quantity;
@@ -1678,12 +1680,15 @@ public class TruConnect {
         }
         // restoreSubscriber(serviceInstance, deviceInfo);
         if (deviceInfo != null && accountStatus != null) {
-          if (!accountStatus.getBillingStatus().equals("SUSPEND")) {
-            throw new BillingException("Account " + account.getAccountno() + " does not have SUSPEND component in Kenan");
-          } else if (!accountStatus.getNetworkStatus().equals("SUSPEND")) {
-            throw new NetworkException("Device is already active on network");
+          // if (!accountStatus.getBillingStatus().equals("SUSPEND")) {
+          // throw new BillingException("Account " + account.getAccountno() +
+          // " does not have SUSPEND component in Kenan");
+          // } else if (!accountStatus.getNetworkStatus().equals("SUSPEND")) {
+          // throw new NetworkException("Device is already active on network");
+          // }
+          if (accountStatus.getBillingStatus().equals("SUSPEND") || accountStatus.getNetworkStatus().equals("SUSPEND")) {
+            restoreAccount(customer.getId(), account.getAccountno(), deviceInfo.getId());
           }
-          restoreAccount(customer.getId(), account.getAccountno(), deviceInfo.getId());
         } else {
           throw new DeviceException("No device found to restore for Cust " + customer.getId() + " on account " + account.getAccountno());
         }
@@ -1738,12 +1743,17 @@ public class TruConnect {
 
           // suspendSubscriber(serviceInstance, deviceInfo);
           if (deviceInfo != null && accountStatus != null) {
-            if (accountStatus.getBillingStatus().equals("SUSPEND")) {
-              throw new BillingException("Account " + account.getAccountno() + " already has SUSPEND component");
-            } else if (accountStatus.getNetworkStatus().equals("SUSPEND")) {
-              throw new NetworkException("Device is already suspended on network");
+            // if (accountStatus.getBillingStatus().equals("SUSPEND")) {
+            // throw new BillingException("Account " + account.getAccountno() +
+            // " already has SUSPEND component");
+            // } else if (accountStatus.getNetworkStatus().equals("SUSPEND")) {
+            // throw new
+            // NetworkException("Device is already suspended on network");
+            // }
+            if (accountStatus.getBillingStatus().equals("ACTIVE") || accountStatus.getBillingStatus().equals("REINSTALL")
+                || accountStatus.getNetworkStatus().equals("ACTIVE")) {
+              suspendAccount(customer.getId(), account.getAccountno(), deviceInfo.getId());
             }
-            suspendAccount(customer.getId(), account.getAccountno(), deviceInfo.getId());
           } else {
             throw new DeviceException("No device found to suspend for Cust " + customer.getId() + " on account " + account.getAccountno());
           }
