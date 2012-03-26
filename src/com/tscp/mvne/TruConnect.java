@@ -12,7 +12,6 @@ import java.util.Vector;
 
 import javax.jws.WebMethod;
 import javax.jws.WebService;
-import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.xml.ws.WebServiceException;
 
