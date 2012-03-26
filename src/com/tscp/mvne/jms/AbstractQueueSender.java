@@ -12,12 +12,17 @@ import javax.jms.QueueSession;
 import javax.jms.Session;
 import javax.naming.NamingException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public abstract class AbstractQueueSender extends JmsTemplate {
   QueueConnectionFactory queueConnectionFactory;
   QueueConnection queueConnection;
   QueueSession queueSession;
   Queue queue;
   QueueSender queueSender;
+
+  private static final Logger logger = LoggerFactory.getLogger("TSCPMVNE");
 
   public void init() {
     try {
@@ -42,7 +47,6 @@ public abstract class AbstractQueueSender extends JmsTemplate {
     }
     try {
       queueSender.send(message);
-      // queueSender.send(queueSession.createMessage());
     } catch (JMSException e) {
       e.printStackTrace();
     }

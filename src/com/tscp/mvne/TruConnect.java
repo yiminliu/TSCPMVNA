@@ -1328,6 +1328,22 @@ public class TruConnect {
   }
 
   @WebMethod
+  public void testSendWelcomeNotification(int custId, int accountNo) {
+    Customer customer = new Customer();
+    customer.setId(custId);
+    Account account = getAccountInfo(accountNo);
+    sendWelcomeNotification(customer, account);
+  }
+
+  @WebMethod
+  public void testSendPaymentFailedNotification(int custId, int accountNo) {
+    Customer customer = new Customer();
+    customer.setId(custId);
+    Account account = getAccountInfo(accountNo);
+    sendPaymentFailedNotification(customer, account, null);
+  }
+
+  @WebMethod
   public void sendWelcomeNotification(Customer customer, Account account) {
     if (customer == null || customer.getId() <= 0) {
       throw new CustomerException("invalid customer object");
@@ -1656,7 +1672,7 @@ public class TruConnect {
       pmttransaction.savePaymentTransaction();
 
       // send pmt notification
-      logger.info("Sending Top-Up notification");
+      logger.info("Sending payment success notification to " + account.getContact_email());
       sendPaymentSuccessNotification(customer, account, pmttransaction);
 
       // get device information
@@ -1710,7 +1726,7 @@ public class TruConnect {
       if (pmttransaction.getSessionId().contains("AUTO") || pmttransaction.getSessionId().contains("auto")) {
 
         // send payment failed notification
-        logger.info("Sending Payment Failed notification");
+        logger.info("Sending Payment Failed notification to " + account.getContact_email());
         sendPaymentFailedNotification(customer, account, pmttransaction);
 
         // get device information
