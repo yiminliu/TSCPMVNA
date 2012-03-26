@@ -1,19 +1,14 @@
-package com.tscp.mvne.notification;
+package com.tscp.mvne.config;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Vector;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.mail.internet.InternetAddress;
 
-@Deprecated
-/**
- * This functionality of setting the "from" and "bccList" should be taken care of in the notification MDB using JMS
- * @author Tachikoma
- *
- */
-public class NotificationSystem {
+public class NOTIFICATION {
   public static final InternetAddress from = buildFrom();
-  public static final Vector<InternetAddress> bccList = buildBccList();
+  public static final Set<InternetAddress> bccList = buildBccList();
 
   protected static InternetAddress buildFrom() {
     try {
@@ -23,8 +18,8 @@ public class NotificationSystem {
     }
   }
 
-  protected static Vector<InternetAddress> buildBccList() {
-    Vector<InternetAddress> bccList = new Vector<InternetAddress>();
+  protected static Set<InternetAddress> buildBccList() {
+    Set<InternetAddress> bccList = new HashSet<InternetAddress>();
     try {
       bccList.add(new InternetAddress("trualert@truconnect.com", "TruAlert"));
     } catch (UnsupportedEncodingException e) {
@@ -32,5 +27,4 @@ public class NotificationSystem {
     }
     return bccList;
   }
-
 }

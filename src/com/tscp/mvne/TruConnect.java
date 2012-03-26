@@ -5,7 +5,9 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.jws.WebMethod;
@@ -34,6 +36,7 @@ import com.tscp.mvne.billing.usage.UsageDetail;
 import com.tscp.mvne.billing.usage.UsageSummary;
 import com.tscp.mvne.config.DEVICE;
 import com.tscp.mvne.config.DOMAIN;
+import com.tscp.mvne.config.NOTIFICATION;
 import com.tscp.mvne.config.PROVISION;
 import com.tscp.mvne.contract.ContractService;
 import com.tscp.mvne.contract.KenanContract;
@@ -53,14 +56,13 @@ import com.tscp.mvne.network.NetworkInfo;
 import com.tscp.mvne.network.NetworkInfoUtil;
 import com.tscp.mvne.network.exception.NetworkException;
 import com.tscp.mvne.network.service.NetworkService;
-import com.tscp.mvne.notification.EmailTemplate;
 import com.tscp.mvne.notification.NotificationCategory;
 import com.tscp.mvne.notification.NotificationSender;
-import com.tscp.mvne.notification.NotificationSystem;
 import com.tscp.mvne.notification.NotificationType;
 import com.tscp.mvne.notification.dao.EmailNotification;
 import com.tscp.mvne.notification.dao.NotificationParameter;
 import com.tscp.mvne.notification.exception.NotificationException;
+import com.tscp.mvne.notification.template.EmailTemplate;
 import com.tscp.mvne.payment.PaymentException;
 import com.tscp.mvne.payment.PaymentType;
 import com.tscp.mvne.payment.dao.CreditCard;
@@ -83,6 +85,7 @@ public class TruConnect {
   private static RefundService refundService;
   private static ProvisionService provisionService;
   private static DeviceService deviceService;
+  private static NotificationSender notificationSender;
 
   public TruConnect() {
     init();
@@ -785,6 +788,7 @@ public class TruConnect {
     refundService = new RefundService();
     provisionService = new ProvisionService();
     deviceService = new DeviceService();
+    notificationSender = new NotificationSender();
   }
 
   @WebMethod
@@ -1100,82 +1104,77 @@ public class TruConnect {
         throw new NotificationException("Template must be specified");
       }
     }
-
-    Vector<InternetAddress> toList = new Vector<InternetAddress>();
-    try {
-      InternetAddress to = new InternetAddress(notification.getTo());
-      toList.add(to);
-    } catch (AddressException ue_ex) {
-
-    }
-    notification.setBccList(NotificationSystem.bccList);
-    notification.setFrom(NotificationSystem.from);
-    NotificationSender notificationSender = new NotificationSender();
+    // Vector<InternetAddress> toList = new Vector<InternetAddress>();
+    // try {
+    // InternetAddress to = new InternetAddress(notification.getTo());
+    // toList.add(to);
+    // } catch (AddressException ue_ex) {
+    //
+    // }
+    notification.setBccList(NOTIFICATION.bccList);
+    notification.setFrom(NOTIFICATION.from);
     notificationSender.send(notification);
   }
 
   private void sendPaymentFailedNotification(Customer customer, Account account, PaymentTransaction paymentTransaction) {
-    logger.info("Preparing Failed Notification message");
+    logger.debug("Preparing Failed Notification message");
     if (account.getFirstname() == null || account.getLastname() == null || account.getContact_email() == null) {
-      logger.info("Binding account information");
+      logger.debug("Binding account information");
       account = billService.getAccountByAccountNo(account.getAccountno());
     }
     if (account.getContact_email() == null || account.getContact_email().trim().isEmpty()) {
-      account.setContact_email("support@truconnect.com");
+      account.setContact_email("trualert@truconnect.com");
     }
 
     String customerName = account.getFirstname() + " " + account.getLastname();
     NotificationParameter notificationParameter = null;
-    Vector<NotificationParameter> notificationParametersList = new Vector<NotificationParameter>();
-    Vector<InternetAddress> toList = new Vector<InternetAddress>();
+    Set<NotificationParameter> notificationParametersList = new HashSet<NotificationParameter>();
+    Set<InternetAddress> toList = new HashSet<InternetAddress>();
     try {
       InternetAddress to = new InternetAddress(account.getContact_email(), customerName);
       toList.add(to);
     } catch (UnsupportedEncodingException encoding_ex) {
       logger.warn(encoding_ex.getMessage());
     }
-    notificationParameter = new NotificationParameter("firstName", account.getFirstname());
-    notificationParametersList.add(notificationParameter);
-    notificationParameter = new NotificationParameter("lastName", account.getLastname());
-    notificationParametersList.add(notificationParameter);
+    notificationParametersList.add(new NotificationParameter("firstName", account.getFirstname()));
+    notificationParametersList.add(new NotificationParameter("lastName", account.getLastname()));
 
     EmailNotification emailNotification = new EmailNotification();
     emailNotification.setNotificationCategory(NotificationCategory.WARNING);
     emailNotification.setNotificationType(NotificationType.EMAIL);
     emailNotification.setTemplate(EmailTemplate.paymentFailed);
     emailNotification.setToList(toList);
-    emailNotification.setFrom(NotificationSystem.from);
-    emailNotification.setBccList(NotificationSystem.bccList);
+    emailNotification.setFrom(NOTIFICATION.from);
+    emailNotification.setBccList(NOTIFICATION.bccList);
     emailNotification.setSubject("Top-Up Payment processing failure");
     emailNotification.setNotificationParameters(notificationParametersList);
     emailNotification.setCustId(customer.getId());
     logger.info("Sending " + emailNotification.getTemplate() + " email");
-    NotificationSender notificationSender = new NotificationSender();
     notificationSender.send(emailNotification);
   }
 
   private void sendPaymentSuccessNotification(Customer customer, Account account, PaymentTransaction paymentTransaction) {
     assert customer != null && customer.getId() > 0 : "Customer invalid";
     assert account != null && account.getAccountno() > 0 : "Account invalid";
-    logger.info("retrieving top up amount");
+    logger.debug("retrieving top up amount");
     CustTopUp custTopUp = customer.getTopupAmount(account);
 
     if (account.getFirstname() == null || account.getLastname() == null || account.getContact_email() == null) {
-      logger.info("Binding account information");
+      logger.debug("Binding account information");
       account = billService.getAccountByAccountNo(account.getAccountno());
     }
     assert account.getContact_email() != null : "Email is blank";
 
     Device deviceInfo = null;
     try {
-      logger.info("binding device information");
-      logger.info("getting device information for CustomerId " + customer.getId() + " and account number " + account.getAccountno());
+      logger.debug("binding device information");
+      logger.debug("getting device information for CustomerId " + customer.getId() + " and account number " + account.getAccountno());
       List<Device> deviceInfoList = customer.retrieveDeviceList(account.getAccountno());
       if (deviceInfoList != null) {
-        logger.info("Customer has " + deviceInfoList.size() + " devices...binding to the first one...");
+        logger.debug("Customer has " + deviceInfoList.size() + " devices...binding to the first one...");
         for (Device tempDeviceInfo : deviceInfoList) {
           deviceInfo = tempDeviceInfo;
-          logger.info(deviceInfo.toString());
+          logger.debug(deviceInfo.toString());
           break;
         }
       }
@@ -1191,65 +1190,48 @@ public class TruConnect {
 
     assert paymentTransaction != null : "Unable to send notification without a valid transaction for Customer " + customer.getId() + ".";
 
-    logger.info("Binding payment information");
-    // if( customer.custpmttypes != null )
+    logger.debug("Binding payment information");
+
     CreditCard creditCard = getCreditCardDetail(paymentTransaction.getPmtId());
     assert creditCard != null : "PaymentInformation could not be found";
 
     SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy");
 
-    logger.info("loading parameters");
+    logger.debug("loading parameters");
 
-    Vector<NotificationParameter> notificationParameterList = new Vector<NotificationParameter>();
-    NotificationParameter np = new NotificationParameter();
-    // firstname
-    np.setKey("firstName");
-    np.setValue(account.getFirstname());
-    notificationParameterList.add(np);
-    // lastname
-    np = new NotificationParameter("lastName", account.getLastname());
-    notificationParameterList.add(np);
+    Set<NotificationParameter> notificationParameterList = new HashSet<NotificationParameter>();
+
+    notificationParameterList.add(new NotificationParameter("firstName", account.getFirstname()));
+    notificationParameterList.add(new NotificationParameter("lastName", account.getLastname()));
     // balance
     String accountBalance = account.getBalance() == null ? "0.00" : account.getBalance();
     double balance = Double.parseDouble(accountBalance) + Double.parseDouble(paymentTransaction.getPaymentAmount());
-    np = new NotificationParameter("balance", NumberFormat.getCurrencyInstance().format(balance));
-    notificationParameterList.add(np);
+    notificationParameterList.add(new NotificationParameter("balance", NumberFormat.getCurrencyInstance().format(balance)));
 
     // truconnectManagesite
-    np = new NotificationParameter("truconnectManageSite", DOMAIN.urlManage);
-    notificationParameterList.add(np);
-
-    // recentActivitySite
+    notificationParameterList.add(new NotificationParameter("truconnectManageSite", DOMAIN.urlManage));
 
     // billAddress1
     String billAddress1 = creditCard.getAddress1() == null ? " " : creditCard.getAddress1();
-    np = new NotificationParameter("billAddress1", billAddress1);
-    notificationParameterList.add(np);
+    notificationParameterList.add(new NotificationParameter("billAddress1", billAddress1));
     // billAddress2
     String billAddress2 = creditCard.getAddress2() == null ? " " : creditCard.getAddress2();
-    np = new NotificationParameter("billAddress2", billAddress2);
-    notificationParameterList.add(np);
+    notificationParameterList.add(new NotificationParameter("billAddress2", billAddress2));
     // billCity
     String billCity = creditCard.getCity() == null ? " " : creditCard.getCity();
-    np = new NotificationParameter("billCity", billCity);
-    notificationParameterList.add(np);
+    notificationParameterList.add(new NotificationParameter("billCity", billCity));
     // billState
-    np = new NotificationParameter("billState", creditCard.getState());
-    notificationParameterList.add(np);
+    notificationParameterList.add(new NotificationParameter("billState", creditCard.getState()));
     // billZip
-    np = new NotificationParameter("billZip", creditCard.getZip());
-    notificationParameterList.add(np);
+    notificationParameterList.add(new NotificationParameter("billZip", creditCard.getZip()));
 
     // pmtDate
-    np = new NotificationParameter("pmtDate", sdf.format(paymentTransaction.getBillingUnitDate()));
-    notificationParameterList.add(np);
+    notificationParameterList.add(new NotificationParameter("pmtDate", sdf.format(paymentTransaction.getBillingUnitDate())));
     // invoiceNumber --Currently BillTrackingId
-    np = new NotificationParameter("invoiceNumber", Integer.toString(paymentTransaction.getBillingTrackingId()));
-    notificationParameterList.add(np);
+    notificationParameterList.add(new NotificationParameter("invoiceNumber", Integer.toString(paymentTransaction.getBillingTrackingId())));
 
     // deviceLabel
-    np = new NotificationParameter("deviceLabel", deviceInfo.getLabel());
-    notificationParameterList.add(np);
+    notificationParameterList.add(new NotificationParameter("deviceLabel", deviceInfo.getLabel()));
 
     // pmt source
     String source = "*-" + paymentTransaction.getPaymentSource();
@@ -1257,45 +1239,37 @@ public class TruConnect {
       source = "-*" + paymentTransaction.getPaymentSource();
     }
     source = paymentTransaction.getPaymentMethod() + " " + source;
-    np = new NotificationParameter("pmtSource", source);
-    notificationParameterList.add(np);
+    notificationParameterList.add(new NotificationParameter("pmtSource", source));
     // quantity
     double quantity = 1.0;
     DecimalFormat df = new DecimalFormat("0");
     quantity = Double.parseDouble(paymentTransaction.getPaymentAmount()) / Double.parseDouble(custTopUp.getTopupAmount());
-    np = new NotificationParameter("quantity", df.format(quantity));
-    notificationParameterList.add(np);
+    notificationParameterList.add(new NotificationParameter("quantity", df.format(quantity)));
     // topupAmount
-    np = new NotificationParameter("topupAmount", NumberFormat.getCurrencyInstance().format(Double.parseDouble(custTopUp.getTopupAmount())));
-    notificationParameterList.add(np);
+    notificationParameterList.add(new NotificationParameter("topupAmount", NumberFormat.getCurrencyInstance().format(Double.parseDouble(custTopUp.getTopupAmount()))));
     // total = quantity*topupAmount
-    np = new NotificationParameter("total", NumberFormat.getCurrencyInstance().format(Double.parseDouble(custTopUp.getTopupAmount()) * quantity));
-    notificationParameterList.add(np);
+    notificationParameterList.add(new NotificationParameter("total", NumberFormat.getCurrencyInstance().format(Double.parseDouble(custTopUp.getTopupAmount()) * quantity)));
 
     // subTotal = sum(items)
     Double subTotal = Double.parseDouble(custTopUp.getTopupAmount()) * quantity;
-    np = new NotificationParameter("subTotal", NumberFormat.getCurrencyInstance().format(subTotal));
-    notificationParameterList.add(np);
+    notificationParameterList.add(new NotificationParameter("subTotal", NumberFormat.getCurrencyInstance().format(subTotal)));
     // taxRate = 0
     double taxRate = 0;
-    np = new NotificationParameter("taxRate", taxRate == 0 ? "0.00" : Double.toString(taxRate));
-    notificationParameterList.add(np);
+    notificationParameterList.add(new NotificationParameter("taxRate", taxRate == 0 ? "0.00" : Double.toString(taxRate)));
 
     // taxedAmount = taxRate * subTotal
     double taxedAmount = subTotal * taxRate;
-    np = new NotificationParameter("taxedAmount", NumberFormat.getCurrencyInstance().format(taxedAmount));
-    notificationParameterList.add(np);
+    notificationParameterList.add(new NotificationParameter("taxedAmount", NumberFormat.getCurrencyInstance().format(taxedAmount)));
 
     // totalAmountWithTax = taxedAmount + subTotal
     double totalAmountWithTax = taxedAmount + subTotal;
-    np = new NotificationParameter("totalAmountWithTax", NumberFormat.getCurrencyInstance().format(totalAmountWithTax));
-    notificationParameterList.add(np);
+    notificationParameterList.add(new NotificationParameter("totalAmountWithTax", NumberFormat.getCurrencyInstance().format(totalAmountWithTax)));
 
-    logger.info("Parameters loaded...Preparing email for consignment");
+    logger.debug("Parameters loaded...Preparing email for consignment");
 
     EmailNotification email = new EmailNotification();
 
-    Vector<InternetAddress> toList = new Vector<InternetAddress>();
+    Set<InternetAddress> toList = new HashSet<InternetAddress>();
     try {
       InternetAddress to = new InternetAddress(account.getContact_email(), account.getFirstname() + " " + account.getLastname());
       toList.add(to);
@@ -1303,8 +1277,8 @@ public class TruConnect {
 
     }
     email.setToList(toList);
-    email.setFrom(NotificationSystem.from);
-    email.setBccList(NotificationSystem.bccList);
+    email.setFrom(NOTIFICATION.from);
+    email.setBccList(NOTIFICATION.bccList);
     email.setSubject("Thank you for your payment");
     email.setNotificationParameters(notificationParameterList);
     if (billAddress2 == null || billAddress2.trim().isEmpty()) {
@@ -1315,7 +1289,6 @@ public class TruConnect {
     email.setNotificationCategory(NotificationCategory.INFO);
     email.setNotificationType(NotificationType.EMAIL);
     email.setCustId(customer.getId());
-    NotificationSender notificationSender = new NotificationSender();
     notificationSender.send(email);
 
     if (email.getNotificationId() != 0) {
@@ -1360,7 +1333,7 @@ public class TruConnect {
       throw new BillingException("account information is incorrect for account number " + account.getAccountno());
     }
 
-    Vector<NotificationParameter> notificationParameterList = new Vector<NotificationParameter>();
+    Set<NotificationParameter> notificationParameterList = new HashSet<NotificationParameter>();
     NotificationParameter np = null;
 
     np = new NotificationParameter("firstName", account.getFirstname());
@@ -1377,7 +1350,7 @@ public class TruConnect {
 
     EmailNotification email = new EmailNotification();
 
-    Vector<InternetAddress> toList = new Vector<InternetAddress>();
+    Set<InternetAddress> toList = new HashSet<InternetAddress>();
     try {
       InternetAddress to = new InternetAddress(account.getContact_email(), account.getFirstname() + " " + account.getLastname());
       toList.add(to);
@@ -1385,15 +1358,14 @@ public class TruConnect {
 
     }
     email.setToList(toList);
-    email.setFrom(NotificationSystem.from);
-    email.setBccList(NotificationSystem.bccList);
+    email.setFrom(NOTIFICATION.from);
+    email.setBccList(NOTIFICATION.bccList);
     email.setSubject("Your new TruConnect Account");
     email.setNotificationParameters(notificationParameterList);
     email.setTemplate(EmailTemplate.welcome);
     email.setNotificationCategory(NotificationCategory.INFO);
     email.setNotificationType(NotificationType.EMAIL);
     email.setCustId(customer.getId());
-    NotificationSender notificationSender = new NotificationSender();
     notificationSender.send(email);
   }
 

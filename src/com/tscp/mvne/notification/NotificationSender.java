@@ -1,22 +1,14 @@
 package com.tscp.mvne.notification;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.tscp.mvne.jms.AbstractQueueSender;
 
 public class NotificationSender extends AbstractQueueSender {
-
   public static final String QUEUE_USERNAME = "guest";
   public static final String QUEUE_PASSWORD = "guest";
-  public static final String QUEUECONFAC = "queue/TestJMS";
-  public static final String TOPICCONFAC = "TopicConnectionFactory";
-
-  private static final Logger logger = LoggerFactory.getLogger("TSCPMVNE");
 
   public NotificationSender() {
-    setConnectionFactory(QUEUECONFAC);
-    setDestination("jms/Destination");
+    setConnectionFactory("queue/Notification");
+    setDestination("jms/Notification");
   }
 
   // public NotificationSender() {
