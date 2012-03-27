@@ -21,7 +21,7 @@ public class NOTIFICATION {
   protected static Set<InternetAddress> buildBccList() {
     Set<InternetAddress> bccList = new HashSet<InternetAddress>();
     try {
-      bccList.add(new InternetAddress("trualert@truconnect.com", "TruAlert"));
+      bccList.add(new InternetAddress("trualert@telscape.net", "TruAlert"));
     } catch (UnsupportedEncodingException e) {
       e.printStackTrace();
     }

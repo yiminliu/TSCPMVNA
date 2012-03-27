@@ -1122,7 +1122,7 @@ public class TruConnect {
       account = billService.getAccountByAccountNo(account.getAccountno());
     }
     if (account.getContact_email() == null || account.getContact_email().trim().isEmpty()) {
-      account.setContact_email("trualert@truconnect.com");
+      account.setContact_email("trualert@telscape.net");
     }
 
     String customerName = account.getFirstname() + " " + account.getLastname();
