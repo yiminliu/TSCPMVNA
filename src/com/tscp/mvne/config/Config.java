@@ -23,6 +23,7 @@ public class Config {
   protected static boolean production = false;
 
   public static void init() throws InitializationException {
+    logger.info("--> INITIALIZING CONFIGURATION");
     load(configFile);
     if (props.getProperty("production") != null && props.getProperty("production").equals("1")) {
       production = true;

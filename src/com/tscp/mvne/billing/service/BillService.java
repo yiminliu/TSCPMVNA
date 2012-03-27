@@ -68,7 +68,6 @@ public class BillService {
     try {
       props.clear();
       props.load(BillService.class.getClassLoader().getResourceAsStream("com/tscp/mvne/config/legacy.properties"));
-
     } catch (IOException ioe) {
       ioe.printStackTrace();
       throw new InitializationException("Unable to load " + Config.provisionFile + " while creating BillingSystem");
