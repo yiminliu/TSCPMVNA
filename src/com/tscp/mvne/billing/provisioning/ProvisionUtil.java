@@ -1,29 +1,19 @@
 package com.tscp.mvne.billing.provisioning;
 
 import java.util.Date;
-import java.util.GregorianCalendar;
-
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import com.telscape.billingserviceinterface.ArrayOfMessageHolder;
 import com.telscape.billingserviceinterface.ArrayOfPackage;
 import com.telscape.billingserviceinterface.ArrayOfPkgComponent;
-import com.telscape.billingserviceinterface.BillName;
 import com.telscape.billingserviceinterface.BillingService;
-import com.telscape.billingserviceinterface.CustAddress;
-import com.telscape.billingserviceinterface.MessageHolder;
 import com.telscape.billingserviceinterface.PkgComponent;
 import com.telscape.billingserviceinterface.Service;
 import com.tscp.mvne.billing.BillingUtil;
 import com.tscp.mvne.billing.exception.ProvisionException;
 import com.tscp.mvne.config.PROVISION;
-import com.tscp.mvne.exception.NoResponseException;
 
 /**
  * Validation utility for provisioning serviceInstances, packages and components

@@ -2,6 +2,7 @@ package com.tscp.mvne.billing.service;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Properties;
@@ -15,6 +16,7 @@ import javax.xml.ws.WebServiceException;
 
 import org.hibernate.Query;
 import org.hibernate.classic.Session;
+import org.joda.time.DateTime;
 
 import com.telscape.billingserviceinterface.ArrayOfMessageHolder;
 import com.telscape.billingserviceinterface.ArrayOfPackage;
@@ -299,8 +301,9 @@ public class BillService {
     if (serviceinstance == null || serviceinstance.getExternalId() == null || serviceinstance.getExternalId().trim().length() == 0) {
       throw new BillingException("deleteServiceInstance", "Please specify a service to be disconnected...");
     }
+    Date datePlusOne = new DateTime().plusDays(1).toDate();
     MessageHolder message = port.disconnectServicePackages(USERNAME, Integer.toString(account.getAccountno()), serviceinstance.getExternalId(), serviceinstance
-        .getExternalIdType(), ProvisionUtil.getCalendar(), DISC_REASON);
+        .getExternalIdType(), ProvisionUtil.getCalendar(datePlusOne), DISC_REASON);
     // MessageHolder message = port.disconnectService(USERNAME,
     // serviceinstance.getExternalid(), serviceinstance.getExternalidtype(),
     // sysdate(), discReason);

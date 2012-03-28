@@ -10,6 +10,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.hibernate.Query;
 import org.hibernate.classic.Session;
+import org.joda.time.DateTime;
 
 import com.telscape.billingserviceinterface.BillName;
 import com.telscape.billingserviceinterface.BillingAccount;
