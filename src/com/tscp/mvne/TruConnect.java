@@ -999,41 +999,47 @@ public class TruConnect {
   public void restoreAccount(int custId, int accountNo, int deviceId) throws BillingException, ProvisionException, DeviceException, NetworkException {
     ServiceInstance serviceInstance = provisionService.getActiveService(accountNo);
     Component component = provisionService.getActiveComponent(accountNo, serviceInstance.getExternalId());
-
-    // check if account is already active in kenan
-    if (component.getId() == PROVISION.COMPONENT.INSTALL || component.getId() == PROVISION.COMPONENT.REINSTALL) {
-      throw new ProvisionException("Account " + accountNo + " with MDN " + serviceInstance.getExternalId() + " is already active");
-    } else if (component.getId() != PROVISION.COMPONENT.SUSPEND) {
-      throw new ProvisionException("Account " + accountNo + " with MDN " + serviceInstance.getExternalId() + " is already suspended");
-    }
-
     Device device = deviceService.getDevice(custId, deviceId, accountNo);
     NetworkInfo deviceNetworkInfo = getNetworkInfo(device.getValue(), null);
     NetworkInfo accountNetworkInfo = getNetworkInfo(null, serviceInstance.getExternalId());
     NetworkInfoUtil.checkNetworkInfoMatch(deviceNetworkInfo, accountNetworkInfo);
 
-    // load package
-    Package pkg = provisionService.getActivePackage(accountNo);
+    // check if account is already active in kenan
+    // if (component.getId() == PROVISION.COMPONENT.INSTALL || component.getId()
+    // == PROVISION.COMPONENT.REINSTALL) {
+    // throw new ProvisionException("Account " + accountNo + " with MDN " +
+    // serviceInstance.getExternalId() + " is already active");
+    // } else
+    // if (component.getId() != PROVISION.COMPONENT.SUSPEND) {
+    // throw new ProvisionException("Account " + accountNo + " with MDN " +
+    // serviceInstance.getExternalId() + " is already suspended");
+    // }
 
-    // check if the user needs to be charged a pro-rated MRC for restoration
-    boolean chargeMRC;
-    try {
-      chargeMRC = BillingUtil.checkChargeMRC(accountNo, serviceInstance.getExternalId());
-    } catch (BillingException e) {
-      chargeMRC = true;
+    if (component.getId() == PROVISION.COMPONENT.SUSPEND) {
+      // load package
+      Package pkg = provisionService.getActivePackage(accountNo);
+      // check if the user needs to be charged a pro-rated MRC for restoration
+      boolean chargeMRC;
+      try {
+        chargeMRC = BillingUtil.checkChargeMRC(accountNo, serviceInstance.getExternalId());
+      } catch (BillingException e) {
+        chargeMRC = true;
+      }
+      // first remove component and add active component to allow for usage
+      // tracking
+      int componentId = chargeMRC ? PROVISION.COMPONENT.INSTALL : PROVISION.COMPONENT.REINSTALL;
+      provisionService.removeComponent(accountNo, serviceInstance.getExternalId(), pkg.getInstanceId(), component.getInstanceId());
+      provisionService.addSingleComponent(accountNo, serviceInstance.getExternalId(), pkg.getInstanceId(), componentId);
     }
-
-    // first remove component and add active component to allow for usage
-    // tracking
-    int componentId = chargeMRC ? PROVISION.COMPONENT.INSTALL : PROVISION.COMPONENT.REINSTALL;
-    provisionService.removeComponent(accountNo, serviceInstance.getExternalId(), pkg.getInstanceId(), component.getInstanceId());
-    provisionService.addSingleComponent(accountNo, serviceInstance.getExternalId(), pkg.getInstanceId(), componentId);
 
     // first update the service threshold to allow future top-ups
     billService.updateServiceInstanceStatus(serviceInstance, PROVISION.SERVICE.RESTORE);
 
-    // finally restore the network to allow usage
-    networkService.restoreService(accountNetworkInfo);
+    if (accountNetworkInfo.getStatus().equals("S")) {
+      // finally restore the network to allow usage
+      networkService.restoreService(accountNetworkInfo);
+    }
+
     device.setStatusId(DeviceStatus.ID_ACTIVE);
     device.save();
   }
@@ -1786,32 +1792,34 @@ public class TruConnect {
   public void suspendAccount(int custId, int accountNo, int deviceId) throws BillingException, ProvisionException, DeviceException, NetworkException {
     ServiceInstance serviceInstance = provisionService.getActiveService(accountNo);
     Component component = provisionService.getActiveComponent(accountNo, serviceInstance.getExternalId());
-
-    // check if account is already suspended in kenan
-    if (component.getId() == PROVISION.COMPONENT.SUSPEND) {
-      throw new ProvisionException("Account " + accountNo + " with MDN " + serviceInstance.getExternalId() + " is already suspended");
-    }
-
     // check if the device matches the external ID in user's kenan account
     Device device = deviceService.getDevice(custId, deviceId, accountNo);
     NetworkInfo deviceNetworkInfo = getNetworkInfo(device.getValue(), null);
     NetworkInfo accountNetworkInfo = getNetworkInfo(null, serviceInstance.getExternalId());
     NetworkInfoUtil.checkNetworkInfoMatch(deviceNetworkInfo, accountNetworkInfo);
 
-    // load package
-    Package pkg = provisionService.getActivePackage(accountNo);
+    // check if account is already suspended in kenan
+    // if (component.getId() == PROVISION.COMPONENT.SUSPEND) {
+    // throw new ProvisionException("Account " + accountNo + " with MDN " +
+    // serviceInstance.getExternalId() + " is already suspended");
+    // }
 
-    // first suspend the network to prevent further usage
-    networkService.suspendService(accountNetworkInfo);
+    if (accountNetworkInfo.getStatus().equals("A")) {
+      // first suspend the network to prevent further usage
+      networkService.suspendService(accountNetworkInfo);
+    }
 
-    // next remove component and add suspend component to prevent future MRCs
-    provisionService.removeComponent(accountNo, serviceInstance.getExternalId(), pkg.getInstanceId(), component.getInstanceId());
-    provisionService.addSingleComponent(accountNo, serviceInstance.getExternalId(), pkg.getInstanceId(), PROVISION.COMPONENT.SUSPEND);
-
-    // finally update the service threshold to prevent future top-ups
-    billService.updateServiceInstanceStatus(serviceInstance, PROVISION.SERVICE.HOTLINE);
-    device.setStatusId(DeviceStatus.ID_RELEASED_SYSTEM_REACTIVATE);
-    device.save();
+    if (component.getId() != PROVISION.COMPONENT.SUSPEND) {
+      // load package
+      Package pkg = provisionService.getActivePackage(accountNo);
+      // next remove component and add suspend component to prevent future MRCs
+      provisionService.removeComponent(accountNo, serviceInstance.getExternalId(), pkg.getInstanceId(), component.getInstanceId());
+      provisionService.addSingleComponent(accountNo, serviceInstance.getExternalId(), pkg.getInstanceId(), PROVISION.COMPONENT.SUSPEND);
+      // finally update the service threshold to prevent future top-ups
+      billService.updateServiceInstanceStatus(serviceInstance, PROVISION.SERVICE.HOTLINE);
+      device.setStatusId(DeviceStatus.ID_RELEASED_SYSTEM_REACTIVATE);
+      device.save();
+    }
   }
 
   @Deprecated
