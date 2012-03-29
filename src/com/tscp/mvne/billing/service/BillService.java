@@ -375,17 +375,17 @@ public class BillService {
   }
 
   private String getBalance(int accountno) {
-    String retValue = "0.00";
+    String retValue = "0.00000";
     CustBalanceHolder valueHolder = port.getCurrentBalance(USERNAME, Integer.toString(accountno));
     try {
       if (valueHolder != null) {
-        DecimalFormat df = new DecimalFormat("0.00");
+        DecimalFormat df = new DecimalFormat("0.00000");
         retValue = df.format((valueHolder.getCustBalance().getRealBalance() * -1));
       }
     } catch (WebServiceException ws_ex) {
-      retValue = "0.00";
+      retValue = "0.00000";
     } catch (NullPointerException np_ex) {
-      retValue = "0.00";
+      retValue = "0.00000";
     }
     return retValue;
   }

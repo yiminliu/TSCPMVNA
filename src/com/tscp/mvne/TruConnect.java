@@ -1209,7 +1209,7 @@ public class TruConnect {
     notificationParameterList.add(new NotificationParameter("firstName", account.getFirstname()));
     notificationParameterList.add(new NotificationParameter("lastName", account.getLastname()));
     // balance
-    String accountBalance = account.getBalance() == null ? "0.00" : account.getBalance();
+    String accountBalance = account.getBalance() == null ? "0.00000" : account.getBalance();
     double balance = Double.parseDouble(accountBalance) + Double.parseDouble(paymentTransaction.getPaymentAmount());
     notificationParameterList.add(new NotificationParameter("balance", NumberFormat.getCurrencyInstance().format(balance)));
 
