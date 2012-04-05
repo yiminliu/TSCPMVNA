@@ -89,7 +89,7 @@ public class TruConnect {
   public TruConnect() {
     init();
   }
-
+  
   @WebMethod
   public NetworkInfo activateService(Customer customer, NetworkInfo networkInfo) {
     MethodLogger.logMethod("activateService", customer, networkInfo);

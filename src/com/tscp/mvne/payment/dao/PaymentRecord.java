@@ -4,35 +4,26 @@ import java.io.Serializable;
 import java.util.Date;
 
 public class PaymentRecord implements Serializable {
-
-  /**
-	 * 
-	 */
   private static final long serialVersionUID = 1L;
-
   private int transId = 0;
   private int billingTrackingId = 0;
   private int paymentId = 0;
-
+  private int accountNo;
   private String alias;
   private String paymentSource;
   private String paymentMethod;
   private String paymentAmount;
   private String paymentStatus;
-
   private String paymentUnitConfirmation;
   private String paymentUnitMessage;
-
-  private Date paymentDate;
-  private Date postDate;
-
-  private int accountNo;
-
   private String account;
   private String paymentType;
+  private Date paymentDate;
+  private Date postDate;
+  private Date refundDate;
 
   public PaymentRecord() {
-
+    // do nothing
   }
 
   public int getTransId() {
@@ -155,4 +146,11 @@ public class PaymentRecord implements Serializable {
     this.accountNo = accountNo;
   }
 
+  public Date getRefundDate() {
+    return refundDate;
+  }
+
+  public void setRefundDate(Date refundDate) {
+    this.refundDate = refundDate;
+  }
 }
