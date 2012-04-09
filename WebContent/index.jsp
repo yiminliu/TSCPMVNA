@@ -9,8 +9,5 @@
 </head>
 <body>
   <h1>Hello World!</h1>
-  <p>
-    Unit Tester Access...<a href='jsp/tester.jsp'>check here</a>
-  </p>
 </body>
 </html>

@@ -7,7 +7,7 @@ import com.tscp.mvne.billing.provisioning.ServiceInstance;
 import com.tscp.mvne.customer.Customer;
 import com.tscp.mvne.network.NetworkInfo;
 
-public interface TscpMvne {
+public interface TSCPMVNE {
 
   public void init();
 

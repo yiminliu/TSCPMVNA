@@ -20,7 +20,6 @@ public class PaymentRecord implements Serializable {
   private String paymentType;
   private Date paymentDate;
   private Date postDate;
-  private Date refundDate;
 
   public PaymentRecord() {
     // do nothing
@@ -146,11 +145,4 @@ public class PaymentRecord implements Serializable {
     this.accountNo = accountNo;
   }
 
-  public Date getRefundDate() {
-    return refundDate;
-  }
-
-  public void setRefundDate(Date refundDate) {
-    this.refundDate = refundDate;
-  }
 }

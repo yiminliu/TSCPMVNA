@@ -89,7 +89,7 @@ public class TruConnect {
   public TruConnect() {
     init();
   }
-  
+
   @WebMethod
   public NetworkInfo activateService(Customer customer, NetworkInfo networkInfo) {
     MethodLogger.logMethod("activateService", customer, networkInfo);
@@ -1016,7 +1016,6 @@ public class TruConnect {
     // }
 
     if (component.getId() == PROVISION.COMPONENT.SUSPEND) {
-      // load package
       Package pkg = provisionService.getActivePackage(accountNo);
       // check if the user needs to be charged a pro-rated MRC for restoration
       boolean chargeMRC;
@@ -1040,8 +1039,10 @@ public class TruConnect {
       networkService.restoreService(accountNetworkInfo);
     }
 
-    device.setStatusId(DeviceStatus.ID_ACTIVE);
-    device.save();
+    if (device.getStatusId() != DeviceStatus.ID_ACTIVE) {
+      device.setStatusId(DeviceStatus.ID_ACTIVE);
+      device.save();
+    }
   }
 
   @Deprecated
@@ -1132,7 +1133,6 @@ public class TruConnect {
     }
 
     String customerName = account.getFirstname() + " " + account.getLastname();
-    NotificationParameter notificationParameter = null;
     Set<NotificationParameter> notificationParametersList = new HashSet<NotificationParameter>();
     Set<InternetAddress> toList = new HashSet<InternetAddress>();
     try {
@@ -1815,11 +1815,14 @@ public class TruConnect {
       // next remove component and add suspend component to prevent future MRCs
       provisionService.removeComponent(accountNo, serviceInstance.getExternalId(), pkg.getInstanceId(), component.getInstanceId());
       provisionService.addSingleComponent(accountNo, serviceInstance.getExternalId(), pkg.getInstanceId(), PROVISION.COMPONENT.SUSPEND);
-      // finally update the service threshold to prevent future top-ups
-      billService.updateServiceInstanceStatus(serviceInstance, PROVISION.SERVICE.HOTLINE);
+    }
+
+    if (device.getStatusId() != DeviceStatus.ID_RELEASED_SYSTEM_REACTIVATE) {
       device.setStatusId(DeviceStatus.ID_RELEASED_SYSTEM_REACTIVATE);
       device.save();
     }
+    // finally update the service threshold to prevent future top-ups
+    billService.updateServiceInstanceStatus(serviceInstance, PROVISION.SERVICE.HOTLINE);
   }
 
   @Deprecated
