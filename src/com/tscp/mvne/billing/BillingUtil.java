@@ -10,6 +10,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.hibernate.Query;
 import org.hibernate.classic.Session;
+import org.joda.time.DateTime;
 
 import com.telscape.billingserviceinterface.BillName;
 import com.telscape.billingserviceinterface.BillingAccount;
@@ -23,6 +24,15 @@ import com.tscp.mvne.config.PROVISION;
 import com.tscp.mvne.hibernate.HibernateUtil;
 
 public class BillingUtil extends BillingServerUtil {
+
+  public static final double getProratedMRC() {
+    DateTime dateTime = new DateTime();
+    int daysPast = dateTime.getDayOfMonth();
+    int totalDays = dateTime.dayOfMonth().withMaximumValue().getDayOfMonth();
+    final double MRC = 4.99;
+    double rate = (totalDays - daysPast) / (totalDays + 0.0);
+    return (MRC * rate);
+  }
 
   public static final boolean checkChargeMRC(int accountNo, String externalId) throws BillingException {
     Date lastActiveDate = getLastActiveDate(accountNo, externalId);

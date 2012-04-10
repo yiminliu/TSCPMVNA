@@ -15,6 +15,8 @@ import javax.jws.WebService;
 import javax.mail.internet.InternetAddress;
 import javax.xml.ws.WebServiceException;
 
+import org.hibernate.Query;
+import org.hibernate.classic.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +53,7 @@ import com.tscp.mvne.device.DeviceAssociation;
 import com.tscp.mvne.device.DeviceStatus;
 import com.tscp.mvne.device.service.DeviceService;
 import com.tscp.mvne.exception.MVNEException;
+import com.tscp.mvne.hibernate.HibernateUtil;
 import com.tscp.mvne.network.NetworkInfo;
 import com.tscp.mvne.network.NetworkInfoUtil;
 import com.tscp.mvne.network.exception.NetworkException;
@@ -652,6 +655,27 @@ public class TruConnect {
   }
 
   @WebMethod
+  public List<UsageDetail> getActivity(int accountNo, String mdn, Date startDate, Date endDate) {
+    Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+    session.beginTransaction();
+    Query q;
+    if (startDate == null || endDate == null) {
+      q = session.getNamedQuery("sp_fetch_charge_history");
+      q.setParameter("in_account_no", accountNo);
+      q.setParameter("in_external_id", mdn);
+    } else {
+      q = session.getNamedQuery("sp_fetch_charge_history_range");
+      q.setParameter("in_account_no", accountNo);
+      q.setParameter("in_external_id", mdn);
+      q.setParameter("in_start_date", startDate);
+      q.setParameter("in_end_date", endDate);
+    }
+    List<UsageDetail> usageDetailList = q.list();
+    session.getTransaction().rollback();
+    return usageDetailList;
+  }
+
+  @WebMethod
   public PaymentInvoice getCustomerInvoice(Customer customer, int transId) {
     if (customer == null) {
       throw new CustomerException("Invalid customer object");
@@ -818,7 +842,6 @@ public class TruConnect {
         }
       }
     }
-
   }
 
   /**

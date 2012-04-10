@@ -34,4 +34,20 @@
     { call sp_fetch_charge_history(?,:in_account_no,:in_external_id) }
   </sql-query>
 
+  <sql-query name="sp_fetch_charge_history_range" callable="true">
+    <return class="com.tscp.mvne.billing.usage.UsageDetail">
+      <return-property name="dateAndTime" column="date_and_time" />
+      <return-property name="usageType" column="type" />
+      <return-property name="usageAmount" column="usage" />
+      <return-property name="rate" column="rate" />
+      <return-property name="dollarAmount" column="amount" />
+      <return-property name="discount" column="discount" />
+      <return-property name="startTime" column="start_time" />
+      <return-property name="endTime" column="end_time" />
+      <return-property name="notes" column="notes" />
+      <return-property name="balance" column="balance" />
+    </return>
+    { call sp_fetch_charge_history_v4(?,:in_account_no,:in_external_id, :in_start_date, :in_end_date) }
+  </sql-query>
+
 </hibernate-mapping>
