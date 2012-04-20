@@ -41,6 +41,7 @@ import com.tscp.mvne.config.NOTIFICATION;
 import com.tscp.mvne.config.PROVISION;
 import com.tscp.mvne.contract.ContractService;
 import com.tscp.mvne.contract.KenanContract;
+import com.tscp.mvne.contract.exception.ContractException;
 import com.tscp.mvne.customer.Customer;
 import com.tscp.mvne.customer.CustomerException;
 import com.tscp.mvne.customer.DeviceException;
@@ -88,6 +89,21 @@ public class TruConnect {
   private static ProvisionService provisionService;
   private static DeviceService deviceService;
   private static NotificationSender notificationSender;
+
+  @WebMethod
+  public void refundPayment(int accountNo, String amount, int trackingId, String refundBy) throws ContractException {
+    MethodLogger.logMethod("refundPayment", accountNo, amount, trackingId, refundBy);
+    refundService.applyChargeCredit(accountNo, trackingId, amount, refundBy);
+    MethodLogger.logMethodExit("refundPayment");
+  }
+
+  @WebMethod
+  public PaymentTransaction getPaymentTransaction(int custId, int transId) throws PaymentException {
+    MethodLogger.logMethod("getPaymentTransaction", custId, transId);
+    PaymentTransaction paymentTransaction = refundService.getPaymentTransaction(custId, transId);
+    MethodLogger.logMethodReturn("getPaymentTransaction", paymentTransaction);
+    return paymentTransaction;
+  }
 
   public TruConnect() {
     init();

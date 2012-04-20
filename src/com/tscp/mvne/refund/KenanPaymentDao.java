@@ -3,6 +3,7 @@ package com.tscp.mvne.refund;
 import java.util.Date;
 import java.util.List;
 
+import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Transaction;
 import org.hibernate.classic.Session;
@@ -31,8 +32,7 @@ public class KenanPaymentDao {
     }
   }
 
-  public static void reversePayment(Account account, String amount, Date transDate, String trackingId)
-      throws RefundException {
+  public static void reversePayment(Account account, String amount, Date transDate, String trackingId) throws RefundException {
     Session session = HibernateUtil.getSessionFactory().getCurrentSession();
     Transaction transaction = session.beginTransaction();
 
@@ -46,14 +46,13 @@ public class KenanPaymentDao {
     if (list == null) {
       transaction.rollback();
       session.close();
-      throw new ContractException("reversePayment", "Error reversing payment " + trackingId + " on account "
-          + account.getAccountno());
+      throw new ContractException("reversePayment", "Error reversing payment " + trackingId + " on account " + account.getAccountno());
     } else {
       if (list.size() > 0) {
         if (!list.get(0).getStatus().equals("Y")) {
           transaction.rollback();
-          throw new ContractException("reversePayment", "Error reversing payment " + trackingId + " on account "
-              + account.getAccountno() + ". Fail Reason is : " + list.get(0).getMvnemsg());
+          throw new ContractException("reversePayment", "Error reversing payment " + trackingId + " on account " + account.getAccountno()
+              + ". Fail Reason is : " + list.get(0).getMvnemsg());
         } else {
           transaction.commit();
         }
@@ -90,15 +89,14 @@ public class KenanPaymentDao {
     if (list == null) {
       transaction.rollback();
       session.close();
-      throw new ContractException("applyChargeCredit", "Error applying pccharge credit on card "
-          + creditCard.getNameOnCreditCard() + " " + creditCard.getCreditCardNumber());
+      throw new ContractException("applyChargeCredit", "Error applying pccharge credit on card " + creditCard.getNameOnCreditCard() + " "
+          + creditCard.getCreditCardNumber());
     } else {
       if (list.size() > 0) {
         if (!list.get(0).getStatus().equals("Y")) {
           transaction.rollback();
-          throw new ContractException("applyChargeCredit", "Error applying pccharge credit on card "
-              + creditCard.getNameOnCreditCard() + " " + creditCard.getCreditCardNumber() + ". Fail Reason is : "
-              + list.get(0).getMvnemsg());
+          throw new ContractException("applyChargeCredit", "Error applying pccharge credit on card " + creditCard.getNameOnCreditCard() + " "
+              + creditCard.getCreditCardNumber() + ". Fail Reason is : " + list.get(0).getMvnemsg());
         } else {
           transaction.commit();
         }
@@ -108,4 +106,45 @@ public class KenanPaymentDao {
       }
     }
   }
+
+  public static void applyChargeCredit(int accountNo, int trackingId, String amount, String refundBy) throws RefundException {
+    Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+    Transaction transaction = session.beginTransaction();
+    try {
+      Query query = session.getNamedQuery("sp_refund_pmt");
+      query.setParameter("in_account_no", accountNo);
+      query.setParameter("in_tracking_id", trackingId);
+      query.setParameter("in_refund_amount", amount);
+      query.setParameter("in_refund_by", refundBy);
+      List<GeneralSPResponse> list = query.list();
+      if (list == null) {
+        transaction.rollback();
+        session.close();
+        throw new ContractException("applyChargeCredit", "Error applying pccharge credit. No cursor items returned...");
+      } else if (list.size() > 0) {
+        if (!list.get(0).getStatus().equals("Y")) {
+          transaction.rollback();
+          session.close();
+          throw new ContractException("applyChargeCredit", "Error applying pccharge credit on card " + ". Fail Reason is : " + list.get(0).getMvnemsg());
+        } else {
+          transaction.commit();
+        }
+      } else {
+        transaction.rollback();
+        throw new ContractException("applyChargeCredit", "Error applying pccharge credit. No cursor items returned...");
+      }
+    } catch (HibernateException he) {
+      transaction.rollback();
+      throw new RefundException("applyChargeCredit", he.getMessage());
+    } finally {
+      if (session.isOpen()) {
+        try {
+          session.close();
+        } catch (HibernateException e) {
+          e.printStackTrace();
+        }
+      }
+    }
+  }
+
 }

@@ -3,6 +3,8 @@ package com.tscp.mvne.customer;
 import java.util.List;
 import java.util.Vector;
 
+import org.hibernate.CacheMode;
+import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Transaction;
 import org.hibernate.classic.Session;
@@ -300,15 +302,25 @@ public class Customer {
       throw new CustomerException("Invalid Customer Id " + id);
     }
     Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-    session.beginTransaction();
+    Transaction tx = session.beginTransaction();
+    List<PaymentRecord> paymentRecordList = null;
 
-    Query q = session.getNamedQuery("fetch_cust_pmt_trans");
-    q.setParameter("in_cust_id", id);
-    List<PaymentRecord> paymentRecordList = q.list();
-
-    session.getTransaction().commit();
+    try {
+      session.setCacheMode(CacheMode.IGNORE);
+      session.evict(paymentRecordList);
+      Query q = session.getNamedQuery("fetch_cust_pmt_trans");
+      q.setReadOnly(true);
+      q.setCacheable(false);
+      q.setParameter("in_cust_id", id);
+      paymentRecordList = q.list();
+      tx.commit();
+    } catch (HibernateException he) {
+      tx.rollback();
+      throw new CustomerException("getPaymentHistory", he.getMessage());
+    } finally {
+      HibernateUtil.closeSession(session);
+    }
     return paymentRecordList;
-
   }
 
   public PaymentInvoice getPaymentInvoice(int transId) throws CustomerException {
