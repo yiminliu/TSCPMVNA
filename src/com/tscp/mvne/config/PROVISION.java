@@ -2,7 +2,7 @@ package com.tscp.mvne.config;
 
 import com.tscp.mvne.exception.InitializationException;
 
-public final class PROVISION extends Config {
+public final class PROVISION extends CONFIG {
 
   public static final class SERVICE {
     public static Integer HOTLINE;
@@ -36,7 +36,7 @@ public final class PROVISION extends Config {
   }
 
   public static final void init() throws InitializationException {
-    Config.loadAll();
+    CONFIG.loadAll();
     try {
       PACKAGE.ID = Integer.parseInt(props.getProperty("package.id"));
       PACKAGE.EXTERNAL_ID_TYPE = Integer.parseInt(props.getProperty("package.externalId.type"));

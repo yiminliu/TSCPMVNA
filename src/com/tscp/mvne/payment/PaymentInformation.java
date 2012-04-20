@@ -4,18 +4,13 @@ import com.tscp.mvne.payment.dao.PaymentTransaction;
 import com.tscp.mvne.payment.dao.PaymentUnitResponse;
 
 public abstract class PaymentInformation {
-
   private int paymentid;
   private String alias;
-
   private String address1;
   private String address2;
   private String city;
   private String state;
   private String zip;
-
-  public PaymentInformation() {
-  };
 
   public String getAlias() {
     return alias;

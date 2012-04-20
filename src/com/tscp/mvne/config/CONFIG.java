@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.tscp.mvne.exception.InitializationException;
 
-public class Config {
+public class CONFIG {
   public static final String configFile = "com/tscp/mvne/config/config.properties";
   public static final String connectionFile = "com/tscp/mvne/config/service.properties";
   public static final String deviceFile = "com/tscp/mvne/config/device.properties";
@@ -33,7 +33,7 @@ public class Config {
   }
 
   public static void initAll() throws InitializationException {
-    Config.init();
+    CONFIG.init();
     CONNECTION.init();
     DEVICE.init();
     DOMAIN.init();
@@ -54,7 +54,7 @@ public class Config {
     if (!loadedFiles.contains(filepath)) {
       try {
         logger.info("LOADING PROPERTIES: {}", filepath);
-        props.load(Config.class.getClassLoader().getResourceAsStream(filepath));
+        props.load(CONFIG.class.getClassLoader().getResourceAsStream(filepath));
         loadedFiles.add(filepath);
       } catch (IOException e) {
         logger.error("UNABLE TO LOAD PROPERTIES FILE: {}", filepath);

@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.telscape.billingserviceinterface.BillingServiceInterface;
 import com.telscape.billingserviceinterface.BillingServiceInterfaceSoap;
-import com.tscp.mvne.config.Config;
+import com.tscp.mvne.config.CONFIG;
 import com.tscp.mvne.config.CONNECTION;
 import com.tscp.mvne.exception.InitializationException;
 
@@ -36,7 +36,7 @@ public final class BillingGatewayProvider {
    * @return
    */
   protected static final BillingServiceInterface loadInterface() throws InitializationException {
-    Config.initAll();
+    CONFIG.initAll();
     try {
       URL url = new URL(CONNECTION.billingWSDL);
       QName qName = new QName(CONNECTION.billingNameSpace, CONNECTION.billingServiceName);

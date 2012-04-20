@@ -50,7 +50,7 @@ import com.tscp.mvne.billing.provisioning.Component;
 import com.tscp.mvne.billing.provisioning.Package;
 import com.tscp.mvne.billing.provisioning.ProvisionUtil;
 import com.tscp.mvne.billing.provisioning.ServiceInstance;
-import com.tscp.mvne.config.Config;
+import com.tscp.mvne.config.CONFIG;
 import com.tscp.mvne.exception.InitializationException;
 import com.tscp.mvne.hibernate.HibernateUtil;
 
@@ -72,7 +72,7 @@ public class BillService {
       props.load(BillService.class.getClassLoader().getResourceAsStream("com/tscp/mvne/config/legacy.properties"));
     } catch (IOException ioe) {
       ioe.printStackTrace();
-      throw new InitializationException("Unable to load " + Config.provisionFile + " while creating BillingSystem");
+      throw new InitializationException("Unable to load " + CONFIG.provisionFile + " while creating BillingSystem");
     }
   }
 

@@ -2,9 +2,9 @@
         "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
         "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
-<hibernate-mapping package="com.tscp.mvne.contract">
+<hibernate-mapping package="com.tscp.mvne.billing.contract">
 
-  <class name="com.tscp.mvne.contract.KenanContract">
+  <class name="com.tscp.mvne.billing.contract.KenanContract">
     <id name="contractId" column="contract_id" />
     <property name="contractType" column="contract_type" />
     <property name="description" column="description_text" />
@@ -30,7 +30,7 @@
   </sql-query>
 
   <sql-query name="get_customer_coupons" callable="true">
-    <return class="com.tscp.mvne.contract.KenanContract">
+    <return class="com.tscp.mvne.billing.contract.KenanContract">
       <return-property name="contractType" column="contract_type" />
       <return-property name="description" column="description_text" />
       <return-property name="contractId" column="contract_id" />

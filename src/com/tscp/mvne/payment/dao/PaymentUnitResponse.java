@@ -3,12 +3,7 @@ package com.tscp.mvne.payment.dao;
 import java.io.Serializable;
 
 public class PaymentUnitResponse implements Serializable {
-
   public static final String SUCCESSFUL_TRANSACTION = "0";
-
-  /**
-	 * 
-	 */
   private static final long serialVersionUID = 1L;
 
   private String confcode;
@@ -87,9 +82,8 @@ public class PaymentUnitResponse implements Serializable {
   public boolean equals(Object obj) {
     if (obj instanceof PaymentUnitResponse) {
       PaymentUnitResponse pur = (PaymentUnitResponse) obj;
-      if (pur.getAuthcode().equals(getAuthcode()) && pur.getConfcode().equals(getConfcode())
-          && pur.getConfdescr().equals(getConfdescr()) && pur.getCvvcode().equals(getCvvcode())
-          && pur.getTransid().equals(getTransid())) {
+      if (pur.getAuthcode().equals(getAuthcode()) && pur.getConfcode().equals(getConfcode()) && pur.getConfdescr().equals(getConfdescr())
+          && pur.getCvvcode().equals(getCvvcode()) && pur.getTransid().equals(getTransid())) {
         return true;
       }
     }

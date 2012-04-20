@@ -2,7 +2,7 @@ package com.tscp.mvne.config;
 
 import com.tscp.mvne.exception.InitializationException;
 
-public class BILLING extends Config {
+public class BILLING extends CONFIG {
   public static Integer accountCategory;
 
   public static Integer tieCode;
@@ -62,7 +62,7 @@ public class BILLING extends Config {
   public static Integer paymentTransType;
 
   public static final void init() throws InitializationException {
-    Config.loadAll();
+    CONFIG.loadAll();
     try {
       accountCategory = Integer.parseInt(props.getProperty("account.account_category"));
       tieCode = Integer.parseInt(props.getProperty("account.tie_code"));

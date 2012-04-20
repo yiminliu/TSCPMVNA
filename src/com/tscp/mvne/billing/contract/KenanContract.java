@@ -1,4 +1,4 @@
-package com.tscp.mvne.contract;
+package com.tscp.mvne.billing.contract;
 
 import com.tscp.mvne.billing.Account;
 import com.tscp.mvne.billing.provisioning.ServiceInstance;

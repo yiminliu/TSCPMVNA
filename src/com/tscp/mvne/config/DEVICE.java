@@ -9,7 +9,7 @@ import com.tscp.mvne.exception.InitializationException;
  * @author Tachikoma
  * 
  */
-public final class DEVICE extends Config {
+public final class DEVICE extends CONFIG {
   public static String ACTIVE;
   public static String CANCELED;
   public static String SUSPENDED;
@@ -22,7 +22,7 @@ public final class DEVICE extends Config {
   public static final int MEID_HEX = 14;
 
   public static final void init() throws InitializationException {
-    Config.loadAll();
+    CONFIG.loadAll();
     try {
       ACTIVE = props.getProperty("device.status.active");
       CANCELED = props.getProperty("device.status.canceled");

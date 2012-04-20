@@ -1,4 +1,4 @@
-package com.tscp.mvne.contract.exception;
+package com.tscp.mvne.billing.contract.exception;
 
 import com.tscp.mvne.exception.MVNEException;
 

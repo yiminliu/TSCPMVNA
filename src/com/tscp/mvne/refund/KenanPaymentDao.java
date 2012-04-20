@@ -9,7 +9,7 @@ import org.hibernate.Transaction;
 import org.hibernate.classic.Session;
 
 import com.tscp.mvne.billing.Account;
-import com.tscp.mvne.contract.exception.ContractException;
+import com.tscp.mvne.billing.contract.exception.ContractException;
 import com.tscp.mvne.customer.dao.GeneralSPResponse;
 import com.tscp.mvne.hibernate.HibernateUtil;
 import com.tscp.mvne.payment.dao.CreditCard;

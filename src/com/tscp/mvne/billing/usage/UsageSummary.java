@@ -9,9 +9,6 @@ import org.hibernate.classic.Session;
 import com.telscape.billingserviceinterface.BillingUsage;
 import com.tscp.mvne.hibernate.HibernateUtil;
 
-/**
- * @author Dan Modified by jpong
- */
 public class UsageSummary implements Serializable {
   private static final long serialVersionUID = -1781983705210139876L;
   private String externalid;

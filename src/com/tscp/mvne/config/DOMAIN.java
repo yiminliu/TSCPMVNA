@@ -2,13 +2,13 @@ package com.tscp.mvne.config;
 
 import com.tscp.mvne.exception.InitializationException;
 
-public class DOMAIN extends Config {
+public class DOMAIN extends CONFIG {
   public static String urlSupport;
   public static String urlManage;
   public static String urlTOS;
 
   public static final void init() throws InitializationException {
-    Config.loadAll();
+    CONFIG.loadAll();
     try {
       urlSupport = props.getProperty("truconnect.url.support");
       urlManage = props.getProperty("truconnect.url.manage");

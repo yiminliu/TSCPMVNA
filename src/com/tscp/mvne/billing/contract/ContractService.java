@@ -1,12 +1,12 @@
-package com.tscp.mvne.contract;
+package com.tscp.mvne.billing.contract;
 
 import java.util.Date;
 import java.util.List;
 
 import com.tscp.mvne.billing.Account;
+import com.tscp.mvne.billing.contract.dao.KenanContractDao;
+import com.tscp.mvne.billing.contract.exception.ContractException;
 import com.tscp.mvne.billing.provisioning.ServiceInstance;
-import com.tscp.mvne.contract.dao.KenanContractDao;
-import com.tscp.mvne.contract.exception.ContractException;
 
 public class ContractService {
 

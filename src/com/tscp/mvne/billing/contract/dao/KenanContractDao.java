@@ -1,4 +1,4 @@
-package com.tscp.mvne.contract.dao;
+package com.tscp.mvne.billing.contract.dao;
 
 import java.util.Date;
 import java.util.List;
@@ -8,8 +8,8 @@ import org.hibernate.Transaction;
 import org.hibernate.classic.Session;
 
 import com.tscp.mvne.billing.Account;
+import com.tscp.mvne.billing.contract.KenanContract;
 import com.tscp.mvne.billing.provisioning.ServiceInstance;
-import com.tscp.mvne.contract.KenanContract;
 import com.tscp.mvne.customer.dao.GeneralSPResponse;
 import com.tscp.mvne.exception.DaoException;
 import com.tscp.mvne.hibernate.HibernateUtil;

@@ -8,7 +8,7 @@ import javax.xml.namespace.QName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.tscp.mvne.config.Config;
+import com.tscp.mvne.config.CONFIG;
 import com.tscp.mvne.config.CONNECTION;
 import com.tscp.mvne.exception.InitializationException;
 import com.tscp.mvno.webservices.API3;
@@ -35,7 +35,7 @@ public final class NetworkGatewayProvider {
    * @return
    */
   protected static final API3Service loadInterface() throws InitializationException {
-    Config.initAll();
+    CONFIG.initAll();
     try {
       URL url = new URL(CONNECTION.networkWSDL);
       QName qName = new QName(CONNECTION.networkNameSpace, CONNECTION.networkServiceName);
