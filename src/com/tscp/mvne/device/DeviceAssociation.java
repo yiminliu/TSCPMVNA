@@ -112,13 +112,13 @@ public class DeviceAssociation implements Serializable {
     validate();
     Session session = HibernateUtil.getSessionFactory().getCurrentSession();
     session.beginTransaction();
-    
+
     Query q = session.getNamedQuery("ins_device_assoc_map");
     q.setParameter("in_device_id", getDeviceId());
     q.setParameter("in_subscr_no", getSubscrNo());
     q.setParameter("in_status", getStatus());
     q.setParameter("in_value", getValue());
-    
+
     List<GeneralSPResponse> generalSPResponseList = q.list();
     if (generalSPResponseList != null) {
       for (GeneralSPResponse generalSPResponse : generalSPResponseList) {

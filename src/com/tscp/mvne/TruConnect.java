@@ -73,6 +73,7 @@ import com.tscp.mvne.payment.dao.PaymentInvoice;
 import com.tscp.mvne.payment.dao.PaymentRecord;
 import com.tscp.mvne.payment.dao.PaymentTransaction;
 import com.tscp.mvne.payment.dao.PaymentUnitResponse;
+import com.tscp.mvne.payment.response.PaymentUnitMsg;
 import com.tscp.mvne.refund.KenanPayment;
 import com.tscp.mvne.refund.RefundService;
 import com.tscp.mvne.util.logger.MethodLogger;
@@ -1069,14 +1070,11 @@ public class TruConnect {
       networkService.restoreService(accountNetworkInfo);
     }
 
-    logger.debug("Device {} has status {}", deviceId, device.getStatusId());
     if (device.getStatusId() != Device.STATUS.ACTIVE.getValue()) {
       device.setStatusId(Device.STATUS.ACTIVE.getValue());
-      logger.debug("Saving device with new status {}", device.getStatusId());
       device.save();
+      updateDeviceHistory(deviceId, device.getValue(), serviceInstance, Device.STATUS.ACTIVE.getValue());
     }
-    
-    updateDeviceHistory(deviceId, device.getValue(), serviceInstance, Device.STATUS.ACTIVE.getValue());
   }
 
   @Deprecated
@@ -1177,6 +1175,37 @@ public class TruConnect {
     }
     notificationParametersList.add(new NotificationParameter("firstName", account.getFirstname()));
     notificationParametersList.add(new NotificationParameter("lastName", account.getLastname()));
+
+    String paymentUnitMsg = paymentTransaction.getPaymentUnitMessage().toLowerCase();
+    String customerMsg = null;
+    for (PaymentUnitMsg msg : PaymentUnitMsg.values()) {
+      if (msg.getMsg().contains(paymentUnitMsg)) {
+        switch (msg) {
+        case INVALID_CARD:
+          customerMsg = "Invalid Card";
+          break;
+        case INVALID_CARD_NUM:
+          customerMsg = "Invalid Card Number";
+          break;
+        case INVALID_EXP_DATE:
+          customerMsg = "Invalid Expiration Date";
+          break;
+        case ERR_DECLINED:
+          customerMsg = "Declined";
+          break;
+        case ERR_CVV:
+          customerMsg = "Declined, CVV code";
+          break;
+        case ERR_EXPIRED:
+          customerMsg = "Card Expired";
+          break;
+        default:
+          customerMsg = null;
+          break;
+        }
+      }
+    }
+    notificationParametersList.add(new NotificationParameter("failureMsg", customerMsg));
 
     EmailNotification emailNotification = new EmailNotification();
     emailNotification.setNotificationCategory(NotificationCategory.WARNING);
@@ -1845,16 +1874,13 @@ public class TruConnect {
       provisionService.addSingleComponent(accountNo, serviceInstance.getExternalId(), pkg.getInstanceId(), PROVISION.COMPONENT.SUSPEND);
     }
 
-    logger.debug("Device {} has status {}", deviceId, device.getStatusId());
     if (device.getStatusId() != Device.STATUS.SUSPENDED.getValue()) {
       device.setStatusId(Device.STATUS.SUSPENDED.getValue());
-      logger.debug("Saving device with new status {}", device.getStatusId());
       device.save();
+      updateDeviceHistory(deviceId, device.getValue(), serviceInstance, Device.STATUS.SUSPENDED.getValue());
     }
     // finally update the service threshold to prevent future top-ups
     billService.updateServiceInstanceStatus(serviceInstance, PROVISION.SERVICE.HOTLINE);
-
-    updateDeviceHistory(deviceId, device.getValue(), serviceInstance, Device.STATUS.SUSPENDED.getValue());
   }
 
   protected void updateDeviceHistory(int deviceId, String value, ServiceInstance serviceInstance, int status) {
