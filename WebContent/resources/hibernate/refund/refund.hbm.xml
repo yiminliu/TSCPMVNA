@@ -47,7 +47,7 @@
       <return-property name="mvnemsg" column="mvnemsg" />
       <return-property name="mvnemsgcode" column="mvnemsgcode" />
     </return>
-    { call sp_refund_pmt(?,:in_account_no, :in_tracking_id, :in_refund_amount, :in_refund_by) }
+    { call sp_refund_pmt(?,:in_account_no, :in_tracking_id, :in_refund_amount, :in_refund_by, :in_refund_reason_code, :in_refund_notes) }
   </sql-query>
 
 </hibernate-mapping>

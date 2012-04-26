@@ -51,7 +51,6 @@ import com.tscp.mvne.customer.dao.CustInfo;
 import com.tscp.mvne.customer.dao.CustTopUp;
 import com.tscp.mvne.device.Device;
 import com.tscp.mvne.device.DeviceAssociation;
-import com.tscp.mvne.device.DeviceStatus;
 import com.tscp.mvne.device.service.DeviceService;
 import com.tscp.mvne.exception.MVNEException;
 import com.tscp.mvne.hibernate.HibernateUtil;
@@ -81,7 +80,6 @@ import com.tscp.mvne.util.logger.MethodLogger;
 @WebService
 public class TruConnect {
   private static Logger logger = LoggerFactory.getLogger("TSCPMVNE");
-  // private static TscpmvneLogger logger;
   private static NetworkService networkService;
   private static BillService billService;
   private static ContractService contractService;
@@ -91,9 +89,9 @@ public class TruConnect {
   private static NotificationSender notificationSender;
 
   @WebMethod
-  public void refundPayment(int accountNo, String amount, int trackingId, String refundBy) throws ContractException {
+  public void refundPayment(int accountNo, String amount, int trackingId, String refundBy, int refundCode, String notes) throws ContractException {
     MethodLogger.logMethod("refundPayment", accountNo, amount, trackingId, refundBy);
-    refundService.applyChargeCredit(accountNo, trackingId, amount, refundBy);
+    refundService.applyChargeCredit(accountNo, trackingId, amount, refundBy, refundCode, notes);
     MethodLogger.logMethodExit("refundPayment");
   }
 
@@ -122,7 +120,7 @@ public class TruConnect {
         for (Device deviceInfo : customer.getDeviceList()) {
           if (deviceInfo.getValue().equals(networkInfo.getEsnmeiddec()) || deviceInfo.getValue().equals(networkInfo.getEsnmeidhex())) {
             logger.info("Found Device Information " + deviceInfo.getId() + " for Customer " + customer.getId() + ".");
-            deviceInfo.setStatusId(DeviceStatus.ID_ACTIVE);
+            deviceInfo.setStatusId(Device.STATUS.ACTIVE.getValue());
             deviceInfo.setEffectiveDate(new Date());
             deviceInfo.save();
           }
@@ -271,12 +269,14 @@ public class TruConnect {
             DeviceAssociation deviceAssociation = new DeviceAssociation();
             deviceAssociation.setDeviceId(deviceInfo.getId());
             deviceAssociation.setSubscrNo(tempServiceInstance.getSubscriberNumber());
+            deviceAssociation.setValue(deviceInfo.getValue());
+            deviceAssociation.setStatus(Device.STATUS.ACTIVE.getValue());
             logger.info("Saving device association");
             deviceAssociation.save();
             //
-            if (deviceInfo.getStatusId() != DeviceStatus.ID_ACTIVE) {
+            if (deviceInfo.getStatusId() != Device.STATUS.ACTIVE.getValue()) {
               logger.info("DeviceInfo " + deviceInfo.getId() + " is not in active status...Activating");
-              deviceInfo.setStatusId(DeviceStatus.ID_ACTIVE);
+              deviceInfo.setStatusId(Device.STATUS.ACTIVE.getValue());
               deviceInfo.setEffectiveDate(new Date());
               deviceInfo.save();
             }
@@ -353,12 +353,14 @@ public class TruConnect {
                     DeviceAssociation deviceAssociation = new DeviceAssociation();
                     deviceAssociation.setDeviceId(deviceInfo.getId());
                     deviceAssociation.setSubscrNo(si.getSubscriberNumber());
+                    deviceAssociation.setValue(deviceInfo.getValue());
+                    deviceAssociation.setStatus(Device.STATUS.ACTIVE.getValue());
                     logger.info("Saving device association");
                     deviceAssociation.save();
 
-                    if (deviceInfo.getStatusId() != DeviceStatus.ID_ACTIVE) {
+                    if (deviceInfo.getStatusId() != Device.STATUS.ACTIVE.getValue()) {
                       logger.info("DeviceInfo " + deviceInfo.getId() + " is not in active status...Activating");
-                      deviceInfo.setStatusId(DeviceStatus.ID_ACTIVE);
+                      deviceInfo.setStatusId(Device.STATUS.ACTIVE.getValue());
                       deviceInfo.setEffectiveDate(new Date());
                       deviceInfo.save();
                     }
@@ -502,7 +504,7 @@ public class TruConnect {
           for (Device oldDeviceInfo : customer.getDeviceList()) {
             if (oldDeviceInfo.getValue().equals(networkinfo.getEsnmeiddec()) || oldDeviceInfo.getValue().equals(networkinfo.getEsnmeidhex())) {
               logger.info("old device information found...updating");
-              oldDeviceInfo.setStatusId(DeviceStatus.ID_RELEASED_REACTIVATEABLE);
+              oldDeviceInfo.setStatusId(Device.STATUS.RELEASED.getValue());
               oldDeviceInfo.setEffectiveDate(new Date());
               oldDeviceInfo.save();
             }
@@ -1043,17 +1045,6 @@ public class TruConnect {
     NetworkInfo accountNetworkInfo = getNetworkInfo(null, serviceInstance.getExternalId());
     NetworkInfoUtil.checkNetworkInfoMatch(deviceNetworkInfo, accountNetworkInfo);
 
-    // check if account is already active in kenan
-    // if (component.getId() == PROVISION.COMPONENT.INSTALL || component.getId()
-    // == PROVISION.COMPONENT.REINSTALL) {
-    // throw new ProvisionException("Account " + accountNo + " with MDN " +
-    // serviceInstance.getExternalId() + " is already active");
-    // } else
-    // if (component.getId() != PROVISION.COMPONENT.SUSPEND) {
-    // throw new ProvisionException("Account " + accountNo + " with MDN " +
-    // serviceInstance.getExternalId() + " is already suspended");
-    // }
-
     if (component.getId() == PROVISION.COMPONENT.SUSPEND) {
       Package pkg = provisionService.getActivePackage(accountNo);
       // check if the user needs to be charged a pro-rated MRC for restoration
@@ -1078,10 +1069,14 @@ public class TruConnect {
       networkService.restoreService(accountNetworkInfo);
     }
 
-    if (device.getStatusId() != DeviceStatus.ID_ACTIVE) {
-      device.setStatusId(DeviceStatus.ID_ACTIVE);
+    logger.debug("Device {} has status {}", deviceId, device.getStatusId());
+    if (device.getStatusId() != Device.STATUS.ACTIVE.getValue()) {
+      device.setStatusId(Device.STATUS.ACTIVE.getValue());
+      logger.debug("Saving device with new status {}", device.getStatusId());
       device.save();
     }
+    
+    updateDeviceHistory(deviceId, device.getValue(), serviceInstance, Device.STATUS.ACTIVE.getValue());
   }
 
   @Deprecated
@@ -1123,8 +1118,8 @@ public class TruConnect {
     billService.updateServiceInstanceStatus(serviceInstance, PROVISION.SERVICE.RESTORE);
 
     if (deviceInfo != null) {
-      logger.info("updating deviceInfo[" + deviceInfo.getId() + "] to AC - " + DeviceStatus.DESC_ACTIVE);
-      deviceInfo.setStatusId(DeviceStatus.ID_ACTIVE);
+      logger.info("updating deviceInfo[" + deviceInfo.getId() + "] to AC - " + Device.STATUS.ACTIVE.getDescription());
+      deviceInfo.setStatusId(Device.STATUS.ACTIVE.getValue());
       deviceInfo.save();
     }
     logger.info("Done restoring subscriber");
@@ -1837,12 +1832,6 @@ public class TruConnect {
     NetworkInfo accountNetworkInfo = getNetworkInfo(null, serviceInstance.getExternalId());
     NetworkInfoUtil.checkNetworkInfoMatch(deviceNetworkInfo, accountNetworkInfo);
 
-    // check if account is already suspended in kenan
-    // if (component.getId() == PROVISION.COMPONENT.SUSPEND) {
-    // throw new ProvisionException("Account " + accountNo + " with MDN " +
-    // serviceInstance.getExternalId() + " is already suspended");
-    // }
-
     if (accountNetworkInfo.getStatus().equals("A")) {
       // first suspend the network to prevent further usage
       networkService.suspendService(accountNetworkInfo);
@@ -1856,12 +1845,25 @@ public class TruConnect {
       provisionService.addSingleComponent(accountNo, serviceInstance.getExternalId(), pkg.getInstanceId(), PROVISION.COMPONENT.SUSPEND);
     }
 
-    if (device.getStatusId() != DeviceStatus.ID_RELEASED_SYSTEM_REACTIVATE) {
-      device.setStatusId(DeviceStatus.ID_RELEASED_SYSTEM_REACTIVATE);
+    logger.debug("Device {} has status {}", deviceId, device.getStatusId());
+    if (device.getStatusId() != Device.STATUS.SUSPENDED.getValue()) {
+      device.setStatusId(Device.STATUS.SUSPENDED.getValue());
+      logger.debug("Saving device with new status {}", device.getStatusId());
       device.save();
     }
     // finally update the service threshold to prevent future top-ups
     billService.updateServiceInstanceStatus(serviceInstance, PROVISION.SERVICE.HOTLINE);
+
+    updateDeviceHistory(deviceId, device.getValue(), serviceInstance, Device.STATUS.SUSPENDED.getValue());
+  }
+
+  protected void updateDeviceHistory(int deviceId, String value, ServiceInstance serviceInstance, int status) {
+    DeviceAssociation deviceAssociation = new DeviceAssociation();
+    deviceAssociation.setDeviceId(deviceId);
+    deviceAssociation.setValue(value);
+    deviceAssociation.setSubscrNo(serviceInstance.getSubscriberNumber());
+    deviceAssociation.setStatus(status);
+    deviceAssociation.save();
   }
 
   @Deprecated
@@ -1918,8 +1920,8 @@ public class TruConnect {
     provisionService.addComponent(accountNumber, serviceInstance.getExternalId(), pkg.getInstanceId(), PROVISION.COMPONENT.SUSPEND);
 
     if (deviceInfo != null) {
-      logger.info("updating deviceInfo[" + deviceInfo.getId() + "] to RX - " + DeviceStatus.DESC_RELEASED_SYSTEM_REACTIVATE);
-      deviceInfo.setStatusId(DeviceStatus.ID_RELEASED_SYSTEM_REACTIVATE);
+      logger.info("updating deviceInfo[" + deviceInfo.getId() + "] to RX - " + Device.STATUS.SUSPENDED.getDescription());
+      deviceInfo.setStatusId(Device.STATUS.SUSPENDED.getValue());
       deviceInfo.save();
     }
     logger.info("Done suspending subscriber");
@@ -1978,6 +1980,14 @@ public class TruConnect {
       }
 
       try {
+        List<ServiceInstance> services = provisionService.getActiveServices(newDevice.getAccountNo());
+        ServiceInstance serviceInstance = null;
+        for (ServiceInstance si : services) {
+          if (si.getExternalId().equals(oldNetworkInfo.getMdn())) {
+            serviceInstance = si;
+          }
+        }
+
         // Send the swap request to the network
         logger.info("Sending swap request for MDN " + oldNetworkInfo.getMdn() + " to DEVICE " + newDevice.getValue());
         networkService.swapESN(oldNetworkInfo, newNetworkInfo);
@@ -1985,6 +1995,10 @@ public class TruConnect {
         // Save deviceInfo
         logger.info("Saving new device information");
         newDevice.save();
+
+        if (serviceInstance != null) {
+          updateDeviceHistory(newDevice.getId(), newDevice.getValue(), serviceInstance, Device.STATUS.ACTIVE.getValue());
+        }
 
       } catch (NetworkException network_ex) {
         throw network_ex;

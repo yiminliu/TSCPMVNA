@@ -26,6 +26,8 @@
     <property name="externalId" column="external_id" />
     <property name="activeDate" column="active_date" />
     <property name="inactiveDate" column="inactive_date" />
+    <property name="status" column="status" />
+    <property name="value" column="value" />
   </class>
 
   <sql-query name="fetch_device_info" callable="true">
@@ -91,7 +93,7 @@
       <return-property name="mvnemsg" column="mvnemsg" />
       <return-property name="mvnemsgcode" column="mvnemsgcode" />
     </return>
-    { call MVNE_API_PKG.INS_DEVICE_ASSOC_MAP(?, :in_device_id, :in_subscr_no ) }
+    { call MVNE_API_PKG.INS_DEVICE_ASSOC_MAP(?, :in_device_id, :in_subscr_no, :in_value, :in_status ) }
   </sql-query>
 
 </hibernate-mapping>

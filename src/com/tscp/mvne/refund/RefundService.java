@@ -26,8 +26,8 @@ public class RefundService {
     KenanPaymentDao.applyChargeCredit(creditCard, amount);
   }
 
-  public void applyChargeCredit(int accountNo, int trackingId, String amount, String refundBy) throws RefundException {
-    KenanPaymentDao.applyChargeCredit(accountNo, trackingId, amount, refundBy);
+  public void applyChargeCredit(int accountNo, int trackingId, String amount, String refundBy, int refundCode, String notes) throws RefundException {
+    KenanPaymentDao.applyChargeCredit(accountNo, trackingId, amount, refundBy, refundCode, notes);
   }
 
   public PaymentTransaction getPaymentTransaction(int custId, int transId) throws PaymentException {

@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.hibernate.Query;
 import org.hibernate.classic.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.tscp.mvne.customer.DeviceException;
 import com.tscp.mvne.customer.dao.GeneralSPResponse;
@@ -25,9 +27,30 @@ public class Device implements Serializable {
   private Date expirationDate;
   private DeviceAssociation association;
 
+  public static enum STATUS {
+    UNKNOWN(0, "Unknown"), NEW(1, "New"), ACTIVE(2, "Active"), RELEASED(3, "Released / Reactivate-able"), REMOVED(4, "Released / Removed"), SUSPENDED(5,
+        "Released / System-Reactivate"), BLOCKED(6, "Blocked");
+
+    private int value;
+    private String description;
+
+    private STATUS(int value, String description) {
+      this.value = value;
+      this.description = description;
+    }
+
+    public int getValue() {
+      return value;
+    }
+
+    public String getDescription() {
+      return description;
+    }
+  }
+
   public Device() {
-    setStatus(DeviceStatus.DESC_UNKNOWN);
-    setStatusId(DeviceStatus.ID_UNKNOWN);
+    setStatusId(STATUS.UNKNOWN.getValue());
+    setStatus(STATUS.UNKNOWN.getDescription());
   }
 
   public int getId() {
@@ -118,6 +141,8 @@ public class Device implements Serializable {
     this.association = association;
   }
 
+  private static final Logger logger = LoggerFactory.getLogger("TSCPMVNE");
+
   public void save() throws DeviceException {
     if (getCustId() <= 0) {
       throw new DeviceException("Customer Id has not been set");
@@ -136,6 +161,7 @@ public class Device implements Serializable {
       q.setParameter("in_account_no", getAccountNo());
     } else {
       // update
+      logger.debug("Updating device {} with status {}", getId(), getStatusId());
       methodName = "upd_device_info";
       q = session.getNamedQuery(methodName);
       q.setParameter("in_device_id", getId());
@@ -151,17 +177,20 @@ public class Device implements Serializable {
     if (generalSPResponseList != null) {
       for (GeneralSPResponse generalSPResponse : generalSPResponseList) {
         if (generalSPResponse.getStatus().equals("Y")) {
+          logger.debug("save successful!");
           setId(generalSPResponse.getMvnemsgcode());
         } else {
+          logger.debug("save failure, rolling back!");
           session.getTransaction().rollback();
           throw new DeviceException(generalSPResponse.getMvnemsg());
         }
       }
     } else {
+      logger.debug("error saving device, rolling back");
       session.getTransaction().rollback();
       throw new DeviceException("Error Saving Device information...");
     }
-
+    logger.debug("committing save");
     session.getTransaction().commit();
 
   }

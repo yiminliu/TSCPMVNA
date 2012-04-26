@@ -14,7 +14,6 @@ import com.tscp.mvne.billing.service.BillService;
 import com.tscp.mvne.config.PROVISION;
 import com.tscp.mvne.customer.DeviceException;
 import com.tscp.mvne.device.Device;
-import com.tscp.mvne.device.DeviceStatus;
 import com.tscp.mvne.device.service.DeviceService;
 import com.tscp.mvne.network.NetworkInfo;
 import com.tscp.mvne.network.exception.NetworkException;
@@ -53,8 +52,8 @@ public class RepairService {
     }
     if (!accountStatus.getDeviceStatus().equals("ACTIVE")) {
       Device device = deviceService.getDevice(custId, deviceId, accountNo);
-      device.setStatusId(DeviceStatus.ID_ACTIVE);
-      device.setStatus(DeviceStatus.DESC_ACTIVE);
+      device.setStatusId(Device.STATUS.ACTIVE.getValue());
+      device.setStatus(Device.STATUS.ACTIVE.getDescription());
       device.save();
     }
     if (!accountStatus.getNetworkStatus().equals("ACTIVE")) {

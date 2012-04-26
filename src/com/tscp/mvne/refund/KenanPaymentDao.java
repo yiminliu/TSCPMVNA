@@ -107,7 +107,7 @@ public class KenanPaymentDao {
     }
   }
 
-  public static void applyChargeCredit(int accountNo, int trackingId, String amount, String refundBy) throws RefundException {
+  public static void applyChargeCredit(int accountNo, int trackingId, String amount, String refundBy, int refundCode, String notes) throws RefundException {
     Session session = HibernateUtil.getSessionFactory().getCurrentSession();
     Transaction transaction = session.beginTransaction();
     try {
@@ -116,6 +116,8 @@ public class KenanPaymentDao {
       query.setParameter("in_tracking_id", trackingId);
       query.setParameter("in_refund_amount", amount);
       query.setParameter("in_refund_by", refundBy);
+      query.setParameter("in_refund_reason_code", refundCode);
+      query.setParameter("in_refund_notes", notes);
       List<GeneralSPResponse> list = query.list();
       if (list == null) {
         transaction.rollback();

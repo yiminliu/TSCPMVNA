@@ -22,7 +22,6 @@ import com.tscp.mvne.customer.dao.CustAcctMapDAO;
 import com.tscp.mvne.customer.dao.GeneralSPResponse;
 import com.tscp.mvne.device.Device;
 import com.tscp.mvne.device.DeviceAssociation;
-import com.tscp.mvne.device.DeviceStatus;
 import com.tscp.mvne.hibernate.HibernateUtil;
 import com.tscp.mvne.network.NetworkInfo;
 import com.tscp.mvne.network.service.NetworkService;
@@ -65,8 +64,7 @@ public class DAOTester {
       System.out.println(df.format(Double.parseDouble("10.99900")));
       System.out.println(NumberFormat.getCurrencyInstance().format(Double.parseDouble("10.999")));
       int quantity = 2;
-      System.out.println("Quantity modified :: "
-          + NumberFormat.getCurrencyInstance().format(Double.parseDouble("10.999") * quantity));
+      System.out.println("Quantity modified :: " + NumberFormat.getCurrencyInstance().format(Double.parseDouble("10.999") * quantity));
       System.out.println(sdf.format(new Date()));
 
       // System.exit(0);
@@ -249,7 +247,7 @@ public class DAOTester {
       if (deviceInfo.getId() == 1) {
         deviceInfo.setLabel("Vincent's MiFi Device");
         // deviceInfo.setDeviceStatus(DeviceStatus.DESC_ACTIVE);
-        deviceInfo.setStatusId(DeviceStatus.ID_RELEASED_REMOVED);
+        deviceInfo.setStatusId(Device.STATUS.REMOVED.getValue());
         deviceInfo.setExpirationDate(new Date());
         deviceInfo.save();
         // Customer customer = new Customer();
@@ -286,8 +284,7 @@ public class DAOTester {
 
     if (spresponse != null) {
       for (GeneralSPResponse response : spresponse) {
-        System.out.println("STATUS :: " + response.getStatus() + " :: MVNEMSGCODE :: " + response.getMvnemsgcode()
-            + " :: MVNEMSG :: " + response.getMvnemsg());
+        System.out.println("STATUS :: " + response.getStatus() + " :: MVNEMSGCODE :: " + response.getMvnemsgcode() + " :: MVNEMSG :: " + response.getMvnemsg());
       }
     }
 

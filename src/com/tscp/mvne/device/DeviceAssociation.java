@@ -14,11 +14,12 @@ import com.tscp.mvne.hibernate.HibernateUtil;
 @SuppressWarnings("unchecked")
 public class DeviceAssociation implements Serializable {
   private static final long serialVersionUID = 1L;
-
   private int deviceId;
   private int accountNo;
-  private String externalId;
   private int subscrNo;
+  private int status;
+  private String value;
+  private String externalId;
   private Date activeDate;
   private Date inactiveDate;
   private Date modDate;
@@ -27,6 +28,22 @@ public class DeviceAssociation implements Serializable {
     activeDate = new Date();
     inactiveDate = new Date();
     modDate = new Date();
+  }
+
+  public String getValue() {
+    return value;
+  }
+
+  public void setValue(String value) {
+    this.value = value;
+  }
+
+  public int getStatus() {
+    return status;
+  }
+
+  public void setStatus(int status) {
+    this.status = status;
   }
 
   public int getDeviceId() {
@@ -87,39 +104,22 @@ public class DeviceAssociation implements Serializable {
 
   @Override
   public String toString() {
-    StringBuffer sb = new StringBuffer();
-    sb.append("UsageDetail Object ...");
-    sb.append(" \n");
-    sb.append("deviceId         :: " + getDeviceId());
-    sb.append(" \n");
-    sb.append("accountNo        :: " + getAccountNo());
-    sb.append(" \n");
-    sb.append("externalId       :: " + getExternalId());
-    sb.append(" \n");
-    sb.append("subscrNo         :: " + getSubscrNo());
-    sb.append(" \n");
-    sb.append("activeDate       :: " + getActiveDate());
-    sb.append(" \n");
-    sb.append("inactiveDate     :: " + getInactiveDate());
-    return sb.toString();
+    return "DeviceAssociation [deviceId=" + deviceId + ", accountNo=" + accountNo + ", externalId=" + externalId + ", subscrNo=" + subscrNo + ", activeDate="
+        + activeDate + ", inactiveDate=" + inactiveDate + ", modDate=" + modDate + "]";
   }
 
   public void save() throws DeviceException {
-    if (getDeviceId() <= 0) {
-      throw new DeviceException("Device ID Value not set");
-    }
-    if (getSubscrNo() <= 0) {
-      throw new DeviceException("Subscriber Number has not been set");
-    }
+    validate();
     Session session = HibernateUtil.getSessionFactory().getCurrentSession();
     session.beginTransaction();
-
+    
     Query q = session.getNamedQuery("ins_device_assoc_map");
     q.setParameter("in_device_id", getDeviceId());
     q.setParameter("in_subscr_no", getSubscrNo());
-
+    q.setParameter("in_status", getStatus());
+    q.setParameter("in_value", getValue());
+    
     List<GeneralSPResponse> generalSPResponseList = q.list();
-
     if (generalSPResponseList != null) {
       for (GeneralSPResponse generalSPResponse : generalSPResponseList) {
         if (!generalSPResponse.getStatus().equals("Y")) {
@@ -129,11 +129,16 @@ public class DeviceAssociation implements Serializable {
       }
     } else {
       session.getTransaction().rollback();
-      throw new DeviceException("Error inserting Device Association Map....Nothing was returned.");
+      throw new DeviceException("Error inserting Device Association Map. Nothing was returned.");
     }
-
     session.getTransaction().commit();
+  }
 
+  protected void validate() throws DeviceException {
+    if (getDeviceId() <= 0)
+      throw new DeviceException("Device ID not set");
+    if (getSubscrNo() <= 0)
+      throw new DeviceException("Subscriber Number not set");
   }
 
 }
