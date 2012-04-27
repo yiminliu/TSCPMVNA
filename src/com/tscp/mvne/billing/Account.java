@@ -205,17 +205,12 @@ public class Account implements Serializable {
     if (obj instanceof Account) {
       Account tempAccount = (Account) obj;
       if (tempAccount.getAccount_category() == getAccount_category() && tempAccount.getAccountno() == getAccountno()
-          && tempAccount.getActive_date().equals(getActive_date())
-          && tempAccount.getContact_address1().equals(getContact_address1())
-          && tempAccount.getContact_address2().equals(getContact_address2())
-          && tempAccount.getContact_city().equals(getContact_city())
-          && tempAccount.getContact_email().equals(getContact_email())
-          && tempAccount.getContact_number().equals(getContact_number())
-          && tempAccount.getContact_state().equals(getContact_state())
-          && tempAccount.getContact_zip().equals(getContact_zip()) && tempAccount.getFirstname().equals(getFirstname())
-          && tempAccount.getInactive_date().equals(getInactive_date())
-          && tempAccount.getLastname().equals(getLastname()) && tempAccount.getMiddlename().equals(getMiddlename())
-          && tempAccount.getBalance() == getBalance()) {
+          && tempAccount.getActive_date().equals(getActive_date()) && tempAccount.getContact_address1().equals(getContact_address1())
+          && tempAccount.getContact_address2().equals(getContact_address2()) && tempAccount.getContact_city().equals(getContact_city())
+          && tempAccount.getContact_email().equals(getContact_email()) && tempAccount.getContact_number().equals(getContact_number())
+          && tempAccount.getContact_state().equals(getContact_state()) && tempAccount.getContact_zip().equals(getContact_zip())
+          && tempAccount.getFirstname().equals(getFirstname()) && tempAccount.getInactive_date().equals(getInactive_date())
+          && tempAccount.getLastname().equals(getLastname()) && tempAccount.getMiddlename().equals(getMiddlename()) && tempAccount.getBalance() == getBalance()) {
         return true;
       }
     }

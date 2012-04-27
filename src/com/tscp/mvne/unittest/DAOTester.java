@@ -22,6 +22,7 @@ import com.tscp.mvne.customer.dao.CustAcctMapDAO;
 import com.tscp.mvne.customer.dao.GeneralSPResponse;
 import com.tscp.mvne.device.Device;
 import com.tscp.mvne.device.DeviceAssociation;
+import com.tscp.mvne.device.DeviceStatus;
 import com.tscp.mvne.hibernate.HibernateUtil;
 import com.tscp.mvne.network.NetworkInfo;
 import com.tscp.mvne.network.service.NetworkService;
@@ -247,7 +248,7 @@ public class DAOTester {
       if (deviceInfo.getId() == 1) {
         deviceInfo.setLabel("Vincent's MiFi Device");
         // deviceInfo.setDeviceStatus(DeviceStatus.DESC_ACTIVE);
-        deviceInfo.setStatusId(Device.STATUS.REMOVED.getValue());
+        // deviceInfo.setStatusId(DeviceStatus.REMOVED.getValue());
         deviceInfo.setExpirationDate(new Date());
         deviceInfo.save();
         // Customer customer = new Customer();

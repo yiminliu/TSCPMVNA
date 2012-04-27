@@ -51,6 +51,7 @@ import com.tscp.mvne.customer.dao.CustInfo;
 import com.tscp.mvne.customer.dao.CustTopUp;
 import com.tscp.mvne.device.Device;
 import com.tscp.mvne.device.DeviceAssociation;
+import com.tscp.mvne.device.DeviceStatus;
 import com.tscp.mvne.device.service.DeviceService;
 import com.tscp.mvne.exception.MVNEException;
 import com.tscp.mvne.hibernate.HibernateUtil;
@@ -118,12 +119,13 @@ public class TruConnect {
         customer.retrieveDeviceList();
       }
       if (customer.getDeviceList() != null) {
-        for (Device deviceInfo : customer.getDeviceList()) {
-          if (deviceInfo.getValue().equals(networkInfo.getEsnmeiddec()) || deviceInfo.getValue().equals(networkInfo.getEsnmeidhex())) {
-            logger.info("Found Device Information " + deviceInfo.getId() + " for Customer " + customer.getId() + ".");
-            deviceInfo.setStatusId(Device.STATUS.ACTIVE.getValue());
-            deviceInfo.setEffectiveDate(new Date());
-            deviceInfo.save();
+        for (Device device : customer.getDeviceList()) {
+          if (device.getValue().equals(networkInfo.getEsnmeiddec()) || device.getValue().equals(networkInfo.getEsnmeidhex())) {
+            logger.info("Found Device Information " + device.getId() + " for Customer " + customer.getId() + ".");
+            device.setStatusId(DeviceStatus.ACTIVE.getValue());
+            device.setStatus(DeviceStatus.ACTIVE.getDescription());
+            device.setEffectiveDate(new Date());
+            device.save();
           }
         }
       }
@@ -239,8 +241,8 @@ public class TruConnect {
     return account;
   }
 
-  private void createReinstallServiceInstance(Account account, ServiceInstance serviceInstance, Device deviceInfo) {
-    MethodLogger.logMethod("createReinstallServiceInstance", account, serviceInstance, deviceInfo);
+  private void createReinstallServiceInstance(Account account, ServiceInstance serviceInstance, Device device) {
+    MethodLogger.logMethod("createReinstallServiceInstance", account, serviceInstance, device);
     try {
       account.setServiceinstancelist(billService.getServiceInstanceList(account));
     } catch (BillingException bill_ex) {
@@ -268,18 +270,19 @@ public class TruConnect {
             logger.info("Subscriber " + tempServiceInstance.getSubscriberNumber() + " found");
             logger.info("Building Device Association Mapping");
             DeviceAssociation deviceAssociation = new DeviceAssociation();
-            deviceAssociation.setDeviceId(deviceInfo.getId());
+            deviceAssociation.setDeviceId(device.getId());
             deviceAssociation.setSubscrNo(tempServiceInstance.getSubscriberNumber());
-            deviceAssociation.setValue(deviceInfo.getValue());
-            deviceAssociation.setStatus(Device.STATUS.ACTIVE.getValue());
+            deviceAssociation.setValue(device.getValue());
+            deviceAssociation.setStatus(DeviceStatus.ACTIVE.getValue());
             logger.info("Saving device association");
             deviceAssociation.save();
             //
-            if (deviceInfo.getStatusId() != Device.STATUS.ACTIVE.getValue()) {
-              logger.info("DeviceInfo " + deviceInfo.getId() + " is not in active status...Activating");
-              deviceInfo.setStatusId(Device.STATUS.ACTIVE.getValue());
-              deviceInfo.setEffectiveDate(new Date());
-              deviceInfo.save();
+            if (device.getStatusId() != DeviceStatus.ACTIVE.getValue()) {
+              logger.info("DeviceInfo " + device.getId() + " is not in active status...Activating");
+              device.setStatusId(DeviceStatus.ACTIVE.getValue());
+              device.setStatus(DeviceStatus.ACTIVE.getDescription());
+              device.setEffectiveDate(new Date());
+              device.save();
             }
             break;
           }
@@ -341,9 +344,9 @@ public class TruConnect {
         List<Device> deviceInfoList = new Vector<Device>();
         deviceInfoList = customer.retrieveDeviceList();
         if (deviceInfoList != null) {
-          for (Device deviceInfo : deviceInfoList) {
-            if (deviceInfo.getValue().equals(networkInfo.getEsnmeiddec()) || deviceInfo.getValue().equals(networkInfo.getEsnmeidhex())) {
-              logger.info("found device " + deviceInfo.getId() + "...");
+          for (Device device : deviceInfoList) {
+            if (device.getValue().equals(networkInfo.getEsnmeiddec()) || device.getValue().equals(networkInfo.getEsnmeidhex())) {
+              logger.info("found device " + device.getId() + "...");
               logger.info("attempting to retrieve subscr_no for EXTERNAL_ID " + serviceInstance.getExternalId());
               List<ServiceInstance> serviceInstanceList = billService.getServiceInstanceList(account);
               if (serviceInstanceList != null) {
@@ -352,18 +355,19 @@ public class TruConnect {
                     logger.info("Subscriber " + si.getSubscriberNumber() + " found");
                     logger.info("Building Device Association Mapping");
                     DeviceAssociation deviceAssociation = new DeviceAssociation();
-                    deviceAssociation.setDeviceId(deviceInfo.getId());
+                    deviceAssociation.setDeviceId(device.getId());
                     deviceAssociation.setSubscrNo(si.getSubscriberNumber());
-                    deviceAssociation.setValue(deviceInfo.getValue());
-                    deviceAssociation.setStatus(Device.STATUS.ACTIVE.getValue());
+                    deviceAssociation.setValue(device.getValue());
+                    deviceAssociation.setStatus(DeviceStatus.ACTIVE.getValue());
                     logger.info("Saving device association");
                     deviceAssociation.save();
 
-                    if (deviceInfo.getStatusId() != Device.STATUS.ACTIVE.getValue()) {
-                      logger.info("DeviceInfo " + deviceInfo.getId() + " is not in active status...Activating");
-                      deviceInfo.setStatusId(Device.STATUS.ACTIVE.getValue());
-                      deviceInfo.setEffectiveDate(new Date());
-                      deviceInfo.save();
+                    if (device.getStatusId() != DeviceStatus.ACTIVE.getValue()) {
+                      logger.info("DeviceInfo " + device.getId() + " is not in active status...Activating");
+                      device.setStatusId(DeviceStatus.ACTIVE.getValue());
+                      device.setStatus(DeviceStatus.ACTIVE.getDescription());
+                      device.setEffectiveDate(new Date());
+                      device.save();
                     }
                     break;
                   }
@@ -429,17 +433,17 @@ public class TruConnect {
   }
 
   @WebMethod
-  public List<Device> deleteDeviceInfoObject(Customer customer, Device deviceInfo) {
-    MethodLogger.logMethod("deleteDeviceInfoObject", customer, deviceInfo);
+  public List<Device> deleteDeviceInfoObject(Customer customer, Device device) {
+    MethodLogger.logMethod("deleteDeviceInfoObject", customer, device);
     if (customer == null) {
       throw new CustomerException("Customer Information must be provided");
     }
-    if (deviceInfo == null) {
+    if (device == null) {
       throw new DeviceException("Device information must be provided");
-    } else if (deviceInfo.getId() <= 0) {
+    } else if (device.getId() <= 0) {
       throw new DeviceException("Invalid Device Id");
     }
-    deviceInfo.delete();
+    device.delete();
     MethodLogger.logMethodExit("deleteDeviceInfoObject");
     return customer.retrieveDeviceList();
   }
@@ -468,6 +472,10 @@ public class TruConnect {
     logger.info("fetching account by TN");
     try {
       account.setAccountno(billService.getAccountNoByTN(serviceInstance.getExternalId()));
+      ServiceInstance si = provisionService.getActiveService(account.getAccountno());
+      if (si.getExternalId().equals(serviceInstance.getExternalId())) {
+        serviceInstance = si;
+      }
       if (account.getAccountno() == 0) {
         throw new BillingException("Unable to get account number for External ID " + serviceInstance.getExternalId());
       }
@@ -502,12 +510,14 @@ public class TruConnect {
         }
         if (customer.getDeviceList() != null) {
           logger.info("Customer " + customer.getId() + " has " + customer.getDeviceList().size() + " devices.");
-          for (Device oldDeviceInfo : customer.getDeviceList()) {
-            if (oldDeviceInfo.getValue().equals(networkinfo.getEsnmeiddec()) || oldDeviceInfo.getValue().equals(networkinfo.getEsnmeidhex())) {
+          for (Device device : customer.getDeviceList()) {
+            if (device.getValue().equals(networkinfo.getEsnmeiddec()) || device.getValue().equals(networkinfo.getEsnmeidhex())) {
               logger.info("old device information found...updating");
-              oldDeviceInfo.setStatusId(Device.STATUS.RELEASED.getValue());
-              oldDeviceInfo.setEffectiveDate(new Date());
-              oldDeviceInfo.save();
+              device.setStatusId(DeviceStatus.RELEASED.getValue());
+              device.setStatus(DeviceStatus.RELEASED.getDescription());
+              device.setEffectiveDate(new Date());
+              device.save();
+              updateDeviceHistory(device.getId(), device.getValue(), serviceInstance, DeviceStatus.RELEASED);
             }
           }
         }
@@ -527,6 +537,15 @@ public class TruConnect {
    */
   @WebMethod
   public void disconnectServiceInstanceFromKenan(Account account, ServiceInstance serviceInstance) {
+    List<KenanContract> contracts = contractService.getContracts(account, serviceInstance);
+    if (contracts != null) {
+      for (KenanContract contract : contracts) {
+        contract.setAccount(account);
+        contract.setServiceInstance(serviceInstance);
+        contract.setDuration(0);
+        contractService.updateContract(contract);
+      }
+    }
     billService.deleteServiceInstance(account, serviceInstance);
   }
 
@@ -1070,10 +1089,11 @@ public class TruConnect {
       networkService.restoreService(accountNetworkInfo);
     }
 
-    if (device.getStatusId() != Device.STATUS.ACTIVE.getValue()) {
-      device.setStatusId(Device.STATUS.ACTIVE.getValue());
+    if (device.getStatusId() != DeviceStatus.ACTIVE.getValue()) {
+      device.setStatusId(DeviceStatus.ACTIVE.getValue());
+      device.setStatus(DeviceStatus.ACTIVE.getDescription());
       device.save();
-      updateDeviceHistory(deviceId, device.getValue(), serviceInstance, Device.STATUS.ACTIVE.getValue());
+      updateDeviceHistory(deviceId, device.getValue(), serviceInstance, DeviceStatus.ACTIVE);
     }
   }
 
@@ -1085,7 +1105,7 @@ public class TruConnect {
   }
 
   @Deprecated
-  private void restoreSubscriber(ServiceInstance serviceInstance, Device deviceInfo) {
+  private void restoreSubscriber(ServiceInstance serviceInstance, Device device) {
     logger.info("Restoring subscriber Network, Billing and Device if present");
     Account account = new Account();
     try {
@@ -1115,10 +1135,11 @@ public class TruConnect {
     logger.info("Updating Billing System with restored flag...");
     billService.updateServiceInstanceStatus(serviceInstance, PROVISION.SERVICE.RESTORE);
 
-    if (deviceInfo != null) {
-      logger.info("updating deviceInfo[" + deviceInfo.getId() + "] to AC - " + Device.STATUS.ACTIVE.getDescription());
-      deviceInfo.setStatusId(Device.STATUS.ACTIVE.getValue());
-      deviceInfo.save();
+    if (device != null) {
+      logger.info("updating device[" + device.getId() + "] to AC - " + DeviceStatus.ACTIVE.getDescription());
+      device.setStatusId(DeviceStatus.ACTIVE.getValue());
+      device.setStatus(DeviceStatus.ACTIVE.getDescription());
+      device.save();
     }
     logger.info("Done restoring subscriber");
   }
@@ -1236,7 +1257,7 @@ public class TruConnect {
     }
     assert account.getContact_email() != null : "Email is blank";
 
-    Device deviceInfo = null;
+    Device device = null;
     try {
       logger.debug("binding device information");
       logger.debug("getting device information for CustomerId " + customer.getId() + " and account number " + account.getAccountno());
@@ -1244,19 +1265,19 @@ public class TruConnect {
       if (deviceInfoList != null) {
         logger.debug("Customer has " + deviceInfoList.size() + " devices...binding to the first one...");
         for (Device tempDeviceInfo : deviceInfoList) {
-          deviceInfo = tempDeviceInfo;
-          logger.debug(deviceInfo.toString());
+          device = tempDeviceInfo;
+          logger.debug(device.toString());
           break;
         }
       }
-      if (deviceInfo == null) {
+      if (device == null) {
         throw new NullPointerException("Device information not found");
       }
     } catch (Exception ex) {
       logger.warn("Error Binding device information...Using Account number instead...");
       logger.warn(ex.getMessage());
-      deviceInfo = new Device();
-      deviceInfo.setLabel(account.getFirstname() + "'s Account " + account.getAccountno());
+      device = new Device();
+      device.setLabel(account.getFirstname() + "'s Account " + account.getAccountno());
     }
 
     assert paymentTransaction != null : "Unable to send notification without a valid transaction for Customer " + customer.getId() + ".";
@@ -1302,7 +1323,7 @@ public class TruConnect {
     notificationParameterList.add(new NotificationParameter("invoiceNumber", Integer.toString(paymentTransaction.getBillingTrackingId())));
 
     // deviceLabel
-    notificationParameterList.add(new NotificationParameter("deviceLabel", deviceInfo.getLabel()));
+    notificationParameterList.add(new NotificationParameter("deviceLabel", device.getLabel()));
 
     // pmt source
     String source = "*-" + paymentTransaction.getPaymentSource();
@@ -1722,7 +1743,7 @@ public class TruConnect {
 
       // get device information
       logger.info("getting device information for update");
-      Device deviceInfo = null;
+      Device device = null;
       List<Device> deviceInfoList = customer.retrieveDeviceList(account.getAccountno());
 
       AccountStatus accountStatus = null;
@@ -1740,18 +1761,18 @@ public class TruConnect {
               if (deviceAssociation.getAccountNo() == account.getAccountno() && deviceAssociation.getInactiveDate() == null
                   && deviceAssociation.getExternalId().equals(serviceInstance.getExternalId())) {
                 logger.info("Device association found...setting device object to device id " + tempDeviceInfo.getId());
-                deviceInfo = tempDeviceInfo;
-                accountStatus = getAccountStatus(customer.getId(), account.getAccountno(), deviceInfo, serviceInstance.getExternalId());
+                device = tempDeviceInfo;
+                accountStatus = getAccountStatus(customer.getId(), account.getAccountno(), device, serviceInstance.getExternalId());
                 break;
               }
             }
           }
-          if (deviceInfo != null) {
+          if (device != null) {
             break;
           }
         }
-        // restoreSubscriber(serviceInstance, deviceInfo);
-        if (deviceInfo != null && accountStatus != null) {
+        // restoreSubscriber(serviceInstance, device);
+        if (device != null && accountStatus != null) {
           // if (!accountStatus.getBillingStatus().equals("SUSPEND")) {
           // throw new BillingException("Account " + account.getAccountno() +
           // " does not have SUSPEND component in Kenan");
@@ -1759,12 +1780,12 @@ public class TruConnect {
           // throw new NetworkException("Device is already active on network");
           // }
           if (accountStatus.getBillingStatus().equals("SUSPEND") || accountStatus.getNetworkStatus().equals("SUSPEND")) {
-            restoreAccount(customer.getId(), account.getAccountno(), deviceInfo.getId());
+            restoreAccount(customer.getId(), account.getAccountno(), device.getId());
           }
         } else {
           throw new DeviceException("No device found to restore for Cust " + customer.getId() + " on account " + account.getAccountno());
         }
-        deviceInfo = null;
+        device = null;
       }
       logger.info("Transaction information saved and payment completed for Account " + account.getAccountno() + ".");
 
@@ -1779,7 +1800,7 @@ public class TruConnect {
 
         // get device information
         logger.info("getting device information for update");
-        Device deviceInfo = null;
+        Device device = null;
         List<Device> deviceInfoList = customer.retrieveDeviceList(account.getAccountno());
 
         AccountStatus accountStatus = null;
@@ -1801,20 +1822,20 @@ public class TruConnect {
                   if (deviceAssociation.getAccountNo() == account.getAccountno() && deviceAssociation.getInactiveDate() == null
                       && deviceAssociation.getExternalId().equals(serviceInstance.getExternalId())) {
                     logger.info("Device association found...setting device object to device id " + tempDeviceInfo.getId());
-                    deviceInfo = tempDeviceInfo;
-                    accountStatus = getAccountStatus(customer.getId(), account.getAccountno(), deviceInfo, serviceInstance.getExternalId());
+                    device = tempDeviceInfo;
+                    accountStatus = getAccountStatus(customer.getId(), account.getAccountno(), device, serviceInstance.getExternalId());
                     break;
                   }
                 }
               }
-              if (deviceInfo != null) {
+              if (device != null) {
                 break;
               }
             }
           }
 
-          // suspendSubscriber(serviceInstance, deviceInfo);
-          if (deviceInfo != null && accountStatus != null) {
+          // suspendSubscriber(serviceInstance, device);
+          if (device != null && accountStatus != null) {
             // if (accountStatus.getBillingStatus().equals("SUSPEND")) {
             // throw new BillingException("Account " + account.getAccountno() +
             // " already has SUSPEND component");
@@ -1824,12 +1845,12 @@ public class TruConnect {
             // }
             if (accountStatus.getBillingStatus().equals("ACTIVE") || accountStatus.getBillingStatus().equals("REINSTALL")
                 || accountStatus.getNetworkStatus().equals("ACTIVE")) {
-              suspendAccount(customer.getId(), account.getAccountno(), deviceInfo.getId());
+              suspendAccount(customer.getId(), account.getAccountno(), device.getId());
             }
           } else {
             throw new DeviceException("No device found to suspend for Cust " + customer.getId() + " on account " + account.getAccountno());
           }
-          deviceInfo = null;
+          device = null;
         }
       } else {
         logger.info("No active services on this account...No need to send failed payment notification");
@@ -1877,22 +1898,26 @@ public class TruConnect {
       provisionService.addSingleComponent(accountNo, serviceInstance.getExternalId(), pkg.getInstanceId(), PROVISION.COMPONENT.SUSPEND);
     }
 
-    if (device.getStatusId() != Device.STATUS.SUSPENDED.getValue()) {
-      device.setStatusId(Device.STATUS.SUSPENDED.getValue());
+    if (device.getStatusId() != DeviceStatus.SUSPENDED.getValue()) {
+      device.setStatusId(DeviceStatus.SUSPENDED.getValue());
+      device.setStatus(DeviceStatus.SUSPENDED.getDescription());
       device.save();
-      updateDeviceHistory(deviceId, device.getValue(), serviceInstance, Device.STATUS.SUSPENDED.getValue());
+      updateDeviceHistory(deviceId, device.getValue(), serviceInstance, DeviceStatus.SUSPENDED);
     }
     // finally update the service threshold to prevent future top-ups
     billService.updateServiceInstanceStatus(serviceInstance, PROVISION.SERVICE.HOTLINE);
   }
 
-  protected void updateDeviceHistory(int deviceId, String value, ServiceInstance serviceInstance, int status) {
+  protected void updateDeviceHistory(int deviceId, String value, ServiceInstance serviceInstance, DeviceStatus status) {
+    logger.info("updating device history for device {}:{} subscriber {} with status {}", new Object[] { deviceId, value, serviceInstance.getSubscriberNumber(),
+        status.getDescription() });
     DeviceAssociation deviceAssociation = new DeviceAssociation();
     deviceAssociation.setDeviceId(deviceId);
     deviceAssociation.setValue(value);
     deviceAssociation.setSubscrNo(serviceInstance.getSubscriberNumber());
-    deviceAssociation.setStatus(status);
+    deviceAssociation.setStatus(status.getValue());
     deviceAssociation.save();
+    logger.info("finished updating device history");
   }
 
   @Deprecated
@@ -1903,7 +1928,7 @@ public class TruConnect {
   }
 
   @Deprecated
-  private void suspendSubscriber(ServiceInstance serviceInstance, Device deviceInfo) {
+  private void suspendSubscriber(ServiceInstance serviceInstance, Device device) {
     logger.info("Suspending subscriber Network, Billing and Device if present");
     Account account = new Account();
     try {
@@ -1948,10 +1973,11 @@ public class TruConnect {
     provisionService.removeComponent(accountNumber, serviceInstance.getExternalId(), pkg.getInstanceId(), component.getInstanceId());
     provisionService.addComponent(accountNumber, serviceInstance.getExternalId(), pkg.getInstanceId(), PROVISION.COMPONENT.SUSPEND);
 
-    if (deviceInfo != null) {
-      logger.info("updating deviceInfo[" + deviceInfo.getId() + "] to RX - " + Device.STATUS.SUSPENDED.getDescription());
-      deviceInfo.setStatusId(Device.STATUS.SUSPENDED.getValue());
-      deviceInfo.save();
+    if (device != null) {
+      logger.info("updating device[" + device.getId() + "] to RX - " + DeviceStatus.SUSPENDED.getDescription());
+      device.setStatusId(DeviceStatus.SUSPENDED.getValue());
+      device.setStatus(DeviceStatus.SUSPENDED.getDescription());
+      device.save();
     }
     logger.info("Done suspending subscriber");
   }
@@ -2021,12 +2047,12 @@ public class TruConnect {
         logger.info("Sending swap request for MDN " + oldNetworkInfo.getMdn() + " to DEVICE " + newDevice.getValue());
         networkService.swapESN(oldNetworkInfo, newNetworkInfo);
 
-        // Save deviceInfo
+        // Save device
         logger.info("Saving new device information");
         newDevice.save();
 
         if (serviceInstance != null) {
-          updateDeviceHistory(newDevice.getId(), newDevice.getValue(), serviceInstance, Device.STATUS.ACTIVE.getValue());
+          updateDeviceHistory(newDevice.getId(), newDevice.getValue(), serviceInstance, DeviceStatus.ACTIVE);
         }
 
       } catch (NetworkException network_ex) {
@@ -2131,22 +2157,22 @@ public class TruConnect {
   }
 
   @WebMethod
-  public void updateDeviceInfoObject(Customer customer, Device deviceInfo) {
-    MethodLogger.logMethod("updateDeviceInfoObject", customer, deviceInfo);
+  public void updateDeviceInfoObject(Customer customer, Device device) {
+    MethodLogger.logMethod("updateDeviceInfoObject", customer, device);
     if (customer == null) {
       throw new CustomerException("Customer information must be populated");
     }
-    if (deviceInfo == null) {
+    if (device == null) {
       throw new DeviceException("Device Information must be populated");
     } else {
-      if (deviceInfo.getId() == 0) {
+      if (device.getId() == 0) {
         throw new DeviceException("Cannot update a Device if the ID is not established");
       }
     }
-    if (customer.getId() != deviceInfo.getCustId()) {
+    if (customer.getId() != device.getCustId()) {
       throw new CustomerException("Cannot save a device to a different customer");
     }
-    deviceInfo.save();
+    device.save();
     MethodLogger.logMethodExit("updateDeviceInfoObject");
   }
 }

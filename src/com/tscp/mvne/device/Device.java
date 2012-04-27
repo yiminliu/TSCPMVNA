@@ -23,120 +23,86 @@ public class Device implements Serializable {
   private Date modDate;
   private Date effectiveDate;
   private Date expirationDate;
+
   private DeviceAssociation association;
 
-  public static enum STATUS {
-    UNKNOWN(0, "Unknown"), NEW(1, "New"), ACTIVE(2, "Active"), RELEASED(3, "Released / Reactivate-able"), REMOVED(4, "Released / Removed"), SUSPENDED(5,
-        "Released / System-Reactivate"), BLOCKED(6, "Blocked");
-
-    private int value;
-    private String description;
-
-    private STATUS(int value, String description) {
-      this.value = value;
-      this.description = description;
-    }
-
-    public int getValue() {
-      return value;
-    }
-
-    public String getDescription() {
-      return description;
-    }
-  }
-
   public Device() {
-    setStatusId(STATUS.UNKNOWN.getValue());
-    setStatus(STATUS.UNKNOWN.getDescription());
+    this.statusId = DeviceStatus.UNKNOWN.getValue();
+    this.status = DeviceStatus.UNKNOWN.getDescription();
   }
 
-  public int getId() {
-    return id;
-  }
+  public void delete() {
+    if (getId() <= 0) {
+      throw new DeviceException("Device ID cannot be empty");
+    }
+    Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+    session.beginTransaction();
 
-  public void setId(int id) {
-    this.id = id;
-  }
+    Query q = session.getNamedQuery("del_device_info");
+    q.setParameter("in_cust_id", getCustId());
+    q.setParameter("in_device_id", getId());
 
-  public int getCustId() {
-    return custId;
-  }
+    List<GeneralSPResponse> generalSPResponseList = q.list();
 
-  public void setCustId(int custId) {
-    this.custId = custId;
+    if (generalSPResponseList != null) {
+      for (GeneralSPResponse generalSPResponse : generalSPResponseList) {
+        if (generalSPResponse.getStatus().equals("Y")) {
+          setId(generalSPResponse.getMvnemsgcode());
+        } else {
+          session.getTransaction().rollback();
+          throw new DeviceException(generalSPResponse.getMvnemsg());
+        }
+      }
+    } else {
+      session.getTransaction().rollback();
+      throw new DeviceException("Error Saving Device information...");
+    }
+
+    session.getTransaction().commit();
   }
 
   public int getAccountNo() {
     return accountNo;
   }
 
-  public void setAccountNo(int accountNo) {
-    this.accountNo = accountNo;
+  public DeviceAssociation getAssociation() {
+    return association;
   }
 
-  public String getLabel() {
-    return label;
-  }
-
-  public void setLabel(String label) {
-    this.label = label;
-  }
-
-  public String getValue() {
-    return value;
-  }
-
-  public void setValue(String value) {
-    this.value = value;
-  }
-
-  public int getStatusId() {
-    return statusId;
-  }
-
-  public void setStatusId(int statusId) {
-    this.statusId = statusId;
-  }
-
-  public String getStatus() {
-    return status;
-  }
-
-  public void setStatus(String status) {
-    this.status = status;
-  }
-
-  public Date getModDate() {
-    return modDate;
-  }
-
-  public void setModDate(Date modDate) {
-    this.modDate = modDate;
+  public int getCustId() {
+    return custId;
   }
 
   public Date getEffectiveDate() {
     return effectiveDate;
   }
 
-  public void setEffectiveDate(Date effectiveDate) {
-    this.effectiveDate = effectiveDate;
-  }
-
   public Date getExpirationDate() {
     return expirationDate;
   }
 
-  public void setExpirationDate(Date expirationDate) {
-    this.expirationDate = expirationDate;
+  public int getId() {
+    return id;
   }
 
-  public DeviceAssociation getAssociation() {
-    return association;
+  public String getLabel() {
+    return label;
   }
 
-  public void setAssociation(DeviceAssociation association) {
-    this.association = association;
+  public Date getModDate() {
+    return modDate;
+  }
+
+  public String getStatus() {
+    return status;
+  }
+
+  public int getStatusId() {
+    return statusId;
+  }
+
+  public String getValue() {
+    return value;
   }
 
   public void save() throws DeviceException {
@@ -186,34 +152,48 @@ public class Device implements Serializable {
 
   }
 
-  public void delete() {
-    if (getId() <= 0) {
-      throw new DeviceException("Device ID cannot be empty");
-    }
-    Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-    session.beginTransaction();
+  public void setAccountNo(int accountNo) {
+    this.accountNo = accountNo;
+  }
 
-    Query q = session.getNamedQuery("del_device_info");
-    q.setParameter("in_cust_id", getCustId());
-    q.setParameter("in_device_id", getId());
+  public void setAssociation(DeviceAssociation association) {
+    this.association = association;
+  }
 
-    List<GeneralSPResponse> generalSPResponseList = q.list();
+  public void setCustId(int custId) {
+    this.custId = custId;
+  }
 
-    if (generalSPResponseList != null) {
-      for (GeneralSPResponse generalSPResponse : generalSPResponseList) {
-        if (generalSPResponse.getStatus().equals("Y")) {
-          setId(generalSPResponse.getMvnemsgcode());
-        } else {
-          session.getTransaction().rollback();
-          throw new DeviceException(generalSPResponse.getMvnemsg());
-        }
-      }
-    } else {
-      session.getTransaction().rollback();
-      throw new DeviceException("Error Saving Device information...");
-    }
+  public void setEffectiveDate(Date effectiveDate) {
+    this.effectiveDate = effectiveDate;
+  }
 
-    session.getTransaction().commit();
+  public void setExpirationDate(Date expirationDate) {
+    this.expirationDate = expirationDate;
+  }
+
+  public void setId(int id) {
+    this.id = id;
+  }
+
+  public void setLabel(String label) {
+    this.label = label;
+  }
+
+  public void setModDate(Date modDate) {
+    this.modDate = modDate;
+  }
+
+  public void setStatus(String status) {
+    this.status = status;
+  }
+
+  public void setStatusId(int statusId) {
+    this.statusId = statusId;
+  }
+
+  public void setValue(String value) {
+    this.value = value;
   }
 
   @Override

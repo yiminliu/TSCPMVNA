@@ -1,6 +1,7 @@
 package com.tscp.mvne.billing.contract;
 
 import com.tscp.mvne.billing.Account;
+import com.tscp.mvne.billing.contract.exception.ContractException;
 import com.tscp.mvne.billing.provisioning.ServiceInstance;
 
 public class KenanContract {
@@ -61,32 +62,35 @@ public class KenanContract {
 
   // TODO validation should be moved out of the object and into a validator
   // class
-  public boolean validate() {
-    return validateAccount() && validateServiceInstance() && validateContractType() && validateDuration();
+  public void validate() throws ContractException {
+    validateAccount();
+    validateServiceInstance();
+    validateContractType();
+    validateDuration();
   }
 
-  private boolean validateAccount() {
+  private void validateAccount() throws ContractException {
     if (account == null || account.getAccountno() == 0) {
-      return false;
-    } else {
-      return true;
+      throw new ContractException("Account is not set");
     }
   }
 
-  private boolean validateServiceInstance() {
+  private void validateServiceInstance() throws ContractException {
     if (serviceInstance == null || serviceInstance.getExternalId() == null || serviceInstance.getExternalId().isEmpty()) {
-      return false;
-    } else {
-      return true;
+      throw new ContractException("ServiceInstance is not set");
     }
   }
 
-  private boolean validateContractType() {
-    return contractType != 0;
+  private void validateContractType() throws ContractException {
+    if (contractType == 0) {
+      throw new ContractException("ContractType is not set");
+    }
   }
 
-  private boolean validateDuration() {
-    return duration >= 0;
+  private void validateDuration() throws ContractException {
+    if (duration < 0) {
+      throw new ContractException("Duration is not set");
+    }
   }
 
   @Override

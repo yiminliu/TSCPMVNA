@@ -11,18 +11,21 @@ import com.tscp.mvne.billing.provisioning.ServiceInstance;
 public class ContractService {
 
   public int applyContract(KenanContract contract) throws ContractException {
-    if (contract.validate()) {
+    try {
+      contract.validate();
       return KenanContractDao.insertContract(contract);
-    } else {
-      throw new ContractException("applyContract", "Contract not built properly");
+    } catch (ContractException e) {
+      throw e;
     }
+
   }
 
   public void updateContract(KenanContract contract) throws ContractException {
-    if (contract.validate()) {
+    try {
+      contract.validate();
       KenanContractDao.updateContract(contract);
-    } else {
-      throw new ContractException("updateContract", "Contract not built properly");
+    } catch (ContractException e) {
+      throw e;
     }
   }
 
