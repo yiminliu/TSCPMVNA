@@ -5,34 +5,38 @@ import com.tscp.mvne.network.NetworkInfo;
 
 public class NetworkException extends MVNEException {
   private static final long serialVersionUID = -7412354082633059506L;
-  private NetworkInfo networkinfo;
+  protected NetworkInfo networkInfo;
 
   public NetworkException() {
     super();
   }
 
-  public NetworkException(String message, Exception e) {
-    super(message, e);
-  }
-
-  public NetworkException(String methodName, String message, Exception e) {
-    super(methodName, message, e);
+  public NetworkException(String methodName, String message, Throwable cause) {
+    super(methodName, message, cause);
   }
 
   public NetworkException(String methodName, String message) {
     super(methodName, message);
   }
 
+  public NetworkException(String message, Throwable cause) {
+    super(message, cause);
+  }
+
   public NetworkException(String message) {
     super(message);
   }
 
-  public NetworkInfo getNetworkinfo() {
-    return networkinfo;
+  public NetworkException(Throwable cause) {
+    super(cause);
   }
 
-  public void setNetworkinfo(NetworkInfo networkinfo) {
-    this.networkinfo = networkinfo;
+  public NetworkInfo getNetworkinfo() {
+    return networkInfo;
+  }
+
+  public void setNetworkinfo(NetworkInfo networkInfo) {
+    this.networkInfo = networkInfo;
   }
 
 }

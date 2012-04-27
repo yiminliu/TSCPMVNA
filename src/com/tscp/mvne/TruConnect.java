@@ -1176,10 +1176,12 @@ public class TruConnect {
     notificationParametersList.add(new NotificationParameter("firstName", account.getFirstname()));
     notificationParametersList.add(new NotificationParameter("lastName", account.getLastname()));
 
+    logger.debug("PaymentTransaction.getPaymentUnitMessage() has value: {}", paymentTransaction.getPaymentUnitMessage().toLowerCase());
     String paymentUnitMsg = paymentTransaction.getPaymentUnitMessage().toLowerCase();
     String customerMsg = null;
     for (PaymentUnitMsg msg : PaymentUnitMsg.values()) {
-      if (msg.getMsg().contains(paymentUnitMsg)) {
+      if (msg.getMsg().toLowerCase().contains(paymentUnitMsg)) {
+        logger.debug("match found for value {} in error messages: {}", msg, msg.getMsg().toLowerCase());
         switch (msg) {
         case INVALID_CARD:
           customerMsg = "Invalid Card";
@@ -1205,6 +1207,7 @@ public class TruConnect {
         }
       }
     }
+    logger.debug("customer messages is: {}", customerMsg);
     notificationParametersList.add(new NotificationParameter("failureMsg", customerMsg));
 
     EmailNotification emailNotification = new EmailNotification();

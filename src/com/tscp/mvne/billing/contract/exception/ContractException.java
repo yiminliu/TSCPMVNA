@@ -9,11 +9,24 @@ public class ContractException extends MVNEException {
     super();
   }
 
+  public ContractException(String methodName, String message, Throwable cause) {
+    super(methodName, message, cause);
+  }
+
+  public ContractException(String methodName, String message) {
+    super(methodName, message);
+  }
+
+  public ContractException(String message, Throwable cause) {
+    super(message, cause);
+  }
+
   public ContractException(String message) {
     super(message);
   }
 
-  public ContractException(String methodname, String message) {
-    super(methodname, message);
+  public ContractException(Throwable cause) {
+    super(cause);
   }
+
 }

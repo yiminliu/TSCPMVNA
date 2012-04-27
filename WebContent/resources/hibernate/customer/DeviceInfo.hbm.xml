@@ -55,6 +55,8 @@
       <return-property name="externalId" column="external_id" />
       <return-property name="activeDate" column="active_date" />
       <return-property name="inactiveDate" column="inactive_date" />
+      <return-property name="status" column="status" />
+      <return-property name="value" column="value" />
     </return>
     { call MVNE_API_PKG.FETCH_DEVICE_ASSOC_MAP(?,:in_cust_id,:in_device_id) }
   </sql-query>

@@ -4,35 +4,38 @@ import com.tscp.mvne.exception.MVNEException;
 
 public class CustomerException extends MVNEException {
   private static final long serialVersionUID = -8032831785338560217L;
-  int transactionid;
-  int custid;
+  protected int custId;
 
   public CustomerException() {
     super();
+  }
+
+  public CustomerException(String methodName, String message, Throwable cause) {
+    super(methodName, message, cause);
+  }
+
+  public CustomerException(String methodName, String message) {
+    super(methodName, message);
+  }
+
+  public CustomerException(String message, Throwable cause) {
+    super(message, cause);
   }
 
   public CustomerException(String message) {
     super(message);
   }
 
-  public CustomerException(String methodname, String message) {
-    super(methodname, message);
+  public CustomerException(Throwable cause) {
+    super(cause);
   }
 
-  public void setTransactionid(int transactionid) {
-    this.transactionid = transactionid;
+  public int getCustId() {
+    return custId;
   }
 
-  public int getTransactionid() {
-    return transactionid;
-  }
-
-  public void setCustid(int custid) {
-    this.custid = custid;
-  }
-
-  public int getCustid() {
-    return custid;
+  public void setCustId(int custId) {
+    this.custId = custId;
   }
 
 }

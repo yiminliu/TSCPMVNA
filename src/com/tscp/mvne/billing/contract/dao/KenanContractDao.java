@@ -32,8 +32,8 @@ public class KenanContractDao {
       transaction.commit();
       return response.getMvnemsgcode();
     } else {
-      throw new DaoException("insertContract", "Error inserting contract " + contract.getContractType()
-          + " on account " + contract.getAccount().getAccountno() + ". Fail Reason is : " + response.getMvnemsg());
+      throw new DaoException("Error inserting contract " + contract.getContractType() + " on account " + contract.getAccount().getAccountno()
+          + ". Fail Reason is : " + response.getMvnemsg());
     }
   }
 
@@ -52,8 +52,7 @@ public class KenanContractDao {
     if (response != null && response.success()) {
       transaction.commit();
     } else {
-      throw new DaoException("updateContrat", "Error updating contract " + contract.getContractId()
-          + ". Fail Reason is : " + response.getMvnemsg());
+      throw new DaoException("Error updating contract " + contract.getContractId() + ". Fail Reason is : " + response.getMvnemsg());
     }
   }
 
@@ -87,8 +86,8 @@ public class KenanContractDao {
       transaction.commit();
       return response.getMvnemsgcode();
     } else {
-      throw new DaoException("applyCouponPayment", "Error applying coupon payment on account " + account.getAccountno()
-          + " for " + amount + ". Fail Reason is : " + response.getMvnemsg());
+      throw new DaoException("Error applying coupon payment on account " + account.getAccountno() + " for " + amount + ". Fail Reason is : "
+          + response.getMvnemsg());
     }
   }
 

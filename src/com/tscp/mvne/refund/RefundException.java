@@ -9,11 +9,24 @@ public class RefundException extends MVNEException {
     super();
   }
 
+  public RefundException(String methodName, String message, Throwable cause) {
+    super(methodName, message, cause);
+  }
+
+  public RefundException(String methodName, String message) {
+    super(methodName, message);
+  }
+
+  public RefundException(String message, Throwable cause) {
+    super(message, cause);
+  }
+
   public RefundException(String message) {
     super(message);
   }
 
-  public RefundException(String methodname, String message) {
-    super(methodname, message);
+  public RefundException(Throwable cause) {
+    super(cause);
   }
+
 }
