@@ -17,7 +17,6 @@ public class ContractService {
     } catch (ContractException e) {
       throw e;
     }
-
   }
 
   public void updateContract(KenanContract contract) throws ContractException {

@@ -95,22 +95,8 @@ public class KenanContract {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("contractId=").append(contractId).append(", ");
-    sb.append("contractType=").append(contractType).append(", ");
-    sb.append("duration=").append(duration).append(", ");
-    sb.append("description=").append(description);
-    return sb.toString();
-  }
-
-  public String toFormattedString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("--Contract--").append("\n");
-    sb.append("  contractId=").append(contractId).append("\n");
-    sb.append("  contractType=").append(contractType).append("\n");
-    sb.append("  duration=").append(duration).append("\n");
-    sb.append("  description=").append(description);
-    return sb.toString();
+    return "KenanContract [account=" + account + ", serviceInstance=" + serviceInstance + ", contractType=" + contractType + ", contractId=" + contractId
+        + ", duration=" + duration + ", description=" + description + "]";
   }
 
 }
