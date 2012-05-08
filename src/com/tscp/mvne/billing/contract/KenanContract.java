@@ -70,7 +70,7 @@ public class KenanContract {
   }
 
   private void validateAccount() throws ContractException {
-    if (account == null || account.getAccountno() == 0) {
+    if (account == null || account.getAccountNo() == 0) {
       throw new ContractException("Account is not set");
     }
   }

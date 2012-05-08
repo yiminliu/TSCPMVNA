@@ -15,9 +15,9 @@ import com.tscp.mvne.customer.dao.CustAcctMapDAO;
 import com.tscp.mvne.customer.dao.CustAddress;
 import com.tscp.mvne.customer.dao.CustInfo;
 import com.tscp.mvne.customer.dao.CustTopUp;
-import com.tscp.mvne.customer.dao.GeneralSPResponse;
 import com.tscp.mvne.device.Device;
 import com.tscp.mvne.device.DeviceAssociation;
+import com.tscp.mvne.hibernate.GeneralSPResponse;
 import com.tscp.mvne.hibernate.HibernateUtil;
 import com.tscp.mvne.payment.PaymentException;
 import com.tscp.mvne.payment.PaymentInformation;
@@ -45,18 +45,26 @@ public class Customer {
     this.id = id;
   }
 
+  public int getId() {
+    return id;
+  }
+
+  public void setId(int id) {
+    this.id = id;
+  }
+
   public void addCustAccts(Account account) throws CustomerException {
-    if (getId() <= 0) {
+    if (id <= 0) {
       throw new CustomerException("addCustAccts", "Please specify a customer to add an account mapping.");
     }
-    if (account == null || account.getAccountno() <= 0) {
-      throw new CustomerException("addCustAccts", "Please specify an account to add to customer " + getId());
+    if (account == null || account.getAccountNo() <= 0) {
+      throw new CustomerException("addCustAccts", "Please specify an account to add to customer " + id);
     }
     Session session = HibernateUtil.getSessionFactory().getCurrentSession();
     Transaction tx = session.beginTransaction();
     CustAcctMapDAO custacctmap = new CustAcctMapDAO();
-    custacctmap.setCust_id(getId());
-    custacctmap.setAccount_no(account.getAccountno());
+    custacctmap.setCust_id(id);
+    custacctmap.setAccount_no(account.getAccountNo());
     Query q = session.getNamedQuery("ins_cust_acct_map");
     q.setParameter("cust_id", custacctmap.getCust_id());
     q.setParameter("account_no", custacctmap.getAccount_no());
@@ -77,19 +85,19 @@ public class Customer {
   }
 
   public void deleteCustAccts(Account account) throws CustomerException {
-    if (getId() <= 0) {
+    if (id <= 0) {
       throw new CustomerException("addCustAccts", "Please specify a customer to add an account mapping.");
     }
-    if (account == null || account.getAccountno() <= 0) {
-      throw new CustomerException("addCustAccts", "Please specify an account to add to customer " + getId());
+    if (account == null || account.getAccountNo() <= 0) {
+      throw new CustomerException("addCustAccts", "Please specify an account to add to customer " + id);
     }
 
     Session session = HibernateUtil.getSessionFactory().getCurrentSession();
     session.beginTransaction();
 
     CustAcctMapDAO custacctmap = new CustAcctMapDAO();
-    custacctmap.setCust_id(getId());
-    custacctmap.setAccount_no(account.getAccountno());
+    custacctmap.setCust_id(id);
+    custacctmap.setAccount_no(account.getAccountNo());
     Query q = session.getNamedQuery("del_cust_acct_map");
     q.setParameter("cust_id", custacctmap.getCust_id());
     q.setParameter("account_no", custacctmap.getAccount_no());
@@ -110,7 +118,7 @@ public class Customer {
   }
 
   public void deletePayment(int paymentId) throws CustomerException {
-    if (getId() == 0) {
+    if (id == 0) {
       throw new CustomerException("deletePayment", "Invalid Customer Object. ID must be set.");
     }
     List<CustPmtMap> custPmtMapList = getCustpmttypes(0);
@@ -127,7 +135,7 @@ public class Customer {
       }
     }
     if (!isValidTransaction) {
-      throw new CustomerException("deletePayment", "Invalid Request. Payment ID " + paymentId + " does not belong to cust id " + getId());
+      throw new CustomerException("deletePayment", "Invalid Request. Payment ID " + paymentId + " does not belong to cust id " + id);
     }
   }
 
@@ -166,7 +174,7 @@ public class Customer {
       Session session = HibernateUtil.getSessionFactory().getCurrentSession();
       session.beginTransaction();
       Query q = session.getNamedQuery("fetch_cust_acct_map");
-      q.setParameter("in_cust_id", getId());
+      q.setParameter("in_cust_id", id);
       custaccts = q.list();
       session.getTransaction().commit();
     }
@@ -179,7 +187,7 @@ public class Customer {
     session.beginTransaction();
 
     Query q = session.getNamedQuery("fetch_cust_address");
-    q.setParameter("in_cust_id", getId());
+    q.setParameter("in_cust_id", id);
     q.setParameter("in_address_id", addressId);
 
     List<CustAddress> custAddressList = q.list();
@@ -193,7 +201,7 @@ public class Customer {
     Session session = HibernateUtil.getSessionFactory().getCurrentSession();
     session.beginTransaction();
     Query q = session.getNamedQuery("fetch_cust_info");
-    q.setParameter("in_cust_id", getId());
+    q.setParameter("in_cust_id", id);
     List<CustInfo> custInfoList = q.list();
     if (custInfoList != null && custInfoList.size() > 0) {
       custInfo = custInfoList.get(0);
@@ -215,10 +223,6 @@ public class Customer {
 
   public List<Device> getDeviceList() {
     return deviceList;
-  }
-
-  public int getId() {
-    return id;
   }
 
   public List<PaymentRecord> getPaymentHistory() throws CustomerException {
@@ -251,7 +255,7 @@ public class Customer {
     Session session = HibernateUtil.getSessionFactory().getCurrentSession();
     session.beginTransaction();
     Query q = session.getNamedQuery("fetch_cust_pmt_map");
-    q.setParameter("in_cust_id", getId());
+    q.setParameter("in_cust_id", id);
     q.setParameter("in_pmt_id", 0);
     custpmttypes = q.list();
     for (CustPmtMap custpmt : custpmttypes) {
@@ -281,7 +285,7 @@ public class Customer {
     PaymentInvoice paymentInvoice = new PaymentInvoice();
 
     Query q = session.getNamedQuery("fetch_pmt_invoice");
-    q.setParameter("in_cust_id", getId());
+    q.setParameter("in_cust_id", id);
     q.setParameter("in_trans_id", transId);
     List<PaymentInvoice> paymentInvoiceList = q.list();
     if (paymentInvoiceList != null && paymentInvoiceList.size() > 0) {
@@ -295,7 +299,7 @@ public class Customer {
   }
 
   public CustTopUp getTopupAmount(Account account) throws CustomerException {
-    if (getId() == 0) {
+    if (id == 0) {
       throw new CustomerException("getTopupAmount", "Customer.id must be set...");
     }
     Session session = HibernateUtil.getSessionFactory().getCurrentSession();
@@ -304,8 +308,8 @@ public class Customer {
     String query = "fetch_cust_topup_amt";
 
     Query q = session.getNamedQuery(query);
-    q.setParameter("in_cust_id", getId());
-    q.setParameter("in_account_no", account.getAccountno());
+    q.setParameter("in_cust_id", id);
+    q.setParameter("in_account_no", account.getAccountNo());
     CustTopUp topupAmount = new CustTopUp();
     List<CustTopUp> topupAmountList = q.list();
     for (CustTopUp custTopUp : topupAmountList) {
@@ -362,7 +366,7 @@ public class Customer {
     session.beginTransaction();
 
     Query q = session.getNamedQuery("fetch_device_assoc_map");
-    q.setParameter("in_cust_id", getId());
+    q.setParameter("in_cust_id", id);
     q.setParameter("in_device_id", inDeviceId);
     List<DeviceAssociation> deviceAssociationList = q.list();
 
@@ -382,7 +386,7 @@ public class Customer {
     Session session = HibernateUtil.getSessionFactory().getCurrentSession();
     session.beginTransaction();
     Query q = session.getNamedQuery("fetch_device_info");
-    q.setParameter("in_cust_id", getId());
+    q.setParameter("in_cust_id", id);
     q.setParameter("in_device_id", deviceId);
     q.setParameter("in_account_no", accountNo);
     List<Device> deviceInfoList = q.list();
@@ -415,18 +419,14 @@ public class Customer {
     this.deviceList = deviceList;
   }
 
-  public void setId(int id) {
-    this.id = id;
-  }
-
   public CustTopUp setTopupAmount(Account account, String topupAmount) throws CustomerException {
-    if (getId() == 0) {
+    if (id == 0) {
       throw new CustomerException("setTopupAmount", "Customer.id must be set");
     }
     CustTopUp custTopUp = new CustTopUp();
-    custTopUp.setCustid(getId());
+    custTopUp.setCustid(id);
     custTopUp.setTopupAmount(topupAmount);
-    custTopUp.setAccountNo(account.getAccountno());
+    custTopUp.setAccountNo(account.getAccountNo());
     custTopUp.save();
     return getTopupAmount(account);
   }
@@ -437,7 +437,7 @@ public class Customer {
     session.beginTransaction();
     System.out.println("Payment Amount " + transaction.getPaymentAmount());
     Query q = session.getNamedQuery("sbt_pmt_info");
-    q.setParameter("in_cust_id", getId());
+    q.setParameter("in_cust_id", id);
     q.setParameter("in_pmt_id", paymentId);
     q.setParameter("in_pymntamt", transaction.getPaymentAmount());
 
@@ -455,7 +455,7 @@ public class Customer {
     StringBuffer sb = new StringBuffer();
     sb.append("Customer Object....");
     sb.append("\n");
-    sb.append("id               :: " + getId());
+    sb.append("id               :: " + id);
     return sb.toString();
   }
 

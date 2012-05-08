@@ -10,7 +10,7 @@ import org.hibernate.classic.Session;
 
 import com.tscp.mvne.billing.Account;
 import com.tscp.mvne.billing.contract.exception.ContractException;
-import com.tscp.mvne.customer.dao.GeneralSPResponse;
+import com.tscp.mvne.hibernate.GeneralSPResponse;
 import com.tscp.mvne.hibernate.HibernateUtil;
 import com.tscp.mvne.payment.dao.CreditCard;
 
@@ -22,7 +22,7 @@ public class KenanPaymentDao {
     Transaction transaction = session.beginTransaction();
     try {
       Query query = session.getNamedQuery("get_kenan_payments");
-      query.setParameter("in_account_no", account.getAccountno());
+      query.setParameter("in_account_no", account.getAccountNo());
       List<KenanPayment> payments = query.list();
       transaction.commit();
       return payments;
@@ -37,7 +37,7 @@ public class KenanPaymentDao {
     Transaction transaction = session.beginTransaction();
 
     Query query = session.getNamedQuery("ins_payment_reversal");
-    query.setParameter("in_account_no", account.getAccountno());
+    query.setParameter("in_account_no", account.getAccountNo());
     query.setParameter("in_reversal_amount", amount);
     query.setParameter("in_trans_date", transDate);
     query.setParameter("in_tracking_id", trackingId);
@@ -46,12 +46,12 @@ public class KenanPaymentDao {
     if (list == null) {
       transaction.rollback();
       session.close();
-      throw new ContractException("reversePayment", "Error reversing payment " + trackingId + " on account " + account.getAccountno());
+      throw new ContractException("reversePayment", "Error reversing payment " + trackingId + " on account " + account.getAccountNo());
     } else {
       if (list.size() > 0) {
         if (!list.get(0).getStatus().equals("Y")) {
           transaction.rollback();
-          throw new ContractException("reversePayment", "Error reversing payment " + trackingId + " on account " + account.getAccountno()
+          throw new ContractException("reversePayment", "Error reversing payment " + trackingId + " on account " + account.getAccountNo()
               + ". Fail Reason is : " + list.get(0).getMvnemsg());
         } else {
           transaction.commit();

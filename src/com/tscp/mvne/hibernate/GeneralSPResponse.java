@@ -1,4 +1,4 @@
-package com.tscp.mvne.customer.dao;
+package com.tscp.mvne.hibernate;
 
 import java.io.Serializable;
 
@@ -42,12 +42,7 @@ public class GeneralSPResponse implements Serializable {
 
   @Override
   public String toString() {
-    StringBuffer sb = new StringBuffer();
-    sb.append("GeneralSpResponse Object").append("\n");
-    sb.append("Status           :: " + getStatus()).append(" \n");
-    sb.append("MvneMsgCode      :: " + getMvnemsgcode()).append(" \n");
-    sb.append("MvneMsg          :: " + getMvnemsg());
-    return sb.toString();
+    return "GeneralSPResponse [mvnemsgcode=" + mvnemsgcode + ", status=" + status + ", mvnemsg=" + mvnemsg + "]";
   }
 
 }

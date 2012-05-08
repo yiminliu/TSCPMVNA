@@ -24,8 +24,25 @@
     </encoder>
   </appender>
 
+  <appender name="ROLLINGFILE-AOP" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <File>../logs/TSCPMVNE-AOP.log</File>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <FileNamePattern>../logs/TSCPMVNE/TSCPMVNE-AOP.%d{yyyy-MM-dd}.%i.log.zip</FileNamePattern>
+      <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+        <maxFileSize>5MB</maxFileSize>
+      </timeBasedFileNamingAndTriggeringPolicy>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level: %msg%n</pattern>
+    </encoder>
+  </appender>
+
   <logger name="TSCPMVNE" level="ALL">
     <appender-ref ref="ROLLINGFILE" />
+  </logger>
+
+  <logger name="TSCPMVNE-AOP" level="ALL">
+    <appender-ref ref="ROLLINGFILE-AOP" />
   </logger>
 
   <root>

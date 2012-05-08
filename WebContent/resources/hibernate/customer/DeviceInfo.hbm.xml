@@ -1,4 +1,3 @@
-
 <!DOCTYPE hibernate-mapping PUBLIC
         "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
         "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
@@ -62,7 +61,7 @@
   </sql-query>
 
   <sql-query name="ins_device_info" callable="true">
-    <return class="com.tscp.mvne.customer.dao.GeneralSPResponse">
+    <return class="com.tscp.mvne.hibernate.GeneralSPResponse">
       <return-property name="status" column="status" />
       <return-property name="mvnemsg" column="mvnemsg" />
       <return-property name="mvnemsgcode" column="mvnemsgcode" />
@@ -71,7 +70,7 @@
   </sql-query>
 
   <sql-query name="upd_device_info" callable="true">
-    <return class="com.tscp.mvne.customer.dao.GeneralSPResponse">
+    <return class="com.tscp.mvne.hibernate.GeneralSPResponse">
       <return-property name="status" column="status" />
       <return-property name="mvnemsg" column="mvnemsg" />
       <return-property name="mvnemsgcode" column="mvnemsgcode" />
@@ -81,7 +80,7 @@
   </sql-query>
 
   <sql-query name="del_device_info" callable="true">
-    <return class="com.tscp.mvne.customer.dao.GeneralSPResponse">
+    <return class="com.tscp.mvne.hibernate.GeneralSPResponse">
       <return-property name="status" column="status" />
       <return-property name="mvnemsg" column="mvnemsg" />
       <return-property name="mvnemsgcode" column="mvnemsgcode" />
@@ -90,7 +89,7 @@
   </sql-query>
 
   <sql-query name="ins_device_assoc_map" callable="true">
-    <return class="com.tscp.mvne.customer.dao.GeneralSPResponse">
+    <return class="com.tscp.mvne.hibernate.GeneralSPResponse">
       <return-property name="status" column="status" />
       <return-property name="mvnemsg" column="mvnemsg" />
       <return-property name="mvnemsgcode" column="mvnemsgcode" />

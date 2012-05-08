@@ -6,7 +6,7 @@
 <hibernate-mapping package="com.tscp.mvne.billing">
 
   <class name="com.tscp.mvne.billing.Account">
-    <id name="accountno" column="account_no" />
+    <id name="accountNo" column="account_no" />
     <property name="firstname" column="BILL_FNAME" />
     <property name="lastname" column="BILL_LNAME" />
     <property name="contact_number" column="contact1_phone" />

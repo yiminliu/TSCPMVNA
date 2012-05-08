@@ -53,6 +53,7 @@ import com.tscp.mvne.billing.provisioning.ServiceInstance;
 import com.tscp.mvne.config.CONFIG;
 import com.tscp.mvne.exception.InitializationException;
 import com.tscp.mvne.hibernate.HibernateUtil;
+import com.tscp.util.DateUtil;
 
 /**
  * 1 = Port 5 = CR-D 220 = Pre-Paid
@@ -78,7 +79,7 @@ public class BillService {
 
   @Deprecated
   public void addComponent(Account account, ServiceInstance serviceinstance, Package iPackage, Component componentid) throws BillingException {
-    if (account == null || account.getAccountno() <= 0) {
+    if (account == null || account.getAccountNo() <= 0) {
       throw new BillingException("addComponent", "Error adding service to unknown Account");
     }
     if (serviceinstance == null || serviceinstance.getExternalId() == null || serviceinstance.getExternalId().trim().length() <= 0) {
@@ -115,7 +116,7 @@ public class BillService {
       for (MessageHolder message : messageHolder.getMessageHolder()) {
         if (message.getStatus().equals("Success")) {
         } else {
-          throw new BillingException("addPackage", "Error adding component " + pkgComponent.getComponentId() + " to Account " + account.getAccountno()
+          throw new BillingException("addPackage", "Error adding component " + pkgComponent.getComponentId() + " to Account " + account.getAccountNo()
               + ". Returned message is " + message.getMessage());
         }
       }
@@ -124,7 +125,7 @@ public class BillService {
 
   @Deprecated
   public void addPackage(Account account, ServiceInstance serviceinstance, Package iPackage) throws BillingException {
-    if (account == null || account.getAccountno() <= 0) {
+    if (account == null || account.getAccountNo() <= 0) {
       throw new BillingException("addServiceInstance", "Error adding service to unknown Account");
     }
     if (serviceinstance == null || serviceinstance.getExternalId() == null || serviceinstance.getExternalId().trim().length() <= 0) {
@@ -132,7 +133,7 @@ public class BillService {
     }
     com.telscape.billingserviceinterface.Package kenanPackage = ProvisionUtil.getDefaultBillingPackage();
 
-    kenanPackage.setAccountNo(Integer.toString(account.getAccountno()));
+    kenanPackage.setAccountNo(Integer.toString(account.getAccountNo()));
 
     if (iPackage == null) {
       iPackage = new Package();
@@ -159,7 +160,7 @@ public class BillService {
           iPackage.setInstanceId(Integer.parseInt(value.getValue().trim()));
           iPackage.setInstanceIdServ(Integer.parseInt(value.getValue2().trim()));
         } else {
-          throw new BillingException("addPackage", "Error adding package " + kenanPackage.getPackageId() + " to Account " + account.getAccountno()
+          throw new BillingException("addPackage", "Error adding package " + kenanPackage.getPackageId() + " to Account " + account.getAccountNo()
               + ". Returned message is " + value.getStatusMessage().getMessage());
         }
       }
@@ -167,7 +168,7 @@ public class BillService {
   }
 
   public void addPayment(Account account, String paymentAmount) throws BillingException {
-    String externalId = Integer.toString(account.getAccountno());
+    String externalId = Integer.toString(account.getAccountNo());
     int externalIdType = 1;
     String amount = paymentAmount;
     XMLGregorianCalendar transDate = BillingUtil.getCalendar();
@@ -178,7 +179,7 @@ public class BillService {
       System.out.println("Status  :: " + message.getStatus());
       System.out.println("Message :: " + message.getMessage());
       if (!message.getStatus().equals("Success")) {
-        throw new BillingException("addPayment", "Error adding Payment $" + Double.parseDouble(paymentAmount) / 100 + " to Account " + account.getAccountno()
+        throw new BillingException("addPayment", "Error adding Payment $" + Double.parseDouble(paymentAmount) / 100 + " to Account " + account.getAccountNo()
             + ". Return Message is :: " + message.getMessage());
       }
     } else {
@@ -188,7 +189,7 @@ public class BillService {
 
   @Deprecated
   public void addServiceInstance(Account account, ServiceInstance serviceinstance) throws BillingException {
-    if (account == null || account.getAccountno() <= 0) {
+    if (account == null || account.getAccountNo() <= 0) {
       throw new BillingException("addServiceInstance", "Error adding service to unknown Account");
     }
     if (serviceinstance == null || serviceinstance.getExternalId() == null || serviceinstance.getExternalId().trim().length() <= 0) {
@@ -197,7 +198,7 @@ public class BillService {
     if (account.getFirstname() == null || account.getFirstname().trim().length() == 0) {
       bindAccountObject(account);
     }
-    reactivateBillingAccount(account.getAccountno());
+    reactivateBillingAccount(account.getAccountNo());
     boolean contains = false;
     // if( account.getServiceinstancelist().contains(arg0))
     for (ServiceInstance si : account.getServiceinstancelist()) {
@@ -208,7 +209,7 @@ public class BillService {
     }
     if (!contains) {
       BillingService billingService = ProvisionUtil.getDefaultBillingService();
-      billingService.setAccountNo(Integer.toString(account.getAccountno()));
+      billingService.setAccountNo(Integer.toString(account.getAccountNo()));
 
       billingService.getServiceName().setFirstName(account.getFirstname());
       billingService.getServiceName().setMiddleName(account.getMiddlename());
@@ -228,7 +229,7 @@ public class BillService {
       } else {
         if (!message.getStatus().equals("Success")) {
           throw new BillingException("addServiceInstance", "Error adding ServiceInstance " + serviceinstance.getExternalId() + " to account "
-              + account.getAccountno() + "..." + message.getMessage());
+              + account.getAccountNo() + "..." + message.getMessage());
         }
       }
     } else {
@@ -238,12 +239,12 @@ public class BillService {
   }
 
   private void bindAccountObject(Account account) {
-    BillName billName = getBillName(account.getAccountno());
+    BillName billName = getBillName(account.getAccountNo());
     account.setFirstname(billName.getFirstName());
     account.setMiddlename(billName.getMiddleName());
     account.setLastname(billName.getLastName());
 
-    CustAddress custAddress = getCustAddress(account.getAccountno());
+    CustAddress custAddress = getCustAddress(account.getAccountNo());
     account.setContact_address1(custAddress.getAddress1());
     account.setContact_address2(custAddress.getAddress2());
     account.setContact_city(custAddress.getCity());
@@ -286,23 +287,23 @@ public class BillService {
         }
         throw new BillingException("createAccount", "Account Number has not been returned..");
       } else {
-        account.setAccountno(Integer.parseInt(response.getValue().trim()));
+        account.setAccountNo(Integer.parseInt(response.getValue().trim()));
       }
     }
 
-    return account.getAccountno();
+    return account.getAccountNo();
   }
 
   public void deleteServiceInstance(Account account, ServiceInstance serviceinstance) throws BillingException {
-    System.out.println("Disconnecting Service on Account " + account.getAccountno() + " and ServiceInstance " + serviceinstance.getExternalId());
-    if (account == null || account.getAccountno() == 0) {
+    System.out.println("Disconnecting Service on Account " + account.getAccountNo() + " and ServiceInstance " + serviceinstance.getExternalId());
+    if (account == null || account.getAccountNo() == 0) {
       throw new BillingException("Please specify an account to delete this service against");
     }
     if (serviceinstance == null || serviceinstance.getExternalId() == null || serviceinstance.getExternalId().trim().length() == 0) {
       throw new BillingException("deleteServiceInstance", "Please specify a service to be disconnected...");
     }
     Date datePlusOne = new DateTime().plusDays(1).toDate();
-    MessageHolder message = port.disconnectServicePackages(USERNAME, Integer.toString(account.getAccountno()), serviceinstance.getExternalId(), serviceinstance
+    MessageHolder message = port.disconnectServicePackages(USERNAME, Integer.toString(account.getAccountNo()), serviceinstance.getExternalId(), serviceinstance
         .getExternalIdType(), ProvisionUtil.getCalendar(datePlusOne), DISC_REASON);
     // MessageHolder message = port.disconnectService(USERNAME,
     // serviceinstance.getExternalid(), serviceinstance.getExternalidtype(),
@@ -314,17 +315,17 @@ public class BillService {
       System.out.println("Msg    :: " + message.getMessage());
       if (!message.getStatus().equals("Success")) {
         throw new BillingException("deleteServiceInstance", "Error deleting ServiceInstance " + serviceinstance.getExternalId() + " to account "
-            + account.getAccountno() + "..." + message.getMessage());
+            + account.getAccountNo() + "..." + message.getMessage());
       }
     }
-    System.out.println("Done Disconnecting Service on Account " + account.getAccountno() + " and ServiceInstance " + serviceinstance.getExternalId());
+    System.out.println("Done Disconnecting Service on Account " + account.getAccountNo() + " and ServiceInstance " + serviceinstance.getExternalId());
   }
 
   public final Account getAccount(int accountNumber) {
     BillName billName = getBillName(accountNumber);
     CustAddress custAddress = getCustAddress(accountNumber);
     Account account = new Account();
-    account.setAccountno(accountNumber);
+    account.setAccountNo(accountNumber);
     account.setFirstname(billName.getFirstName());
     account.setLastname(billName.getLastName());
     account.setBalance(getBalance(accountNumber));
@@ -345,7 +346,7 @@ public class BillService {
     CustAddress custAddress = getCustAddress(account_no);
 
     Account lAccount = new Account();
-    lAccount.setAccountno(account_no);
+    lAccount.setAccountNo(account_no);
     lAccount.setFirstname(billName.getFirstName());
     lAccount.setLastname(billName.getLastName());
 
@@ -558,7 +559,7 @@ public class BillService {
   }
 
   public List<PaymentHolder> getPaymentHistory(Account account) {
-    ArrayOfPaymentHolder paymentHolderList = port.getCompletePaymentHistory(USERNAME, Integer.toString(account.getAccountno()));
+    ArrayOfPaymentHolder paymentHolderList = port.getCompletePaymentHistory(USERNAME, Integer.toString(account.getAccountNo()));
     return paymentHolderList.getPaymentHolder();
   }
 
@@ -590,7 +591,7 @@ public class BillService {
 
   @Deprecated
   public List<Component> getComponentList(Account account, ServiceInstance serviceinstance, Package packageinstance) throws BillingException {
-    if (account == null || account.getAccountno() <= 0) {
+    if (account == null || account.getAccountNo() <= 0) {
       throw new BillingException("getComponentList", "Account information not populated...");
     }
     if (serviceinstance == null || serviceinstance.getExternalId() == null || serviceinstance.getExternalId().trim().length() == 0) {
@@ -600,7 +601,7 @@ public class BillService {
     session.beginTransaction();
     Query q = session.getNamedQuery("get_active_components");
     q.setParameter("in_username", USERNAME);
-    q.setParameter("in_account_no", account.getAccountno());
+    q.setParameter("in_account_no", account.getAccountNo());
     q.setParameter("in_external_id", serviceinstance.getExternalId());
     @SuppressWarnings("unchecked")
     List<Component> componentList = q.list();
@@ -696,11 +697,11 @@ public class BillService {
 
   @Deprecated
   public List<Package> getPackageList(Account account, ServiceInstance serviceinstance) throws BillingException {
-    if (account == null || account.getAccountno() <= 0) {
+    if (account == null || account.getAccountNo() <= 0) {
       throw new BillingException("getPackageList", "Account information not populated...");
     }
     try {
-      ArrayOfPackageHolder arrayOfPackages = port.getListActivePackages(USERNAME, Integer.toString(account.getAccountno()));
+      ArrayOfPackageHolder arrayOfPackages = port.getListActivePackages(USERNAME, Integer.toString(account.getAccountNo()));
       if (arrayOfPackages != null) {
         Vector<Package> packageList = new Vector<Package>();
         for (PackageHolder packageHolder : arrayOfPackages.getPackageHolder()) {
@@ -717,7 +718,7 @@ public class BillService {
         return packageList;
       }
     } catch (WebServiceException ws_ex) {
-      System.out.println("WS Exception thrown when calling getListActivePackages(\"username\"," + account.getAccountno() + ")...." + ws_ex.getMessage());
+      System.out.println("WS Exception thrown when calling getListActivePackages(\"username\"," + account.getAccountNo() + ")...." + ws_ex.getMessage());
       throw new BillingException("Error retrieving Package information:" + ws_ex.getMessage());
     }
 
@@ -726,7 +727,7 @@ public class BillService {
 
     Query q = session.getNamedQuery("get_active_packages");
     q.setParameter("in_username", USERNAME);
-    q.setParameter("in_account_no", account.getAccountno());
+    q.setParameter("in_account_no", account.getAccountNo());
 
     @SuppressWarnings("unchecked")
     List<com.tscp.mvne.billing.provisioning.Package> packageList = q.list();
@@ -743,11 +744,11 @@ public class BillService {
 
   @Deprecated
   public List<ServiceInstance> getServiceInstanceList(Account account) throws BillingException {
-    if (account == null || account.getAccountno() <= 0) {
+    if (account == null || account.getAccountNo() <= 0) {
       throw new BillingException("getServiceInstanceList", "Account information must be populated.");
     }
     try {
-      ArrayOfServiceHolder serviceHolderList = port.getActiveService(USERNAME, Integer.toString(account.getAccountno()));
+      ArrayOfServiceHolder serviceHolderList = port.getActiveService(USERNAME, Integer.toString(account.getAccountNo()));
       if (serviceHolderList != null) {
         Vector<ServiceInstance> serviceInstanceList = new Vector<ServiceInstance>();
         for (ServiceHolder serviceHolder : serviceHolderList.getServiceHolder()) {
@@ -755,12 +756,13 @@ public class BillService {
           serviceInstance.setExternalId(serviceHolder.getService().getExternalId());
           serviceInstance.setExternalIdType(serviceHolder.getService().getExternalIdType());
           serviceInstance.setSubscriberNumber(Integer.parseInt(serviceHolder.getService().getSubscrNo()));
+          serviceInstance.setActiveDate(DateUtil.getServiceDate(serviceHolder.getService().getActiveDate()));
+          serviceInstance.setInactiveDate(DateUtil.getServiceDate(serviceHolder.getService().getInactiveDate()));
           serviceInstanceList.add(serviceInstance);
         }
         return serviceInstanceList;
       }
     } catch (WebServiceException ws_ex) {
-      System.out.println("WS Exception thrown when calling getActiveService(\"username\"," + account.getAccountno() + ")...." + ws_ex.getMessage());
       throw new BillingException("Error retrieving Service Instance information:" + ws_ex.getMessage());
     }
 
@@ -769,7 +771,7 @@ public class BillService {
 
     Query q = session.getNamedQuery("get_active_services");
     q.setParameter("in_username", USERNAME);
-    q.setParameter("in_account_no", account.getAccountno());
+    q.setParameter("in_account_no", account.getAccountNo());
 
     @SuppressWarnings("unchecked")
     List<ServiceInstance> serviceInstanceList = (List<ServiceInstance>) q.list();
@@ -794,16 +796,16 @@ public class BillService {
   }
 
   public void updateAccount(Account account) throws BillingException {
-    if (account == null || account.getAccountno() <= 0) {
+    if (account == null || account.getAccountNo() <= 0) {
       throw new BillingException("updateAccount", "Please Specify and account to update...");
     }
     if (account.getContact_email() != null) {
-      MessageHolder message = port.updateEmail(USERNAME, Integer.toString(account.getAccountno()), account.getContact_email());
+      MessageHolder message = port.updateEmail(USERNAME, Integer.toString(account.getAccountNo()), account.getContact_email());
       if (message == null) {
-        throw new BillingException("updateAccount", "Error updating account " + account.getAccountno() + "...No response returned from billing system.");
+        throw new BillingException("updateAccount", "Error updating account " + account.getAccountNo() + "...No response returned from billing system.");
       } else {
         if (!message.getStatus().equals("Success")) {
-          throw new BillingException("updateAccount", "Error updating email address for account " + account.getAccountno() + ". Returned message is "
+          throw new BillingException("updateAccount", "Error updating email address for account " + account.getAccountNo() + ". Returned message is "
               + message.getMessage());
         }
       }
@@ -811,13 +813,13 @@ public class BillService {
   }
 
   public void updateAccountEmailAddress(Account account) {
-    if (account.getAccountno() <= 0) {
+    if (account.getAccountNo() <= 0) {
       throw new BillingException("Account number must be populated.");
     }
     if (account.getContact_email() == null || account.getContact_email().trim().length() == 0) {
       throw new BillingException("Email address cannot be empty.");
     }
-    MessageHolder messageHolder = port.updateEmail("system", Integer.toString(account.getAccountno()), account.getContact_email());
+    MessageHolder messageHolder = port.updateEmail("system", Integer.toString(account.getAccountNo()), account.getContact_email());
     if (messageHolder != null) {
       System.out.println("Status    :: " + messageHolder.getStatus());
       System.out.println("Message   :: " + messageHolder.getMessage());

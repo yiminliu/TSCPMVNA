@@ -24,7 +24,7 @@
   </sql-query>
 
   <sql-query name="ins_payment_reversal" callable="true">
-    <return class="com.tscp.mvne.customer.dao.GeneralSPResponse">
+    <return class="com.tscp.mvne.hibernate.GeneralSPResponse">
       <return-property name="status" column="status" />
       <return-property name="mvnemsg" column="mvnemsg" />
       <return-property name="mvnemsgcode" column="mvnemsgcode" />
@@ -33,7 +33,7 @@
   </sql-query>
 
   <sql-query name="truconnect_pccharge_credit" callable="true">
-    <return class="com.tscp.mvne.customer.dao.GeneralSPResponse">
+    <return class="com.tscp.mvne.hibernate.GeneralSPResponse">
       <return-property name="status" column="status" />
       <return-property name="mvnemsg" column="mvnemsg" />
       <return-property name="mvnemsgcode" column="mvnemsgcode" />
@@ -42,7 +42,7 @@
   </sql-query>
 
   <sql-query name="sp_refund_pmt" callable="true">
-    <return class="com.tscp.mvne.customer.dao.GeneralSPResponse">
+    <return class="com.tscp.mvne.hibernate.GeneralSPResponse">
       <return-property name="status" column="status" />
       <return-property name="mvnemsg" column="mvnemsg" />
       <return-property name="mvnemsgcode" column="mvnemsgcode" />

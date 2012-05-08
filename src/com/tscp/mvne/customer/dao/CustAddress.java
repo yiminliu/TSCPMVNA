@@ -7,6 +7,7 @@ import org.hibernate.Query;
 import org.hibernate.classic.Session;
 
 import com.tscp.mvne.customer.CustomerException;
+import com.tscp.mvne.hibernate.GeneralSPResponse;
 import com.tscp.mvne.hibernate.HibernateUtil;
 
 @SuppressWarnings("unchecked")

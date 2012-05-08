@@ -102,7 +102,7 @@ public class ProvisionSystem extends BillService {
     ProvisionUtil.checkExternalId(externalId);
     Account account = getAccount(accountNo);
     BillingService billingService = ProvisionUtil.getDefaultBillingService();
-    billingService.setAccountNo(Integer.toString(account.getAccountno()));
+    billingService.setAccountNo(Integer.toString(account.getAccountNo()));
     billingService.getServiceName().setFirstName(account.getFirstname());
     billingService.getServiceName().setMiddleName(account.getMiddlename());
     billingService.getServiceName().setLastName(account.getLastname());

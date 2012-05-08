@@ -7,14 +7,15 @@ import org.hibernate.Query;
 import org.hibernate.classic.Session;
 
 import com.tscp.mvne.customer.CustomerException;
+import com.tscp.mvne.hibernate.GeneralSPResponse;
 import com.tscp.mvne.hibernate.HibernateUtil;
 
 @SuppressWarnings("unchecked")
 public class CustTopUp implements Serializable {
   private static final long serialVersionUID = 1L;
-  int custid;
-  String topupAmount;
-  int accountNo;
+  private int custid;
+  private int accountNo;
+  private String topupAmount;
 
   public CustTopUp() {
     custid = 0;
@@ -72,8 +73,7 @@ public class CustTopUp implements Serializable {
 
   @Override
   public String toString() {
-    return "CustId :: " + getCustid() + " || TopUp Amount :: " + getTopupAmount() + " || AccountNo :: "
-        + getAccountNo();
+    return "CustId :: " + getCustid() + " || TopUp Amount :: " + getTopupAmount() + " || AccountNo :: " + getAccountNo();
   }
 
 }

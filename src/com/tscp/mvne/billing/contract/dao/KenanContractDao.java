@@ -10,8 +10,8 @@ import org.hibernate.classic.Session;
 import com.tscp.mvne.billing.Account;
 import com.tscp.mvne.billing.contract.KenanContract;
 import com.tscp.mvne.billing.provisioning.ServiceInstance;
-import com.tscp.mvne.customer.dao.GeneralSPResponse;
 import com.tscp.mvne.exception.DaoException;
+import com.tscp.mvne.hibernate.GeneralSPResponse;
 import com.tscp.mvne.hibernate.HibernateUtil;
 
 @SuppressWarnings("unchecked")
@@ -22,7 +22,7 @@ public class KenanContractDao {
     Transaction transaction = session.beginTransaction();
 
     Query query = session.getNamedQuery("ins_coupon_contract");
-    query.setParameter("in_account_no", contract.getAccount().getAccountno());
+    query.setParameter("in_account_no", contract.getAccount().getAccountNo());
     query.setParameter("in_mdn", contract.getServiceInstance().getExternalId());
     query.setParameter("in_contract_type", contract.getContractType());
     query.setParameter("in_duration", contract.getDuration());
@@ -32,7 +32,7 @@ public class KenanContractDao {
       transaction.commit();
       return response.getMvnemsgcode();
     } else {
-      throw new DaoException("Error inserting contract " + contract.getContractType() + " on account " + contract.getAccount().getAccountno()
+      throw new DaoException("Error inserting contract " + contract.getContractType() + " on account " + contract.getAccount().getAccountNo()
           + ". Fail Reason is : " + response.getMvnemsg());
     }
   }
@@ -42,7 +42,7 @@ public class KenanContractDao {
     Transaction transaction = session.beginTransaction();
 
     Query query = session.getNamedQuery("upd_coupon_contract");
-    query.setParameter("in_account_no", contract.getAccount().getAccountno());
+    query.setParameter("in_account_no", contract.getAccount().getAccountNo());
     query.setParameter("in_mdn", contract.getServiceInstance().getExternalId());
     query.setParameter("in_contract_type", contract.getContractType());
     query.setParameter("in_contract_id", contract.getContractId());
@@ -61,7 +61,7 @@ public class KenanContractDao {
     Transaction transaction = session.beginTransaction();
     try {
       Query query = session.getNamedQuery("get_customer_coupons");
-      query.setParameter("in_account_no", account.getAccountno());
+      query.setParameter("in_account_no", account.getAccountNo());
       query.setParameter("in_external_id", serviceInstance.getExternalId());
       List<KenanContract> contracts = query.list();
       transaction.commit();
@@ -77,7 +77,7 @@ public class KenanContractDao {
     Transaction transaction = session.beginTransaction();
 
     Query query = session.getNamedQuery("ins_coupon_payment");
-    query.setParameter("in_account_no", account.getAccountno());
+    query.setParameter("in_account_no", account.getAccountNo());
     query.setParameter("in_coupon_amount", amount);
     query.setParameter("in_trans_date", date);
     GeneralSPResponse response = getQueryResponse(query.list(), transaction, session);
@@ -86,7 +86,7 @@ public class KenanContractDao {
       transaction.commit();
       return response.getMvnemsgcode();
     } else {
-      throw new DaoException("Error applying coupon payment on account " + account.getAccountno() + " for " + amount + ". Fail Reason is : "
+      throw new DaoException("Error applying coupon payment on account " + account.getAccountNo() + " for " + amount + ". Fail Reason is : "
           + response.getMvnemsg());
     }
   }

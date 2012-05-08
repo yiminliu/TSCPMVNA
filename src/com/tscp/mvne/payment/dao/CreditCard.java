@@ -9,7 +9,7 @@ import javax.persistence.Enumerated;
 import org.hibernate.Query;
 import org.hibernate.classic.Session;
 
-import com.tscp.mvne.customer.dao.GeneralSPResponse;
+import com.tscp.mvne.hibernate.GeneralSPResponse;
 import com.tscp.mvne.hibernate.HibernateUtil;
 import com.tscp.mvne.payment.PaymentException;
 import com.tscp.mvne.payment.PaymentInformation;

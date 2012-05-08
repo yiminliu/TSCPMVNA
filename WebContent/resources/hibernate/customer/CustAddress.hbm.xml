@@ -35,7 +35,7 @@
   </sql-query>
 
   <sql-query name="upd_cust_address" callable="true">
-    <return class="com.tscp.mvne.customer.dao.GeneralSPResponse">
+    <return class="com.tscp.mvne.hibernate.GeneralSPResponse">
       <return-property name="status" column="status" />
       <return-property name="mvnemsg" column="mvnemsg" />
       <return-property name="mvnemsgcode" column="mvnemsgcode" />
@@ -46,7 +46,7 @@
   </sql-query>
 
   <sql-query name="ins_cust_address" callable="true">
-    <return class="com.tscp.mvne.customer.dao.GeneralSPResponse">
+    <return class="com.tscp.mvne.hibernate.GeneralSPResponse">
       <return-property name="status" column="status" />
       <return-property name="mvnemsg" column="mvnemsg" />
       <return-property name="mvnemsgcode" column="mvnemsgcode" />
@@ -57,7 +57,7 @@
   </sql-query>
 
   <sql-query name="del_cust_address" callable="true">
-    <return class="com.tscp.mvne.customer.dao.GeneralSPResponse">
+    <return class="com.tscp.mvne.hibernate.GeneralSPResponse">
       <return-property name="status" column="status" />
       <return-property name="mvnemsg" column="mvnemsg" />
       <return-property name="mvnemsgcode" column="mvnemsgcode" />

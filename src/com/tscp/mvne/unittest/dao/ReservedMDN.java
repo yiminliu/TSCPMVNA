@@ -6,7 +6,7 @@ import java.util.List;
 import org.hibernate.Query;
 import org.hibernate.classic.Session;
 
-import com.tscp.mvne.customer.dao.GeneralSPResponse;
+import com.tscp.mvne.hibernate.GeneralSPResponse;
 import com.tscp.mvne.hibernate.HibernateUtil;
 
 public class ReservedMDN {

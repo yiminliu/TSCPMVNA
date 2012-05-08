@@ -198,7 +198,7 @@ public class TruConnect {
   public int applyContract(KenanContract contract) {
     MethodLogger.logMethod("applyContract", contract);
     int contractId = contractService.applyContract(contract);
-    logger.info("Contract " + contract.getContractType() + " applied for account " + contract.getAccount().getAccountno() + " on MDN "
+    logger.info("Contract " + contract.getContractType() + " applied for account " + contract.getAccount().getAccountNo() + " on MDN "
         + contract.getServiceInstance().getExternalId());
     MethodLogger.logMethodExit("applyContract");
     return contractId;
@@ -221,7 +221,7 @@ public class TruConnect {
         }
       }
     } else {
-      throw new WebServiceException("Active ExternalIDs not found for Account Number " + account.getAccountno());
+      throw new WebServiceException("Active ExternalIDs not found for Account Number " + account.getAccountNo());
     }
   }
 
@@ -330,7 +330,7 @@ public class TruConnect {
     try {
       logger.info("Updating Device Association");
       Customer customer = new Customer();
-      CustAcctMapDAO custAcctMapDAO = customer.getCustAcctMapDAOfromAccount(account.getAccountno());
+      CustAcctMapDAO custAcctMapDAO = customer.getCustAcctMapDAOfromAccount(account.getAccountNo());
       if (custAcctMapDAO != null) {
         customer.setId(custAcctMapDAO.getCust_id());
 
@@ -378,7 +378,7 @@ public class TruConnect {
           }
         }
       } else {
-        logger.info("No Customer mapping found for Account Number " + account.getAccountno());
+        logger.info("No Customer mapping found for Account Number " + account.getAccountNo());
       }
     } catch (Exception ex) {
       logger.info("Error updating Device Association in createServiceInstance method");
@@ -410,7 +410,7 @@ public class TruConnect {
     if (customer == null) {
       throw new CustomerException("Invalid customer object");
     }
-    if (account == null || account.getAccountno() <= 0) {
+    if (account == null || account.getAccountNo() <= 0) {
       throw new BillingException("Invalid Account object");
     }
     customer.deleteCustAccts(account);
@@ -471,12 +471,12 @@ public class TruConnect {
     Account account = new Account();
     logger.info("fetching account by TN");
     try {
-      account.setAccountno(billService.getAccountNoByTN(serviceInstance.getExternalId()));
-      ServiceInstance si = provisionService.getActiveService(account.getAccountno());
+      account.setAccountNo(billService.getAccountNoByTN(serviceInstance.getExternalId()));
+      ServiceInstance si = provisionService.getActiveService(account.getAccountNo());
       if (si.getExternalId().equals(serviceInstance.getExternalId())) {
         serviceInstance = si;
       }
-      if (account.getAccountno() == 0) {
+      if (account.getAccountNo() == 0) {
         throw new BillingException("Unable to get account number for External ID " + serviceInstance.getExternalId());
       }
     } catch (MVNEException mvne_ex) {
@@ -501,7 +501,7 @@ public class TruConnect {
     // set that device to Released / Reactivateable
     try {
       Customer customer = new Customer();
-      CustAcctMapDAO custAcctMapDAO = customer.getCustAcctMapDAOfromAccount(account.getAccountno());
+      CustAcctMapDAO custAcctMapDAO = customer.getCustAcctMapDAOfromAccount(account.getAccountNo());
       if (custAcctMapDAO != null) {
         customer.setId(custAcctMapDAO.getCust_id());
         logger.info("Retrieving device list for customer id " + customer.getId());
@@ -801,7 +801,7 @@ public class TruConnect {
         logger.info("CustAcctMap has been found to have " + accountList.size() + " elements");
         for (CustAcctMapDAO custAcct : accountList) {
           Account account = new Account();
-          account.setAccountno(custAcct.getAccount_no());
+          account.setAccountNo(custAcct.getAccount_no());
           List<ServiceInstance> serviceInstanceList = billService.getServiceInstanceList(account);
           for (ServiceInstance si : serviceInstanceList) {
             if (si.getExternalId().equals(serviceInstance.getExternalId())) {
@@ -870,10 +870,10 @@ public class TruConnect {
     if (custAcctMapDAOList != null && custAcctMapDAOList.size() > 0) {
       for (CustAcctMapDAO custAcctMapDAO : custAcctMapDAOList) {
         Account account = new Account();
-        account.setAccountno(custAcctMapDAO.getAccount_no());
+        account.setAccountNo(custAcctMapDAO.getAccount_no());
         logger.info("update all services associated with this customer to be status 0 in the threshold");
-        logger.info("Updating service instances for account " + account.getAccountno());
-        Account loadedAccount = billService.getAccountByAccountNo(account.getAccountno());
+        logger.info("Updating service instances for account " + account.getAccountNo());
+        Account loadedAccount = billService.getAccountByAccountNo(account.getAccountNo());
         for (ServiceInstance serviceInstance : loadedAccount.getServiceinstancelist()) {
           logger.info("Updating threshold value for ServiceInstance " + serviceInstance.getExternalId() + " to " + PROVISION.SERVICE.RESTORE);
           billService.updateServiceInstanceStatus(serviceInstance, PROVISION.SERVICE.RESTORE);
@@ -1109,8 +1109,8 @@ public class TruConnect {
     logger.info("Restoring subscriber Network, Billing and Device if present");
     Account account = new Account();
     try {
-      account.setAccountno(billService.getAccountNoByTN(serviceInstance.getExternalId()));
-      if (account.getAccountno() == 0) {
+      account.setAccountNo(billService.getAccountNoByTN(serviceInstance.getExternalId()));
+      if (account.getAccountNo() == 0) {
         throw new WebServiceException("Unable to get account number for External ID " + serviceInstance.getExternalId());
       }
     } catch (MVNEException mvne_ex) {
@@ -1179,7 +1179,7 @@ public class TruConnect {
     logger.debug("Preparing Failed Notification message");
     if (account.getFirstname() == null || account.getLastname() == null || account.getContact_email() == null) {
       logger.debug("Binding account information");
-      account = billService.getAccountByAccountNo(account.getAccountno());
+      account = billService.getAccountByAccountNo(account.getAccountNo());
     }
     if (account.getContact_email() == null || account.getContact_email().trim().isEmpty()) {
       account.setContact_email("trualert@telscape.net");
@@ -1247,21 +1247,21 @@ public class TruConnect {
 
   private void sendPaymentSuccessNotification(Customer customer, Account account, PaymentTransaction paymentTransaction) {
     assert customer != null && customer.getId() > 0 : "Customer invalid";
-    assert account != null && account.getAccountno() > 0 : "Account invalid";
+    assert account != null && account.getAccountNo() > 0 : "Account invalid";
     logger.debug("retrieving top up amount");
     CustTopUp custTopUp = customer.getTopupAmount(account);
 
     if (account.getFirstname() == null || account.getLastname() == null || account.getContact_email() == null) {
       logger.debug("Binding account information");
-      account = billService.getAccountByAccountNo(account.getAccountno());
+      account = billService.getAccountByAccountNo(account.getAccountNo());
     }
     assert account.getContact_email() != null : "Email is blank";
 
     Device device = null;
     try {
       logger.debug("binding device information");
-      logger.debug("getting device information for CustomerId " + customer.getId() + " and account number " + account.getAccountno());
-      List<Device> deviceInfoList = customer.retrieveDeviceList(account.getAccountno());
+      logger.debug("getting device information for CustomerId " + customer.getId() + " and account number " + account.getAccountNo());
+      List<Device> deviceInfoList = customer.retrieveDeviceList(account.getAccountNo());
       if (deviceInfoList != null) {
         logger.debug("Customer has " + deviceInfoList.size() + " devices...binding to the first one...");
         for (Device tempDeviceInfo : deviceInfoList) {
@@ -1277,7 +1277,7 @@ public class TruConnect {
       logger.warn("Error Binding device information...Using Account number instead...");
       logger.warn(ex.getMessage());
       device = new Device();
-      device.setLabel(account.getFirstname() + "'s Account " + account.getAccountno());
+      device.setLabel(account.getFirstname() + "'s Account " + account.getAccountNo());
     }
 
     assert paymentTransaction != null : "Unable to send notification without a valid transaction for Customer " + customer.getId() + ".";
@@ -1415,16 +1415,16 @@ public class TruConnect {
     if (customer == null || customer.getId() <= 0) {
       throw new CustomerException("invalid customer object");
     }
-    if (account == null || account.getAccountno() <= 0) {
+    if (account == null || account.getAccountNo() <= 0) {
       throw new BillingException("account object is invalid.");
     }
     if (account.getFirstname() == null || account.getFirstname().trim().isEmpty() || account.getLastname() == null || account.getLastname().trim().isEmpty()
         || account.getContact_email() == null || account.getContact_email().trim().isEmpty()) {
-      account = billService.getAccountByAccountNo(account.getAccountno());
+      account = billService.getAccountByAccountNo(account.getAccountNo());
     }
     if (account.getFirstname() == null || account.getFirstname().trim().isEmpty() || account.getLastname() == null || account.getLastname().trim().isEmpty()
         || account.getContact_email() == null || account.getContact_email().trim().isEmpty()) {
-      throw new BillingException("account information is incorrect for account number " + account.getAccountno());
+      throw new BillingException("account information is incorrect for account number " + account.getAccountNo());
     }
 
     Set<NotificationParameter> notificationParameterList = new HashSet<NotificationParameter>();
@@ -1493,12 +1493,12 @@ public class TruConnect {
       logger.warn("Invalid payment format. Payment format needs to be \"xxx.xx\" ");
       throw new PaymentException("makeCreditCardPayment", "Invalid payment format. Payment format needs to be \"xxx.xx\" ");
     }
-    if (account == null || account.getAccountno() <= 0) {
+    if (account == null || account.getAccountNo() <= 0) {
       logger.warn("Invalid Account Object. Account must be specified when making payments...");
       throw new BillingException("makeCreditCardPayment", "Invalid Account Object. Account must be specified when making payments...");
     }
     creditCard.validate();
-    logger.info("Account " + account.getAccountno() + " is attempting to make a " + paymentAmount + " payment against Credit Card ending in "
+    logger.info("Account " + account.getAccountNo() + " is attempting to make a " + paymentAmount + " payment against Credit Card ending in "
         + creditCard.getCreditCardNumber().subSequence(creditCard.getCreditCardNumber().length() - 4, creditCard.getCreditCardNumber().length()));
 
     logger.info("Creating Transaction...");
@@ -1507,7 +1507,7 @@ public class TruConnect {
     pmttransaction.setSessionId(sessionId);
     pmttransaction.setPmtId(creditCard.getPaymentid());
     pmttransaction.setPaymentAmount(paymentAmount);
-    pmttransaction.setAccountNo(account.getAccountno());
+    pmttransaction.setAccountNo(account.getAccountNo());
 
     pmttransaction.savePaymentTransaction();
     logger.info("Transaction " + pmttransaction.getTransId() + " has been entered and is beginning");
@@ -1588,7 +1588,7 @@ public class TruConnect {
       // update transaction
       pmttransaction.setBillingUnitDate(new Date());
       pmttransaction.savePaymentTransaction();
-      logger.info("Transaction information saved and payment completed for Account " + account.getAccountno() + ".");
+      logger.info("Transaction information saved and payment completed for Account " + account.getAccountNo() + ".");
     } else {
       logger.warn("Error posting credit card payment. :: " + response.getConfdescr() + " " + response.getAuthcode());
       throw new PaymentException("makeCreditCardPayment", "Error posting credit card payment. :: " + response.getConfdescr() + " " + response.getAuthcode());
@@ -1616,7 +1616,7 @@ public class TruConnect {
         throw new PaymentException("submitPaymentByPaymentId", "Invalid payment amount.  Amount must be a multiple of 10");
       }
     }
-    if (account == null || account.getAccountno() <= 0) {
+    if (account == null || account.getAccountNo() <= 0) {
       logger.warn("Invalid Account Object. Account must be specified when making payments...");
       logger.info("Attempting to grab customer's account from CustAcctMap object");
       List<CustAcctMapDAO> custAcctList = customer.getCustaccts();
@@ -1629,11 +1629,11 @@ public class TruConnect {
       } else {
         for (CustAcctMapDAO custAcctMapDAO : custAcctList) {
           account = new Account();
-          account.setAccountno(custAcctMapDAO.getAccount_no());
+          account.setAccountNo(custAcctMapDAO.getAccount_no());
         }
       }
     }
-    logger.info("Customer " + customer.getId() + " and Account " + account.getAccountno() + " is attempting to make a " + paymentAmount
+    logger.info("Customer " + customer.getId() + " and Account " + account.getAccountNo() + " is attempting to make a " + paymentAmount
         + " payment against paymentid " + paymentId);
 
     boolean validTransaction = false;
@@ -1677,7 +1677,7 @@ public class TruConnect {
     pmttransaction.setSessionId(sessionId);
     pmttransaction.setPmtId(paymentId);
     pmttransaction.setPaymentAmount(paymentAmount);
-    pmttransaction.setAccountNo(account.getAccountno());
+    pmttransaction.setAccountNo(account.getAccountNo());
 
     pmttransaction.savePaymentTransaction();
     logger.info("Transaction " + pmttransaction.getTransId() + " has been entered and is beginning");
@@ -1744,25 +1744,25 @@ public class TruConnect {
       // get device information
       logger.info("getting device information for update");
       Device device = null;
-      List<Device> deviceInfoList = customer.retrieveDeviceList(account.getAccountno());
+      List<Device> deviceList = customer.retrieveDeviceList(account.getAccountNo());
 
       AccountStatus accountStatus = null;
 
       // update service instances with new cleared threshold value
-      logger.info("Updating service instances for account " + account.getAccountno());
-      Account loadedAccount = billService.getAccountByAccountNo(account.getAccountno());
+      logger.info("Updating service instances for account " + account.getAccountNo());
+      Account loadedAccount = billService.getAccountByAccountNo(account.getAccountNo());
       for (ServiceInstance serviceInstance : loadedAccount.getServiceinstancelist()) {
-        for (Device tempDeviceInfo : deviceInfoList) {
+        for (Device tempDevice : deviceList) {
           logger.info("Iterating through deviceInfoList");
-          List<DeviceAssociation> deviceAssociationList = customer.retrieveDeviceAssociationList(tempDeviceInfo.getId());
+          List<DeviceAssociation> deviceAssociationList = customer.retrieveDeviceAssociationList(tempDevice.getId());
           if (deviceAssociationList != null && !deviceAssociationList.isEmpty()) {
             logger.info("iterating through deviceAssocaitionList");
             for (DeviceAssociation deviceAssociation : deviceAssociationList) {
-              if (deviceAssociation.getAccountNo() == account.getAccountno() && deviceAssociation.getInactiveDate() == null
+              if (deviceAssociation.getAccountNo() == account.getAccountNo() && deviceAssociation.getInactiveDate() == null
                   && deviceAssociation.getExternalId().equals(serviceInstance.getExternalId())) {
-                logger.info("Device association found...setting device object to device id " + tempDeviceInfo.getId());
-                device = tempDeviceInfo;
-                accountStatus = getAccountStatus(customer.getId(), account.getAccountno(), device, serviceInstance.getExternalId());
+                logger.info("Device association found...setting device object to device id " + tempDevice.getId());
+                device = tempDevice;
+                accountStatus = getAccountStatus(customer.getId(), account.getAccountNo(), device, serviceInstance.getExternalId());
                 break;
               }
             }
@@ -1774,20 +1774,21 @@ public class TruConnect {
         // restoreSubscriber(serviceInstance, device);
         if (device != null && accountStatus != null) {
           // if (!accountStatus.getBillingStatus().equals("SUSPEND")) {
-          // throw new BillingException("Account " + account.getAccountno() +
+          // throw new BillingException("Account " +
+          // account.getAccountNo() +
           // " does not have SUSPEND component in Kenan");
           // } else if (!accountStatus.getNetworkStatus().equals("SUSPEND")) {
           // throw new NetworkException("Device is already active on network");
           // }
           if (accountStatus.getBillingStatus().equals("SUSPEND") || accountStatus.getNetworkStatus().equals("SUSPEND")) {
-            restoreAccount(customer.getId(), account.getAccountno(), device.getId());
+            restoreAccount(customer.getId(), account.getAccountNo(), device.getId());
           }
         } else {
-          throw new DeviceException("No device found to restore for Cust " + customer.getId() + " on account " + account.getAccountno());
+          throw new DeviceException("No device found to restore for Cust " + customer.getId() + " on account " + account.getAccountNo());
         }
         device = null;
       }
-      logger.info("Transaction information saved and payment completed for Account " + account.getAccountno() + ".");
+      logger.info("Transaction information saved and payment completed for Account " + account.getAccountNo() + ".");
 
     } else {
       logger.warn("Error posting credit card payment. :: " + response.getConfdescr() + " " + response.getAuthcode());
@@ -1801,29 +1802,29 @@ public class TruConnect {
         // get device information
         logger.info("getting device information for update");
         Device device = null;
-        List<Device> deviceInfoList = customer.retrieveDeviceList(account.getAccountno());
+        List<Device> deviceList = customer.retrieveDeviceList(account.getAccountNo());
 
         AccountStatus accountStatus = null;
 
         // suspend services
         logger.info("Loading account information from Billing System...");
-        Account loadedAccount = billService.getAccountByAccountNo(account.getAccountno());
-        logger.info("Updating service instances for account " + account.getAccountno());
+        Account loadedAccount = billService.getAccountByAccountNo(account.getAccountNo());
+        logger.info("Updating service instances for account " + account.getAccountNo());
         for (ServiceInstance serviceInstance : loadedAccount.getServiceinstancelist()) {
           logger
               .info("Updating threshold value and Network status for ServiceInstance " + serviceInstance.getExternalId() + " to " + PROVISION.SERVICE.HOTLINE);
-          if (deviceInfoList != null && !deviceInfoList.isEmpty()) {
-            for (Device tempDeviceInfo : deviceInfoList) {
+          if (deviceList != null && !deviceList.isEmpty()) {
+            for (Device tempDevice : deviceList) {
               logger.info("Iterating through deviceInfoList");
-              List<DeviceAssociation> deviceAssociationList = customer.retrieveDeviceAssociationList(tempDeviceInfo.getId());
+              List<DeviceAssociation> deviceAssociationList = customer.retrieveDeviceAssociationList(tempDevice.getId());
               if (deviceAssociationList != null && deviceAssociationList.size() > 0) {
                 logger.info("iterating through deviceAssocaitionList");
                 for (DeviceAssociation deviceAssociation : deviceAssociationList) {
-                  if (deviceAssociation.getAccountNo() == account.getAccountno() && deviceAssociation.getInactiveDate() == null
+                  if (deviceAssociation.getAccountNo() == account.getAccountNo() && deviceAssociation.getInactiveDate() == null
                       && deviceAssociation.getExternalId().equals(serviceInstance.getExternalId())) {
-                    logger.info("Device association found...setting device object to device id " + tempDeviceInfo.getId());
-                    device = tempDeviceInfo;
-                    accountStatus = getAccountStatus(customer.getId(), account.getAccountno(), device, serviceInstance.getExternalId());
+                    logger.info("Device association found...setting device object to device id " + tempDevice.getId());
+                    device = tempDevice;
+                    accountStatus = getAccountStatus(customer.getId(), account.getAccountNo(), device, serviceInstance.getExternalId());
                     break;
                   }
                 }
@@ -1837,7 +1838,8 @@ public class TruConnect {
           // suspendSubscriber(serviceInstance, device);
           if (device != null && accountStatus != null) {
             // if (accountStatus.getBillingStatus().equals("SUSPEND")) {
-            // throw new BillingException("Account " + account.getAccountno() +
+            // throw new BillingException("Account " +
+            // account.getAccountNo() +
             // " already has SUSPEND component");
             // } else if (accountStatus.getNetworkStatus().equals("SUSPEND")) {
             // throw new
@@ -1845,10 +1847,10 @@ public class TruConnect {
             // }
             if (accountStatus.getBillingStatus().equals("ACTIVE") || accountStatus.getBillingStatus().equals("REINSTALL")
                 || accountStatus.getNetworkStatus().equals("ACTIVE")) {
-              suspendAccount(customer.getId(), account.getAccountno(), device.getId());
+              suspendAccount(customer.getId(), account.getAccountNo(), device.getId());
             }
           } else {
-            throw new DeviceException("No device found to suspend for Cust " + customer.getId() + " on account " + account.getAccountno());
+            throw new DeviceException("No device found to suspend for Cust " + customer.getId() + " on account " + account.getAccountNo());
           }
           device = null;
         }
@@ -1932,8 +1934,8 @@ public class TruConnect {
     logger.info("Suspending subscriber Network, Billing and Device if present");
     Account account = new Account();
     try {
-      account.setAccountno(billService.getAccountNoByTN(serviceInstance.getExternalId()));
-      if (account.getAccountno() == 0) {
+      account.setAccountNo(billService.getAccountNoByTN(serviceInstance.getExternalId()));
+      if (account.getAccountNo() == 0) {
         throw new WebServiceException("Unable to get account number for External ID " + serviceInstance.getExternalId());
       }
     } catch (MVNEException mvne_ex) {
@@ -1967,7 +1969,7 @@ public class TruConnect {
     logger.info("Updating Billing System with Hotlined Status " + PROVISION.SERVICE.HOTLINE);
     billService.updateServiceInstanceStatus(serviceInstance, PROVISION.SERVICE.HOTLINE);
 
-    int accountNumber = account.getAccountno();
+    int accountNumber = account.getAccountNo();
     Component component = provisionService.getActiveComponent(accountNumber, serviceInstance.getExternalId());
     Package pkg = provisionService.getActivePackage(accountNumber);
     provisionService.removeComponent(accountNumber, serviceInstance.getExternalId(), pkg.getInstanceId(), component.getInstanceId());
@@ -2075,7 +2077,7 @@ public class TruConnect {
       logger.info("updatingAccountEmailAddress(account) account object is null");
       throw new BillingException("Account object cannot be null.");
     }
-    logger.info("Updating EmailAddress for Account " + account.getAccountno() + " to email address " + account.getContact_email());
+    logger.info("Updating EmailAddress for Account " + account.getAccountNo() + " to email address " + account.getContact_email());
     billService.updateAccountEmailAddress(account);
     MethodLogger.logMethodExit("updateAccountEmailAddress");
   }
@@ -2084,7 +2086,7 @@ public class TruConnect {
   public void updateContract(KenanContract contract) {
     MethodLogger.logMethod("updateContract", contract);
     contractService.updateContract(contract);
-    logger.info("Contract " + contract.getContractType() + " updated for account " + contract.getAccount().getAccountno() + " on MDN "
+    logger.info("Contract " + contract.getContractType() + " updated for account " + contract.getAccount().getAccountNo() + " on MDN "
         + contract.getServiceInstance().getExternalId());
     MethodLogger.logMethodExit("updateContract");
   }

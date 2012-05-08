@@ -2,16 +2,7 @@ package com.tscp.mvne.device;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
-import org.hibernate.Query;
-import org.hibernate.classic.Session;
-
-import com.tscp.mvne.customer.DeviceException;
-import com.tscp.mvne.customer.dao.GeneralSPResponse;
-import com.tscp.mvne.hibernate.HibernateUtil;
-
-@SuppressWarnings("unchecked")
 public class DeviceAssociation implements Serializable {
   private static final long serialVersionUID = 1L;
   private int deviceId;
@@ -108,37 +99,8 @@ public class DeviceAssociation implements Serializable {
         + activeDate + ", inactiveDate=" + inactiveDate + ", modDate=" + modDate + "]";
   }
 
-  public void save() throws DeviceException {
-    validate();
-    Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-    session.beginTransaction();
-
-    Query q = session.getNamedQuery("ins_device_assoc_map");
-    q.setParameter("in_device_id", getDeviceId());
-    q.setParameter("in_subscr_no", getSubscrNo());
-    q.setParameter("in_status", getStatus());
-    q.setParameter("in_value", getValue());
-
-    List<GeneralSPResponse> generalSPResponseList = q.list();
-    if (generalSPResponseList != null) {
-      for (GeneralSPResponse generalSPResponse : generalSPResponseList) {
-        if (!generalSPResponse.getStatus().equals("Y")) {
-          session.getTransaction().rollback();
-          throw new DeviceException(generalSPResponse.getMvnemsg());
-        }
-      }
-    } else {
-      session.getTransaction().rollback();
-      throw new DeviceException("Error inserting Device Association Map. Nothing was returned.");
-    }
-    session.getTransaction().commit();
-  }
-
-  protected void validate() throws DeviceException {
-    if (getDeviceId() <= 0)
-      throw new DeviceException("Device ID not set");
-    if (getSubscrNo() <= 0)
-      throw new DeviceException("Subscriber Number not set");
+  public void save() {
+    DeviceAssociationDao.save(this);
   }
 
 }
