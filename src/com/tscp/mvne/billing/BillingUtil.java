@@ -1,26 +1,17 @@
 package com.tscp.mvne.billing;
 
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
-
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.hibernate.Query;
 import org.hibernate.classic.Session;
 import org.joda.time.DateTime;
 
-import com.telscape.billingserviceinterface.BillName;
-import com.telscape.billingserviceinterface.BillingAccount;
-import com.telscape.billingserviceinterface.ContactInfo;
-import com.telscape.billingserviceinterface.CustAddress;
 import com.tscp.mvne.billing.exception.BillingException;
 import com.tscp.mvne.billing.exception.ProvisionException;
+import com.tscp.mvne.billing.provisioning.Component;
+import com.tscp.mvne.billing.provisioning.ProvisionUtil;
 import com.tscp.mvne.billing.usage.UsageDetail;
-import com.tscp.mvne.config.BILLING;
-import com.tscp.mvne.config.PROVISION;
 import com.tscp.mvne.hibernate.HibernateUtil;
 
 public class BillingUtil extends BillingServerUtil {
@@ -35,8 +26,11 @@ public class BillingUtil extends BillingServerUtil {
   }
 
   public static final boolean checkChargeMRC(int accountNo, String externalId) throws BillingException {
-    Date lastActiveDate = getLastActiveDate(accountNo, externalId);
-    return lastActiveDate.getTime() <= (new Date()).getTime();
+    return getLastActiveDate(accountNo, externalId).getTime() <= (new Date()).getTime();
+  }
+
+  public static final boolean checkChargeMRCByComponent(Component component) throws BillingException {
+    return !ProvisionUtil.isCurrentMonth(component);
   }
 
   public static List<UsageDetail> getChargeHistory(int accountNo, String externalId) {
@@ -70,115 +64,4 @@ public class BillingUtil extends BillingServerUtil {
     }
   }
 
-  public static final CustAddress getDefaultBillingCustAddress() {
-    CustAddress custAddress = new CustAddress();
-    custAddress.setAddress1("");
-    custAddress.setAddress2("");
-    custAddress.setAddress3("");
-    custAddress.setCity("");
-    custAddress.setState("");
-    custAddress.setZip("");
-    custAddress.setCountryCode(PROVISION.SERVICE.COUNTRY.shortValue());
-    custAddress.setFranchiseTaxCode(PROVISION.SERVICE.SERVICE_FRANCHISE_TAX.shortValue());
-    custAddress.setCounty("");
-    return custAddress;
-  }
-
-  public static final BillName getDefaultBillingBillName() {
-    BillName billName = new BillName();
-    billName.setFirstName("");
-    billName.setMiddleName("");
-    billName.setLastName("");
-    return billName;
-  }
-
-  public static final XMLGregorianCalendar getCalendar() {
-    return getCalendar(new Date());
-  }
-
-  public static final XMLGregorianCalendar getCalendar(Date date) {
-    try {
-      GregorianCalendar cal = new GregorianCalendar();
-      cal.setTime(date);
-      XMLGregorianCalendar xmlDate = DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
-      return xmlDate;
-    } catch (DatatypeConfigurationException e) {
-      e.printStackTrace();
-      return null;
-    }
-  }
-
-  public static final BillingAccount getDefaultBillingAccount() {
-    BillingAccount billingAccount = new BillingAccount();
-
-    billingAccount.setAccountCategory(BILLING.accountCategory.shortValue());
-    billingAccount.setBillDispMethod(BILLING.billDisplayMethod.shortValue());
-    billingAccount.setBillFormatOpt(BILLING.billFormatOption);
-
-    BillName billname = new BillName();
-    billname.setFirstName("Shell Account");
-    billname.setMiddleName("");
-    billname.setLastName("TruConnect");
-    billingAccount.setBillName(billname);
-
-    billingAccount.setBillPeriod(BILLING.billPeriod.toString());
-    billingAccount.setCCardIdServ(BILLING.defaultCreditCardIdServ.shortValue());
-    billingAccount.setCollectionIndicator(BILLING.collectionIndicator.shortValue());
-
-    ContactInfo contactinfo = new ContactInfo();
-    contactinfo.setContact1Name("");
-    contactinfo.setContact1Phone("");
-    billingAccount.setContactInfo(contactinfo);
-
-    billingAccount.setCreditThresh(BILLING.creditThreshold.toString());
-    billingAccount.setCredStatus(BILLING.creditStatus.shortValue());
-    billingAccount.setCurrencyCode(BILLING.currencyCode.shortValue());
-
-    CustAddress custAddress = new CustAddress();
-    custAddress.setAddress1("355 S Grand Ave");
-    custAddress.setAddress2("");
-    custAddress.setAddress3("");
-    custAddress.setCity("Los Angeles");
-    custAddress.setCountryCode(BILLING.customerCountryCode.shortValue());
-    custAddress.setCounty("Los Angeles");
-    custAddress.setFranchiseTaxCode(BILLING.customerFranchiseTaxCode.shortValue());
-    custAddress.setState("CA");
-    custAddress.setZip("90071");
-    billingAccount.setCustAddress(custAddress);
-
-    billingAccount.setBillAddress(custAddress);
-
-    billingAccount.setCustEmail("tscwebgeek@telscape.net");
-    billingAccount.setCustFaxNo("");
-    billingAccount.setCustPhone1("2133880022");
-    billingAccount.setCustPhone2("");
-
-    billingAccount.setExrateClass(BILLING.exrateClass.shortValue());
-    billingAccount.setExternalAccountNoType(BILLING.accountType.shortValue());
-    billingAccount.setInsertGrpId(BILLING.insertGroupId.shortValue());
-
-    billingAccount.setLanguageCode(BILLING.languageCode.shortValue());
-    billingAccount.setMarketCode(BILLING.marketCode.shortValue());
-    billingAccount.setMsgGroupId(BILLING.messageGroupId.shortValue());
-
-    billingAccount.setOwningCostCtr(BILLING.owningCostCenter.shortValue());
-    billingAccount.setPaymentMethod(BILLING.paymentMethod.shortValue());
-
-    billingAccount.setRateClassDefault(BILLING.rateClassDefault.shortValue());
-
-    // TODO Double check this field
-    billingAccount.setServiceCenterId(BILLING.serviceCenterId.shortValue());
-    billingAccount.setServiceCenterType(BILLING.serviceCenterType.shortValue());
-
-    billingAccount.setSicCode(BILLING.sicCode.shortValue());
-    billingAccount.setTieCode(BILLING.tieCode.shortValue());
-
-    billingAccount.setVipCode(BILLING.vipCode.shortValue());
-
-    billingAccount.setSysDate(getCalendar());
-    billingAccount.setAccountDateActive(getCalendar());
-
-    return billingAccount;
-
-  }
 }

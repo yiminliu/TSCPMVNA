@@ -48,8 +48,8 @@ public class RepairService {
         chargeMRC = true;
       }
       int componentId = chargeMRC ? PROVISION.COMPONENT.INSTALL : PROVISION.COMPONENT.REINSTALL;
-      provisionService.removeComponent(accountNo, serviceInstance.getExternalId(), pkg.getInstanceId(), component.getInstanceId());
-      provisionService.addSingleComponent(accountNo, serviceInstance.getExternalId(), pkg.getInstanceId(), componentId);
+      provisionService.removeComponentToday(accountNo, serviceInstance.getExternalId(), pkg.getInstanceId(), component.getInstanceId());
+      provisionService.addSingleComponentToday(accountNo, serviceInstance.getExternalId(), pkg.getInstanceId(), componentId);
     }
     if (!accountStatus.getDeviceStatus().equals("ACTIVE")) {
       Device device = deviceService.getDevice(custId, deviceId, accountNo);

@@ -3,8 +3,7 @@ package com.tscp.mvne.billing.provisioning.tester;
 import java.util.Date;
 import java.util.List;
 
-import javax.jws.WebMethod;
-import javax.jws.WebService;
+import org.joda.time.DateTime;
 
 import com.tscp.mvne.billing.provisioning.Component;
 import com.tscp.mvne.billing.provisioning.Package;
@@ -41,8 +40,8 @@ public class ProvisioningTester {
   }
 
   // @WebMethod
-  public void addSingleComponent(int accountNumber, String externalId, int packageInstance, int componentId) {
-    service.addSingleComponent(accountNumber, externalId, packageInstance, componentId);
+  public void addSingleComponent(int accountNumber, String externalId, int packageInstance, int componentId, DateTime activeDate) {
+    service.addSingleComponent(accountNumber, externalId, packageInstance, componentId, activeDate);
   }
 
   // @WebMethod
@@ -76,8 +75,8 @@ public class ProvisioningTester {
   }
 
   // @WebMethod
-  public void removeComponent(int accountNumber, String externalId, int componentInstanceId, int packageInstance) {
-    service.removeComponent(accountNumber, externalId, componentInstanceId, packageInstance);
+  public void removeComponent(int accountNumber, String externalId, int componentInstanceId, int packageInstance, DateTime inactiveDate) {
+    service.removeComponent(accountNumber, externalId, componentInstanceId, packageInstance, inactiveDate);
   }
 
 }

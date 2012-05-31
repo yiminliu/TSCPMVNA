@@ -2,14 +2,16 @@ package com.tscp.mvne.billing.provisioning;
 
 import java.util.Date;
 
+import org.joda.time.DateTime;
+
 // TODO jpong: Change property names to match java convention. This will require hibernate re-mapping. This needs to be done for all ORM objects.
 public class Component {
   private int id = 0;
   private int instanceId;
   private int elementId;
   private String name;
-  private Date activeDate;
-  private Date inactiveDate;
+  private DateTime activeDate;
+  private DateTime inactiveDate;
 
   public Component() {
     // do nothing
@@ -51,19 +53,19 @@ public class Component {
     this.elementId = elementId;
   }
 
-  public Date getActiveDate() {
+  public DateTime getActiveDate() {
     return activeDate;
   }
 
-  public void setActiveDate(Date activeDate) {
+  public void setActiveDate(DateTime activeDate) {
     this.activeDate = activeDate;
   }
 
-  public Date getInactiveDate() {
+  public DateTime getInactiveDate() {
     return inactiveDate;
   }
 
-  public void setInactiveDate(Date inactiveDate) {
+  public void setInactiveDate(DateTime inactiveDate) {
     this.inactiveDate = inactiveDate;
   }
 
@@ -73,4 +75,49 @@ public class Component {
         + ", active_date=" + activeDate + ", inactive_date=" + inactiveDate + "]";
   }
 
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((activeDate == null) ? 0 : activeDate.hashCode());
+    result = prime * result + elementId;
+    result = prime * result + id;
+    result = prime * result + ((inactiveDate == null) ? 0 : inactiveDate.hashCode());
+    result = prime * result + instanceId;
+    result = prime * result + ((name == null) ? 0 : name.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    Component other = (Component) obj;
+    // if (activeDate == null) {
+    // if (other.activeDate != null)
+    // return false;
+    // } else if (!activeDate.equals(other.activeDate))
+    // return false;
+    if (elementId != other.elementId)
+      return false;
+    if (id != other.id)
+      return false;
+    // if (inactiveDate == null) {
+    // if (other.inactiveDate != null)
+    // return false;
+    // } else if (!inactiveDate.equals(other.inactiveDate))
+    // return false;
+    if (instanceId != other.instanceId)
+      return false;
+    if (name == null) {
+      if (other.name != null)
+        return false;
+    } else if (!name.equals(other.name))
+      return false;
+    return true;
+  }
 }

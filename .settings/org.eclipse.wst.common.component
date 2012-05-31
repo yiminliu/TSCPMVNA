@@ -9,6 +9,7 @@
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src_network"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src_jms"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/WebContent/resources/hibernate"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/config"/>
         <property name="java-output-path" value="/TSCPMVNE/build/classes"/>
         <property name="context-root" value="TSCPMVNE"/>
     </wb-module>

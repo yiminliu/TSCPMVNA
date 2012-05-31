@@ -8,12 +8,13 @@ import org.joda.time.format.DateTimeFormatter;
 
 import com.telscape.billingserviceinterface.ArrayOfPackage;
 import com.telscape.billingserviceinterface.ArrayOfPkgComponent;
-import com.telscape.billingserviceinterface.BillingService;
 import com.telscape.billingserviceinterface.PkgComponent;
 import com.telscape.billingserviceinterface.Service;
 import com.tscp.mvne.billing.BillingUtil;
 import com.tscp.mvne.billing.exception.ProvisionException;
-import com.tscp.mvne.config.PROVISION;
+import com.tscp.mvne.billing.provisioning.defaults.DefaultBillingComponent;
+import com.tscp.mvne.billing.provisioning.defaults.DefaultBillingPackage;
+import com.tscp.util.DateUtils;
 
 /**
  * Validation utility for provisioning serviceInstances, packages and components
@@ -25,6 +26,11 @@ public final class ProvisionUtil extends BillingUtil {
   public static final String SUCCESS = "SUCCESS";
   public static final String FAIL = "FAIL";
 
+  public static final boolean isCurrentMonth(Component component) {
+    DateTime today = new DateTime();
+    return component.getActiveDate().getYear() == today.getYear() && component.getActiveDate().getMonthOfYear() == today.getMonthOfYear();
+  }
+
   /**
    * Returns a Package as required by the Billing Server or the default package
    * if none is specified.
@@ -32,11 +38,10 @@ public final class ProvisionUtil extends BillingUtil {
    * @param pkg
    * @return
    */
-  public static final com.telscape.billingserviceinterface.Package buildBillingPackage(int accountNumber, Package pkg) {
+  public static final com.telscape.billingserviceinterface.Package buildBillingPackage(int accountNo, Package pkg) {
     com.telscape.billingserviceinterface.Package billingPackage;
     if (pkg == null) {
-      billingPackage = getDefaultBillingPackage();
-      billingPackage.setAccountNo(Integer.toString(accountNumber));
+      billingPackage = new DefaultBillingPackage(accountNo);
     } else {
       billingPackage = new com.telscape.billingserviceinterface.Package();
       billingPackage.setAccountNo(Integer.toString(pkg.getAccountNumber()));
@@ -44,17 +49,22 @@ public final class ProvisionUtil extends BillingUtil {
       billingPackage.setPackageInstanceId(pkg.getInstanceId());
       billingPackage.setPackageInstanceIdServ(((Integer) pkg.getInstanceIdServ()).shortValue());
       billingPackage.setPackageName(pkg.getName());
-      billingPackage.setActiveDate(getCalendar(pkg.getActiveDate()));
-      billingPackage.setDiscDate(getCalendar(pkg.getInactiveDate()));
+      billingPackage.setActiveDate(DateUtils.getXMLCalendar(pkg.getActiveDate()));
+      billingPackage.setDiscDate(DateUtils.getXMLCalendar(pkg.getInactiveDate()));
     }
     return billingPackage;
   }
 
   public static final Component buildComponent(PkgComponent billingComponent) {
+    DateTime activeDate = null, inactiveDate = null;
+    if (billingComponent.getComponentActiveDate() != null)
+      activeDate = new DateTime(billingComponent.getComponentActiveDate().toGregorianCalendar());
+    if (billingComponent.getDiscDate() != null)
+      inactiveDate = new DateTime(billingComponent.getDiscDate().toGregorianCalendar());
     Component component = new Component();
-    component.setActiveDate(billingComponent.getComponentActiveDate().toGregorianCalendar().getTime());
+    component.setActiveDate(activeDate);
     component.setId(billingComponent.getComponentId());
-    component.setInactiveDate(billingComponent.getDiscDate().toGregorianCalendar().getTime());
+    component.setInactiveDate(inactiveDate);
     component.setInstanceId(billingComponent.getComponentInstanceId());
     component.setName(billingComponent.getComponentName());
     return component;
@@ -67,8 +77,8 @@ public final class ProvisionUtil extends BillingUtil {
     return componentList;
   }
 
-  public static final ArrayOfPackage buildPackageList(int accountNumber, Package pkg) {
-    com.telscape.billingserviceinterface.Package billingPackage = ProvisionUtil.buildBillingPackage(accountNumber, pkg);
+  public static final ArrayOfPackage buildPackageList(int accountNo, Package pkg) {
+    com.telscape.billingserviceinterface.Package billingPackage = ProvisionUtil.buildBillingPackage(accountNo, pkg);
     ArrayOfPackage packageList = new ArrayOfPackage();
     packageList.getPackage().add(billingPackage);
     return packageList;
@@ -89,7 +99,7 @@ public final class ProvisionUtil extends BillingUtil {
   }
 
   public static final PkgComponent buildPkgComponent(String externalId, Package pkg, Component component) {
-    PkgComponent pkgComponent = ProvisionUtil.getDefaultBillingComponent();
+    PkgComponent pkgComponent = new DefaultBillingComponent();
     pkgComponent.setExternalId(externalId);
     if (component == null) {
       component = new Component();
@@ -101,6 +111,12 @@ public final class ProvisionUtil extends BillingUtil {
     if (component.getInstanceId() > 0) {
       pkgComponent.setComponentInstanceId(component.getInstanceId());
     }
+    if (component.getActiveDate() != null) {
+      pkgComponent.setComponentActiveDate(DateUtils.getXMLCalendar(component.getActiveDate()));
+    }
+    if (component.getInactiveDate() != null) {
+      pkgComponent.setDiscDate(DateUtils.getXMLCalendar(component.getInactiveDate()));
+    }
     if (pkg != null) {
       pkgComponent.setPackageInstanceId(pkg.getInstanceId());
       pkgComponent.setPackageInstanceIdServ(((Integer) pkg.getInstanceIdServ()).shortValue());
@@ -111,9 +127,9 @@ public final class ProvisionUtil extends BillingUtil {
     return pkgComponent;
   }
 
-  public static final Service buildService(int accountNumber, ServiceInstance serviceInstance) {
+  public static final Service buildService(int accountNo, ServiceInstance serviceInstance) {
     Service service = new Service();
-    service.setAccountNo(Integer.toString(accountNumber));
+    service.setAccountNo(Integer.toString(accountNo));
     service.setActiveDate(toServiceDate(serviceInstance.getActiveDate()));
     service.setExternalId(serviceInstance.getExternalId());
     service.setExternalIdType(serviceInstance.getExternalIdType());
@@ -148,53 +164,6 @@ public final class ProvisionUtil extends BillingUtil {
     if (pkg == null || pkg.getInstanceId() == 0) {
       throw new ProvisionException("Package is not set");
     }
-  }
-
-  public static BillingService getDefaultBillingService() {
-    BillingService billingService = new BillingService();
-    billingService.setAccountDateActive(getCalendar());
-    billingService.setAccountNo("");
-    billingService.setCurrencyCode(PROVISION.SERVICE.CURRENCY.shortValue());
-    billingService.setEMFConfigId(PROVISION.SERVICE.EMF_CONFIG.shortValue());
-    billingService.setExrateClass(PROVISION.SERVICE.EXRATE_CLASS.shortValue());
-    billingService.setExternalAccountNoType(PROVISION.SERVICE.EXTERNAL_ACCOUNT_TYPE.shortValue());
-    billingService.setExternalId("");
-    billingService.setExternalIdType(PROVISION.SERVICE.EXTERNAL_ID_TYPE.shortValue());
-    billingService.setRateClassDefault(PROVISION.SERVICE.RATECLASS.shortValue());
-    billingService.setSalesChannelId(PROVISION.SERVICE.SALES_CHANNEL.shortValue());
-    billingService.setServiceAddr(getDefaultBillingCustAddress());
-    billingService.setServiceName(getDefaultBillingBillName());
-    billingService.setServiceStartDate(getCalendar());
-    billingService.setSysDate(getCalendar());
-    return billingService;
-  }
-
-  public static final PkgComponent getDefaultBillingComponent() {
-    PkgComponent pkgComponent = new PkgComponent();
-    pkgComponent.setComponentId(PROVISION.COMPONENT.INSTALL);
-    pkgComponent.setPackageId(PROVISION.COMPONENT.PACKAGE_ID);
-    pkgComponent.setPackageInstanceId(PROVISION.PACKAGE.INSTANCE_ID.shortValue());
-    pkgComponent.setPackageInstanceIdServ(PROVISION.PACKAGE.INSTANCE_SERV_ID.shortValue());
-    pkgComponent.setComponentActiveDate(getCalendar());
-    pkgComponent.setExternalId("");
-    pkgComponent.setExternalIdType(PROVISION.COMPONENT.EXTERNAL_ID_TYPE.shortValue());
-    pkgComponent.setComponentInstanceIdServ(PROVISION.COMPONENT.INSTANCE_SERV_ID.shortValue());
-    return pkgComponent;
-  }
-
-  public static final com.telscape.billingserviceinterface.Package getDefaultBillingPackage() {
-    com.telscape.billingserviceinterface.Package billingPackage = new com.telscape.billingserviceinterface.Package();
-    billingPackage.setPackageId(PROVISION.PACKAGE.ID);
-    billingPackage.setExternalIdType(PROVISION.PACKAGE.EXTERNAL_ID_TYPE.shortValue());
-    billingPackage.setActiveDate(getCalendar());
-    billingPackage.setAccountNo("");
-    return billingPackage;
-  }
-
-  public static final com.telscape.billingserviceinterface.Package getDefaultBillingPackage(int accountNumber) {
-    com.telscape.billingserviceinterface.Package billingPackage = getDefaultBillingPackage();
-    billingPackage.setAccountNo(Integer.toString(accountNumber));
-    return billingPackage;
   }
 
   public static final Date getServiceDate(String serviceDate) {

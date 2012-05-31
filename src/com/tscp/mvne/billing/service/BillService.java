@@ -2,7 +2,6 @@ package com.tscp.mvne.billing.service;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Properties;
@@ -16,7 +15,6 @@ import javax.xml.ws.WebServiceException;
 
 import org.hibernate.Query;
 import org.hibernate.classic.Session;
-import org.joda.time.DateTime;
 
 import com.telscape.billingserviceinterface.ArrayOfMessageHolder;
 import com.telscape.billingserviceinterface.ArrayOfPackage;
@@ -48,12 +46,14 @@ import com.tscp.mvne.billing.exception.BillingException;
 import com.tscp.mvne.billing.exception.ProvisionException;
 import com.tscp.mvne.billing.provisioning.Component;
 import com.tscp.mvne.billing.provisioning.Package;
-import com.tscp.mvne.billing.provisioning.ProvisionUtil;
 import com.tscp.mvne.billing.provisioning.ServiceInstance;
+import com.tscp.mvne.billing.provisioning.defaults.DefaultBillingComponent;
+import com.tscp.mvne.billing.provisioning.defaults.DefaultBillingPackage;
+import com.tscp.mvne.billing.provisioning.defaults.DefaultBillingService;
 import com.tscp.mvne.config.CONFIG;
 import com.tscp.mvne.exception.InitializationException;
 import com.tscp.mvne.hibernate.HibernateUtil;
-import com.tscp.util.DateUtil;
+import com.tscp.util.DateUtils;
 
 /**
  * 1 = Port 5 = CR-D 220 = Pre-Paid
@@ -88,7 +88,7 @@ public class BillService {
     if (iPackage == null || iPackage.getInstanceId() == 0) {
       throw new BillingException("addComponent", "Component must be added to a valid Package");
     }
-    PkgComponent pkgComponent = ProvisionUtil.getDefaultBillingComponent();
+    PkgComponent pkgComponent = new DefaultBillingComponent();
     if (componentid == null) {
       componentid = new Component();
       componentid.setId(0);
@@ -131,7 +131,7 @@ public class BillService {
     if (serviceinstance == null || serviceinstance.getExternalId() == null || serviceinstance.getExternalId().trim().length() <= 0) {
       throw new BillingException("addServiceInstance", "Please include a service to be added...");
     }
-    com.telscape.billingserviceinterface.Package kenanPackage = ProvisionUtil.getDefaultBillingPackage();
+    com.telscape.billingserviceinterface.Package kenanPackage = new DefaultBillingPackage();
 
     kenanPackage.setAccountNo(Integer.toString(account.getAccountNo()));
 
@@ -171,7 +171,7 @@ public class BillService {
     String externalId = Integer.toString(account.getAccountNo());
     int externalIdType = 1;
     String amount = paymentAmount;
-    XMLGregorianCalendar transDate = BillingUtil.getCalendar();
+    XMLGregorianCalendar transDate = DateUtils.getXMLCalendar();
     int transType = Integer.parseInt(props.getProperty("payment.trans_type"));
     String submitBy = "tcweb";
     MessageHolder message = port.addPayment(USERNAME, externalId, externalIdType, amount, transDate, transType, submitBy);
@@ -208,7 +208,7 @@ public class BillService {
       }
     }
     if (!contains) {
-      BillingService billingService = ProvisionUtil.getDefaultBillingService();
+      BillingService billingService = new DefaultBillingService();
       billingService.setAccountNo(Integer.toString(account.getAccountNo()));
 
       billingService.getServiceName().setFirstName(account.getFirstname());
@@ -302,9 +302,8 @@ public class BillService {
     if (serviceinstance == null || serviceinstance.getExternalId() == null || serviceinstance.getExternalId().trim().length() == 0) {
       throw new BillingException("deleteServiceInstance", "Please specify a service to be disconnected...");
     }
-    Date datePlusOne = new DateTime().plusDays(1).toDate();
     MessageHolder message = port.disconnectServicePackages(USERNAME, Integer.toString(account.getAccountNo()), serviceinstance.getExternalId(), serviceinstance
-        .getExternalIdType(), ProvisionUtil.getCalendar(datePlusOne), DISC_REASON);
+        .getExternalIdType(), DateUtils.getXMLCalendarNextDay(), DISC_REASON);
     // MessageHolder message = port.disconnectService(USERNAME,
     // serviceinstance.getExternalid(), serviceinstance.getExternalidtype(),
     // sysdate(), discReason);
@@ -756,8 +755,8 @@ public class BillService {
           serviceInstance.setExternalId(serviceHolder.getService().getExternalId());
           serviceInstance.setExternalIdType(serviceHolder.getService().getExternalIdType());
           serviceInstance.setSubscriberNumber(Integer.parseInt(serviceHolder.getService().getSubscrNo()));
-          serviceInstance.setActiveDate(DateUtil.getServiceDate(serviceHolder.getService().getActiveDate()));
-          serviceInstance.setInactiveDate(DateUtil.getServiceDate(serviceHolder.getService().getInactiveDate()));
+          serviceInstance.setActiveDate(DateUtils.getServiceDate(serviceHolder.getService().getActiveDate()));
+          serviceInstance.setInactiveDate(DateUtils.getServiceDate(serviceHolder.getService().getInactiveDate()));
           serviceInstanceList.add(serviceInstance);
         }
         return serviceInstanceList;

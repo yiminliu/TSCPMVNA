@@ -17,6 +17,7 @@ import javax.xml.ws.WebServiceException;
 
 import org.hibernate.Query;
 import org.hibernate.classic.Session;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1056,10 +1057,16 @@ public class TruConnect {
    * @throws DeviceException
    * @throws NetworkException
    */
-  @WebMethod
-  public void restoreAccount(int custId, int accountNo, int deviceId) throws BillingException, ProvisionException, DeviceException, NetworkException {
+  @Deprecated
+  protected void restoreAccountBak(int custId, int accountNo, int deviceId) throws BillingException, ProvisionException, DeviceException, NetworkException {
+    Object[] args = { custId, accountNo, deviceId };
+    logger.info("Begin restoreAccount(custId:{},accountNo:{},deviceId:{})", args);
     ServiceInstance serviceInstance = provisionService.getActiveService(accountNo);
+    logger.debug("   ...restoreAccount[{}] with MDN {}", accountNo, serviceInstance.getExternalId());
     Component component = provisionService.getActiveComponent(accountNo, serviceInstance.getExternalId());
+    Object[] componentArgs = { accountNo, component.getId(), component.getInstanceId() };
+    logger.debug("   ...restoreAccount[{}] with active component {} instance {}", componentArgs);
+
     Device device = deviceService.getDevice(custId, deviceId, accountNo);
     NetworkInfo deviceNetworkInfo = getNetworkInfo(device.getValue(), null);
     NetworkInfo accountNetworkInfo = getNetworkInfo(null, serviceInstance.getExternalId());
@@ -1067,33 +1074,97 @@ public class TruConnect {
 
     if (component.getId() == PROVISION.COMPONENT.SUSPEND) {
       Package pkg = provisionService.getActivePackage(accountNo);
-      // check if the user needs to be charged a pro-rated MRC for restoration
       boolean chargeMRC;
       try {
         chargeMRC = BillingUtil.checkChargeMRC(accountNo, serviceInstance.getExternalId());
       } catch (BillingException e) {
         chargeMRC = true;
       }
-      // first remove component and add active component to allow for usage
-      // tracking
+      // first add active component to allow for usage tracking
       int componentId = chargeMRC ? PROVISION.COMPONENT.INSTALL : PROVISION.COMPONENT.REINSTALL;
-      provisionService.removeComponent(accountNo, serviceInstance.getExternalId(), pkg.getInstanceId(), component.getInstanceId());
-      provisionService.addSingleComponent(accountNo, serviceInstance.getExternalId(), pkg.getInstanceId(), componentId);
+      Object[] provArgs = { accountNo, pkg.getId(), pkg.getInstanceId() };
+      logger.info("   ...restoreAccount[{}] adding SUSPEND compoent to active package {} instance {}", provArgs);
+      provisionService.removeComponentToday(accountNo, serviceInstance.getExternalId(), pkg.getInstanceId(), component.getInstanceId());
+      provisionService.addSingleComponentToday(accountNo, serviceInstance.getExternalId(), pkg.getInstanceId(), componentId);
+    } else {
+      logger.info("   ...restoreAccount[{}] active component is not SUSPEND in Kenan, no need to update", accountNo);
     }
 
-    // first update the service threshold to allow future top-ups
+    // update the service threshold to allow future top-ups
+    logger.info("   ...restoreAccount[{}] updating threshold to {}", accountNo, PROVISION.SERVICE.RESTORE);
     billService.updateServiceInstanceStatus(serviceInstance, PROVISION.SERVICE.RESTORE);
 
+    // restore device to allow usage
     if (accountNetworkInfo.getStatus().equals("S")) {
-      // finally restore the network to allow usage
+      Object[] deviceArgs = { accountNo, accountNetworkInfo.getStatus(), accountNetworkInfo.getEsnmeiddec(), accountNetworkInfo.getMdn() };
+      logger.info("   ...restoreAccount[{}] restoring device with Status:{} ESN:{} MDN{}", deviceArgs);
       networkService.restoreService(accountNetworkInfo);
+    } else {
+      logger.info("   ...restoreAccount[{}] device is not suspended, no need to restore on network", accountNo);
     }
 
     if (device.getStatusId() != DeviceStatus.ACTIVE.getValue()) {
+      logger.info("   ...restoreAccount[{}] updating device status to {}", accountNo, DeviceStatus.ACTIVE.getValue());
       device.setStatusId(DeviceStatus.ACTIVE.getValue());
-      device.setStatus(DeviceStatus.ACTIVE.getDescription());
       device.save();
-      updateDeviceHistory(deviceId, device.getValue(), serviceInstance, DeviceStatus.ACTIVE);
+      updateDeviceHistory(device.getId(), device.getValue(), serviceInstance, DeviceStatus.SUSPENDED);
+    } else {
+      logger.info("   ...restoreAccount[{}] device status is already active, no need to update", accountNo);
+    }
+  }
+
+  @WebMethod
+  public void restoreAccount(int custId, int accountNo, int deviceId) throws BillingException, ProvisionException, DeviceException, NetworkException {
+    logger.info("Begin restoreAccount(custId:{},accountNo:{},deviceId:{})", new Object[] { custId, accountNo, deviceId });
+    ServiceInstance serviceInstance = provisionService.getActiveService(accountNo);
+    logger.debug("   ...restoreAccount[{}] with MDN {}", accountNo, serviceInstance.getExternalId());
+    Component component = provisionService.getActiveComponent(accountNo, serviceInstance.getExternalId());
+    logger.debug("   ...restoreAccount[{}] with active component {} instance {}", new Object[] { accountNo, component.getId(), component.getInstanceId() });
+
+    Device device = deviceService.getDevice(custId, deviceId, accountNo);
+    NetworkInfo deviceNetworkInfo = getNetworkInfo(device.getValue(), null);
+    NetworkInfo accountNetworkInfo = getNetworkInfo(null, serviceInstance.getExternalId());
+    NetworkInfoUtil.checkNetworkInfoMatch(deviceNetworkInfo, accountNetworkInfo);
+
+    if (component.getId() == PROVISION.COMPONENT.SUSPEND) {
+      Package pkg = provisionService.getActivePackage(accountNo);
+
+      boolean chargeMRC = BillingUtil.checkChargeMRCByComponent(component);
+      int componentId = chargeMRC ? PROVISION.COMPONENT.INSTALL : PROVISION.COMPONENT.REINSTALL;
+
+      // first add active component to allow for usage tracking
+      logger.info("   ...restoreAccount[{}] adding SUSPEND compoent to active package {} instance {}", new Object[] { accountNo, pkg.getId(),
+          pkg.getInstanceId() });
+      if (component.getActiveDate().getDayOfMonth() == new DateTime().getDayOfMonth() + 1) {
+        provisionService.removeComponentNextDay(accountNo, serviceInstance.getExternalId(), pkg.getInstanceId(), component.getInstanceId());
+      } else {
+        provisionService.removeComponentToday(accountNo, serviceInstance.getExternalId(), pkg.getInstanceId(), component.getInstanceId());
+      }
+      provisionService.addSingleComponentToday(accountNo, serviceInstance.getExternalId(), pkg.getInstanceId(), componentId);
+    } else {
+      logger.info("   ...restoreAccount[{}] active component is not SUSPEND in Kenan, no need to update", accountNo);
+    }
+
+    // update the service threshold to allow future top-ups
+    logger.info("   ...restoreAccount[{}] updating threshold to {}", accountNo, PROVISION.SERVICE.RESTORE);
+    billService.updateServiceInstanceStatus(serviceInstance, PROVISION.SERVICE.RESTORE);
+
+    // restore device to allow usage
+    if (accountNetworkInfo.getStatus().equals("S")) {
+      logger.info("   ...restoreAccount[{}] restoring device with Status:{} ESN:{} MDN{}", new Object[] { accountNo, accountNetworkInfo.getStatus(),
+          accountNetworkInfo.getEsnmeiddec(), accountNetworkInfo.getMdn() });
+      networkService.restoreService(accountNetworkInfo);
+    } else {
+      logger.info("   ...restoreAccount[{}] device is not suspended, no need to restore on network", accountNo);
+    }
+
+    if (device.getStatusId() != DeviceStatus.ACTIVE.getValue()) {
+      logger.info("   ...restoreAccount[{}] updating device status to {}", accountNo, DeviceStatus.ACTIVE.getValue());
+      device.setStatusId(DeviceStatus.ACTIVE.getValue());
+      device.save();
+      updateDeviceHistory(device.getId(), device.getValue(), serviceInstance, DeviceStatus.ACTIVE);
+    } else {
+      logger.info("   ...restoreAccount[{}] device status is already active, no need to update", accountNo);
     }
   }
 
@@ -1877,36 +1948,102 @@ public class TruConnect {
    * @throws DeviceException
    * @throws NetworkException
    */
-  @WebMethod
-  public void suspendAccount(int custId, int accountNo, int deviceId) throws BillingException, ProvisionException, DeviceException, NetworkException {
+  @Deprecated
+  protected void suspendAccountBak(int custId, int accountNo, int deviceId) throws BillingException, ProvisionException, DeviceException, NetworkException {
+    Object[] args = { custId, accountNo, deviceId };
+    logger.info("Begin suspendAccount(custId:{},accountNo:{},deviceId:{})", args);
     ServiceInstance serviceInstance = provisionService.getActiveService(accountNo);
+    logger.debug("   ...suspendAccount[{}] with MDN {}", accountNo, serviceInstance.getExternalId());
     Component component = provisionService.getActiveComponent(accountNo, serviceInstance.getExternalId());
+    Object[] componentArgs = { accountNo, component.getId(), component.getInstanceId() };
+    logger.debug("   ...suspendAccount[{}] with active component {} instance {}", componentArgs);
     // check if the device matches the external ID in user's kenan account
     Device device = deviceService.getDevice(custId, deviceId, accountNo);
     NetworkInfo deviceNetworkInfo = getNetworkInfo(device.getValue(), null);
     NetworkInfo accountNetworkInfo = getNetworkInfo(null, serviceInstance.getExternalId());
     NetworkInfoUtil.checkNetworkInfoMatch(deviceNetworkInfo, accountNetworkInfo);
 
+    // first suspend the network to prevent further usage
     if (accountNetworkInfo.getStatus().equals("A")) {
-      // first suspend the network to prevent further usage
+      Object[] deviceArgs = { accountNo, accountNetworkInfo.getStatus(), accountNetworkInfo.getEsnmeiddec(), accountNetworkInfo.getMdn() };
+      logger.info("   ...suspendAccount[{}] suspending device with Status:{} ESN:{} MDN{}", deviceArgs);
       networkService.suspendService(accountNetworkInfo);
+    } else {
+      logger.info("   ...suspendAccount[{}] device is not active, no need to supsned on network", accountNo);
     }
 
+    // next remove component and add suspend component to prevent future MRCs
     if (component.getId() != PROVISION.COMPONENT.SUSPEND) {
-      // load package
       Package pkg = provisionService.getActivePackage(accountNo);
-      // next remove component and add suspend component to prevent future MRCs
-      provisionService.removeComponent(accountNo, serviceInstance.getExternalId(), pkg.getInstanceId(), component.getInstanceId());
-      provisionService.addSingleComponent(accountNo, serviceInstance.getExternalId(), pkg.getInstanceId(), PROVISION.COMPONENT.SUSPEND);
+      Object[] provArgs = { accountNo, pkg.getId(), pkg.getInstanceId() };
+      logger.info("   ...suspendAccount[{}] adding SUSPEND compoent to active package {} instance {}", provArgs);
+      provisionService.removeComponentToday(accountNo, serviceInstance.getExternalId(), pkg.getInstanceId(), component.getInstanceId());
+      provisionService.addSingleComponentToday(accountNo, serviceInstance.getExternalId(), pkg.getInstanceId(), PROVISION.COMPONENT.SUSPEND);
+    } else {
+      logger.info("   ...suspendAccount[{}] active component is SUSPEND in Kenan, no need to update", accountNo);
     }
 
+    // update device status on front end
     if (device.getStatusId() != DeviceStatus.SUSPENDED.getValue()) {
+      logger.info("   ...suspendAccount[{}] updating device status to {}", accountNo, DeviceStatus.SUSPENDED.getValue());
       device.setStatusId(DeviceStatus.SUSPENDED.getValue());
-      device.setStatus(DeviceStatus.SUSPENDED.getDescription());
       device.save();
-      updateDeviceHistory(deviceId, device.getValue(), serviceInstance, DeviceStatus.SUSPENDED);
+      updateDeviceHistory(device.getId(), device.getValue(), serviceInstance, DeviceStatus.SUSPENDED);
+    } else {
+      logger.info("   ...suspendAccount[{}] device status is already inactive, no need to update", accountNo);
     }
+
     // finally update the service threshold to prevent future top-ups
+    logger.info("   ...suspendAccount[{}] updating threshold to {}", accountNo, PROVISION.SERVICE.HOTLINE);
+    billService.updateServiceInstanceStatus(serviceInstance, PROVISION.SERVICE.HOTLINE);
+  }
+
+  @WebMethod
+  public void suspendAccount(int custId, int accountNo, int deviceId) throws BillingException, ProvisionException, DeviceException, NetworkException {
+    logger.info("Begin suspendAccount(custId:{},accountNo:{},deviceId:{})", new Object[] { custId, accountNo, deviceId });
+    ServiceInstance serviceInstance = provisionService.getActiveService(accountNo);
+    logger.debug("   ...suspendAccount[{}] with MDN {}", accountNo, serviceInstance.getExternalId());
+    Component component = provisionService.getActiveComponent(accountNo, serviceInstance.getExternalId());
+    logger.debug("   ...suspendAccount[{}] with active component {} instance {}", new Object[] { accountNo, component.getId(), component.getInstanceId() });
+
+    // check if the device matches the external ID in user's kenan account
+    Device device = deviceService.getDevice(custId, deviceId, accountNo);
+    NetworkInfo deviceNetworkInfo = getNetworkInfo(device.getValue(), null);
+    NetworkInfo accountNetworkInfo = getNetworkInfo(null, serviceInstance.getExternalId());
+    NetworkInfoUtil.checkNetworkInfoMatch(deviceNetworkInfo, accountNetworkInfo);
+
+    // first suspend the network to prevent further usage
+    if (accountNetworkInfo.getStatus().equals("A")) {
+      logger.info("   ...suspendAccount[{}] suspending device with Status:{} ESN:{} MDN{}", new Object[] { accountNo, accountNetworkInfo.getStatus(),
+          accountNetworkInfo.getEsnmeiddec(), accountNetworkInfo.getMdn() });
+      networkService.suspendService(accountNetworkInfo);
+    } else {
+      logger.info("   ...suspendAccount[{}] device is not active, no need to supsned on network", accountNo);
+    }
+
+    // next remove component and add suspend component to prevent future MRCs
+    if (component.getId() != PROVISION.COMPONENT.SUSPEND) {
+      Package pkg = provisionService.getActivePackage(accountNo);
+      logger.info("   ...suspendAccount[{}] adding SUSPEND compoent to active package {} instance {}", new Object[] { accountNo, pkg.getId(),
+          pkg.getInstanceId() });
+      provisionService.removeComponentNextDay(accountNo, serviceInstance.getExternalId(), pkg.getInstanceId(), component.getInstanceId());
+      provisionService.addSingleComponentNextDay(accountNo, serviceInstance.getExternalId(), pkg.getInstanceId(), PROVISION.COMPONENT.SUSPEND);
+    } else {
+      logger.info("   ...suspendAccount[{}] active component is SUSPEND in Kenan, no need to update", accountNo);
+    }
+
+    // update device status on front end
+    if (device.getStatusId() != DeviceStatus.SUSPENDED.getValue()) {
+      logger.info("   ...suspendAccount[{}] updating device status to {}", accountNo, DeviceStatus.SUSPENDED.getValue());
+      device.setStatusId(DeviceStatus.SUSPENDED.getValue());
+      device.save();
+      updateDeviceHistory(device.getId(), device.getValue(), serviceInstance, DeviceStatus.SUSPENDED);
+    } else {
+      logger.info("   ...suspendAccount[{}] device status is already inactive, no need to update", accountNo);
+    }
+
+    // finally update the service threshold to prevent future top-ups
+    logger.info("   ...suspendAccount[{}] updating threshold to {}", accountNo, PROVISION.SERVICE.HOTLINE);
     billService.updateServiceInstanceStatus(serviceInstance, PROVISION.SERVICE.HOTLINE);
   }
 
@@ -1972,7 +2109,7 @@ public class TruConnect {
     int accountNumber = account.getAccountNo();
     Component component = provisionService.getActiveComponent(accountNumber, serviceInstance.getExternalId());
     Package pkg = provisionService.getActivePackage(accountNumber);
-    provisionService.removeComponent(accountNumber, serviceInstance.getExternalId(), pkg.getInstanceId(), component.getInstanceId());
+    provisionService.removeComponentToday(accountNumber, serviceInstance.getExternalId(), pkg.getInstanceId(), component.getInstanceId());
     provisionService.addComponent(accountNumber, serviceInstance.getExternalId(), pkg.getInstanceId(), PROVISION.COMPONENT.SUSPEND);
 
     if (device != null) {

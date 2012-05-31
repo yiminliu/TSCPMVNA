@@ -3,6 +3,8 @@ package com.tscp.mvne.billing.provisioning;
 import java.util.List;
 import java.util.Vector;
 
+import org.joda.time.DateTime;
+
 import com.telscape.billingserviceinterface.ArrayOfComponentHolder;
 import com.telscape.billingserviceinterface.ArrayOfMessageHolder;
 import com.telscape.billingserviceinterface.ArrayOfPackage;
@@ -20,8 +22,10 @@ import com.telscape.billingserviceinterface.ValueHolder;
 import com.tscp.mvne.billing.Account;
 import com.tscp.mvne.billing.exception.BillingServerException;
 import com.tscp.mvne.billing.exception.ProvisionException;
+import com.tscp.mvne.billing.provisioning.defaults.DefaultBillingService;
 import com.tscp.mvne.billing.service.BillService;
 import com.tscp.mvne.config.PROVISION;
+import com.tscp.util.DateUtils;
 
 /**
  * Business rules currently only allow for one service per account to track
@@ -44,6 +48,19 @@ public class ProvisionSystem extends BillService {
    * @throws ProvisionException
    */
   public void addComponent(int accountNo, String externalId, Package pkg, Component component) throws ProvisionException {
+    ProvisionUtil.checkAccountNumber(accountNo);
+    ProvisionUtil.checkExternalId(externalId);
+    ProvisionUtil.checkPackage(pkg);
+    ArrayOfPkgComponent componentList = ProvisionUtil.buildComponentList(externalId, pkg, component);
+    ArrayOfMessageHolder messageArray = port.addComponent(USERNAME, componentList);
+    try {
+      ProvisionUtil.checkResponse(messageArray);
+    } catch (BillingServerException e) {
+      throw new ProvisionException("Error adding component to account " + accountNo, e);
+    }
+  }
+
+  public void addComponentFuture(int accountNo, String externalId, Package pkg, Component component) throws ProvisionException {
     ProvisionUtil.checkAccountNumber(accountNo);
     ProvisionUtil.checkExternalId(externalId);
     ProvisionUtil.checkPackage(pkg);
@@ -101,7 +118,7 @@ public class ProvisionSystem extends BillService {
     ProvisionUtil.checkAccountNumber(accountNo);
     ProvisionUtil.checkExternalId(externalId);
     Account account = getAccount(accountNo);
-    BillingService billingService = ProvisionUtil.getDefaultBillingService();
+    BillingService billingService = new DefaultBillingService();
     billingService.setAccountNo(Integer.toString(account.getAccountNo()));
     billingService.getServiceName().setFirstName(account.getFirstname());
     billingService.getServiceName().setMiddleName(account.getMiddlename());
@@ -130,10 +147,11 @@ public class ProvisionSystem extends BillService {
    * @param component
    * @throws ProvisionException
    */
-  public void addSingleComponent(int accountNumber, String externalId, Package pkg, Component component) throws ProvisionException {
+  public void addSingleComponent(int accountNumber, String externalId, Package pkg, Component component, DateTime activeDate) throws ProvisionException {
     ProvisionUtil.checkAccountNumber(accountNumber);
     ProvisionUtil.checkExternalId(externalId);
     ProvisionUtil.checkPackage(pkg);
+    component.setActiveDate(activeDate);
     ArrayOfPkgComponent componentList = ProvisionUtil.buildComponentList(externalId, pkg, component);
     ArrayOfMessageHolder messageArray = port.insertSingleComponent(USERNAME, componentList);
     try {
@@ -188,14 +206,14 @@ public class ProvisionSystem extends BillService {
     }
   }
 
-  public void removeComponent(int accountNo, String externalId, Package pkg, Component component) throws ProvisionException {
+  public void removeComponent(int accountNo, String externalId, Package pkg, Component component, DateTime dateTime) throws ProvisionException {
     ProvisionUtil.checkAccountNumber(accountNo);
     ProvisionUtil.checkExternalId(externalId);
     ProvisionUtil.checkPackage(pkg);
     ArrayOfPkgComponent componentList = ProvisionUtil.buildComponentList(externalId, pkg, component);
     for (PkgComponent pkgComponent : componentList.getPkgComponent()) {
       pkgComponent.setDiscReason(DISC_REASON);
-      pkgComponent.setDiscDate(ProvisionUtil.getCalendar());
+      pkgComponent.setDiscDate(DateUtils.getXMLCalendar(dateTime));
     }
     ArrayOfMessageHolder messageArray = port.disconnectComponent(USERNAME, componentList);
     try {
@@ -205,12 +223,20 @@ public class ProvisionSystem extends BillService {
     }
   }
 
+  public void removeComponentToday(int accountNo, String externalId, Package pkg, Component component) throws ProvisionException {
+    removeComponent(accountNo, externalId, pkg, component, new DateTime());
+  }
+
+  public void removeComponentNextDay(int accountNo, String externalId, Package pkg, Component component) throws ProvisionException {
+    removeComponent(accountNo, externalId, pkg, component, new DateTime().plusDays(1));
+  }
+
   protected void removePackage(int accountNo, Package pkg) throws ProvisionException {
     ProvisionUtil.checkAccountNumber(accountNo);
     ProvisionUtil.checkPackage(pkg);
     com.telscape.billingserviceinterface.Package billingPackage = ProvisionUtil.buildBillingPackage(accountNo, pkg);
     billingPackage.setDiscReason(DISC_REASON);
-    billingPackage.setDiscDate(ProvisionUtil.getCalendar());
+    billingPackage.setDiscDate(DateUtils.getXMLCalendar());
     ArrayOfPackage packages = new ArrayOfPackage();
     packages.getPackage().add(billingPackage);
     ArrayOfMessageHolder messageArray = port.disconnectPackage(USERNAME, packages);
@@ -224,8 +250,8 @@ public class ProvisionSystem extends BillService {
   public void removeServiceInstance(int accountNo, String externalId) throws ProvisionException {
     ProvisionUtil.checkAccountNumber(accountNo);
     ProvisionUtil.checkExternalId(externalId);
-    MessageHolder message = port.disconnectServicePackages(USERNAME, Integer.toString(accountNo), externalId, PROVISION.SERVICE.EXTERNAL_ID_TYPE, ProvisionUtil
-        .getCalendar(), DISC_REASON);
+    MessageHolder message = port.disconnectServicePackages(USERNAME, Integer.toString(accountNo), externalId, PROVISION.SERVICE.EXTERNAL_ID_TYPE, DateUtils
+        .getXMLCalendar(), DISC_REASON);
     try {
       ProvisionUtil.checkResponse(message);
     } catch (BillingServerException e) {
