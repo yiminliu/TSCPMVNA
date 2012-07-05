@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 
-import com.tscp.mvne.config.PROVISION;
-
 public class Package implements Serializable {
   private static final long serialVersionUID = -5062081445629324826L;
   private int id;

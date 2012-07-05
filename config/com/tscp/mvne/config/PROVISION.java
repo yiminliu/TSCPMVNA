@@ -5,6 +5,7 @@ import com.tscp.mvne.exception.InitializationException;
 public final class PROVISION extends CONFIG {
 
   public static final class SERVICE {
+    public static Integer UPDATE;
     public static Integer HOTLINE;
     public static Integer RESTORE;
     public static Integer FAILED_PMT;
@@ -48,6 +49,7 @@ public final class PROVISION extends CONFIG {
       COMPONENT.REINSTALL = Integer.parseInt(props.getProperty("component.id.reinstall"));
       COMPONENT.SUSPEND = Integer.parseInt(props.getProperty("component.id.suspend"));
       COMPONENT.INSTANCE_SERV_ID = Integer.parseInt(props.getProperty("component.instance.serv.id"));
+      SERVICE.UPDATE = Integer.parseInt(props.getProperty("service.threshold.update"));
       SERVICE.HOTLINE = Integer.parseInt(props.getProperty("service.threshold.hotline"));
       SERVICE.RESTORE = Integer.parseInt(props.getProperty("service.threshold.restore"));
       SERVICE.FAILED_PMT = Integer.parseInt(props.getProperty("service.threshold.failed_pmt"));

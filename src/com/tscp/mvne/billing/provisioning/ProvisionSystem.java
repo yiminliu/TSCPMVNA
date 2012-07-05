@@ -60,19 +60,6 @@ public class ProvisionSystem extends BillService {
     }
   }
 
-  public void addComponentFuture(int accountNo, String externalId, Package pkg, Component component) throws ProvisionException {
-    ProvisionUtil.checkAccountNumber(accountNo);
-    ProvisionUtil.checkExternalId(externalId);
-    ProvisionUtil.checkPackage(pkg);
-    ArrayOfPkgComponent componentList = ProvisionUtil.buildComponentList(externalId, pkg, component);
-    ArrayOfMessageHolder messageArray = port.addComponent(USERNAME, componentList);
-    try {
-      ProvisionUtil.checkResponse(messageArray);
-    } catch (BillingServerException e) {
-      throw new ProvisionException("Error adding component to account " + accountNo, e);
-    }
-  }
-
   /**
    * Adds the given package to the account and returns the package with it's
    * instanceId populated.
@@ -210,6 +197,7 @@ public class ProvisionSystem extends BillService {
     ProvisionUtil.checkAccountNumber(accountNo);
     ProvisionUtil.checkExternalId(externalId);
     ProvisionUtil.checkPackage(pkg);
+    component.setInactiveDate(dateTime);
     ArrayOfPkgComponent componentList = ProvisionUtil.buildComponentList(externalId, pkg, component);
     for (PkgComponent pkgComponent : componentList.getPkgComponent()) {
       pkgComponent.setDiscReason(DISC_REASON);
@@ -221,14 +209,6 @@ public class ProvisionSystem extends BillService {
     } catch (BillingServerException e) {
       throw new ProvisionException("Error removing component from Account " + accountNo, e);
     }
-  }
-
-  public void removeComponentToday(int accountNo, String externalId, Package pkg, Component component) throws ProvisionException {
-    removeComponent(accountNo, externalId, pkg, component, new DateTime());
-  }
-
-  public void removeComponentNextDay(int accountNo, String externalId, Package pkg, Component component) throws ProvisionException {
-    removeComponent(accountNo, externalId, pkg, component, new DateTime().plusDays(1));
   }
 
   protected void removePackage(int accountNo, Package pkg) throws ProvisionException {

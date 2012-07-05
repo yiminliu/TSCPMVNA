@@ -48,17 +48,6 @@ public class ProvisionService {
     system.addComponent(accountNo, externalId, pkg, component);
   }
 
-  public void addComponentFuture(int accountNo, String externalId, int packageInstance, int componentId) throws ProvisionException {
-    Component component = new Component(componentId);
-    Package pkg;
-    if (packageInstance == 0) {
-      pkg = getActivePackage(accountNo);
-    } else {
-      pkg = getActivePackage(accountNo, packageInstance);
-    }
-    system.addComponentFuture(accountNo, externalId, pkg, component);
-  }
-
   public Package addPackage(int accountNo, Package pkg) throws ProvisionException {
     return system.addPackage(accountNo, pkg);
   }
@@ -69,6 +58,7 @@ public class ProvisionService {
 
   public void addSingleComponent(int accountNo, String externalId, int packageInstance, int componentId, DateTime activeDate) throws ProvisionException {
     Component component = new Component(componentId);
+    component.setActiveDate(activeDate);
     Package pkg;
     if (packageInstance == 0) {
       pkg = getActivePackage(accountNo);
@@ -79,27 +69,11 @@ public class ProvisionService {
   }
 
   public void addSingleComponentToday(int accountNo, String externalId, int packageInstance, int componentId) throws ProvisionException {
-    Component component = new Component(componentId);
-    Package pkg;
-    if (packageInstance == 0) {
-      pkg = getActivePackage(accountNo);
-    } else {
-      pkg = getActivePackage(accountNo, packageInstance);
-    }
-    system.addSingleComponent(accountNo, externalId, pkg, component, new DateTime());
+    addSingleComponent(accountNo, externalId, packageInstance, componentId, new DateTime());
   }
 
   public void addSingleComponentNextDay(int accountNo, String externalId, int packageInstance, int componentId) throws ProvisionException {
-    Component component = new Component(componentId);
-    DateTime tommorrow = new DateTime().plusDays(1);
-    component.setActiveDate(tommorrow);
-    Package pkg;
-    if (packageInstance == 0) {
-      pkg = getActivePackage(accountNo);
-    } else {
-      pkg = getActivePackage(accountNo, packageInstance);
-    }
-    system.addSingleComponent(accountNo, externalId, pkg, component, new DateTime().plusDays(1));
+    addSingleComponent(accountNo, externalId, packageInstance, componentId, new DateTime().plusDays(1));
   }
 
   public Component getActiveComponent(int accountNo, String externalId) throws ProvisionException {
@@ -142,6 +116,46 @@ public class ProvisionService {
     }
   }
 
+  /**
+   * This method will retrieve the package with the given instance id and remove
+   * any empty package. This could possibly remove packages that have no ACTIVE
+   * components as the API returns only active components;
+   * 
+   * @param accountNo
+   * @param packageInstance
+   * @param externalId
+   * @return
+   * @throws ProvisionException
+   */
+  public Package getActivePackageCleanup(int accountNo, int packageInstance, String externalId) throws ProvisionException {
+    List<Package> packages = getActivePackages(accountNo);
+    List<Component> components = getActiveComponents(accountNo, externalId);
+    Package pkg = null;
+    boolean clean = true;
+    if (packages != null) {
+      for (Package pkgInstance : packages) {
+        if (pkgInstance.getInstanceId() == packageInstance) {
+          pkg = pkgInstance;
+        } else {
+          for (Component cmp : components) {
+            if (cmp.getPackageInstanceId() == pkgInstance.getInstanceId())
+              clean = false;
+          }
+          if (clean) {
+            removePackage(accountNo, pkgInstance.getInstanceId());
+          }
+        }
+      }
+      if (pkg == null) {
+        throw new ProvisionException("Package " + packageInstance + " not found on account " + accountNo);
+      } else {
+        return pkg;
+      }
+    } else {
+      throw new ProvisionException("No active packages found for account " + accountNo);
+    }
+  }
+
   public List<Package> getActivePackages(int accountNo) throws ProvisionException {
     return system.getActivePackages(accountNo);
   }
@@ -170,6 +184,7 @@ public class ProvisionService {
       component = new Component();
       component.setInstanceId(componentInstance);
     }
+    component.setInactiveDate(dateTime);
     if (packageInstance == 0) {
       pkg = getActivePackage(accountNo);
     } else {

@@ -67,6 +67,8 @@ public final class ProvisionUtil extends BillingUtil {
     component.setInactiveDate(inactiveDate);
     component.setInstanceId(billingComponent.getComponentInstanceId());
     component.setName(billingComponent.getComponentName());
+    component.setPackageInstanceId(billingComponent.getPackageInstanceId());
+    component.setExternalId(billingComponent.getExternalId());
     return component;
   }
 

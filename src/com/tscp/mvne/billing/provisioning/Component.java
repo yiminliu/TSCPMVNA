@@ -1,7 +1,5 @@
 package com.tscp.mvne.billing.provisioning;
 
-import java.util.Date;
-
 import org.joda.time.DateTime;
 
 // TODO jpong: Change property names to match java convention. This will require hibernate re-mapping. This needs to be done for all ORM objects.
@@ -9,6 +7,8 @@ public class Component {
   private int id = 0;
   private int instanceId;
   private int elementId;
+  private int packageInstanceId;
+  private String externalId;
   private String name;
   private DateTime activeDate;
   private DateTime inactiveDate;
@@ -51,6 +51,22 @@ public class Component {
 
   public void setElementId(int elementId) {
     this.elementId = elementId;
+  }
+
+  public int getPackageInstanceId() {
+    return packageInstanceId;
+  }
+
+  public void setPackageInstanceId(int packageInstanceId) {
+    this.packageInstanceId = packageInstanceId;
+  }
+
+  public String getExternalId() {
+    return externalId;
+  }
+
+  public void setExternalId(String externalId) {
+    this.externalId = externalId;
   }
 
   public DateTime getActiveDate() {
