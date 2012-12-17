@@ -5,7 +5,7 @@
 
 <hibernate-configuration>
   <session-factory name="java:comp/env/hibernate/SessionFactory">
-    <property name="connection.datasource">jdbc/TSCPMVNE</property>
+    <property name="connection.datasource">jdbc/TSCPMVNA</property>
     <property name="dialect">org.hibernate.dialect.OracleDialect</property>
     <property name="current_session_context_class">thread</property>
     <property name="transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</property>

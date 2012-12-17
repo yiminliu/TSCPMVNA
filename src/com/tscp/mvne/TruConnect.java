@@ -145,6 +145,7 @@ public class TruConnect {
       throw new PaymentException("addCreditCard", "PaymentID must be 0 when adding a payment");
     }
     CreditCard insertedCreditCard = customer.insertCreditCardPaymentInformation(creditCard);
+    paymentUpdatedRoutine(customer);
     MethodLogger.logMethodReturn("addCreditCard", insertedCreditCard);
     return insertedCreditCard;
   }
