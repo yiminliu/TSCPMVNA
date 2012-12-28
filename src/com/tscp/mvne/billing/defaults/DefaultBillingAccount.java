@@ -17,7 +17,7 @@ public class DefaultBillingAccount extends BillingAccount {
     BillName billname = new BillName();
     billname.setFirstName("Shell Account");
     billname.setMiddleName("");
-    billname.setLastName("TruConnect");
+    billname.setLastName("webonthego");
     setBillName(billname);
 
     setBillPeriod(BILLING.billPeriod.toString());

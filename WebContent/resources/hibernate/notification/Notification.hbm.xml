@@ -6,16 +6,16 @@
 <hibernate-mapping package="com.tscp.mvne.notification.dao">
 
   <class name="com.tscp.mvne.notification.dao.EmailNotification">
-    <id name="notificationId" column="notification_id" />
+    <id name="id" column="notification_id" />
     <property name="custId" column="cust_id" />
     <property name="attemptNo" column="attempt_no" />
     <property name="bcc" column="email_bcc" />
     <property name="body" column="body" />
-    <property name="notificationCategory" column="notification_category" />
+    <property name="category" column="notification_category" />
     <property name="cc" column="email_cc" />
     <property name="createDate" column="create_date" />
     <property name="from" column="email_from" />
-    <property name="notificationType" column="notification_type" />
+    <property name="type" column="notification_type" />
     <property name="sentDate" column="sent_date" />
     <property name="subject" column="email_subject" />
     <property name="template" column="email_template" />
@@ -41,15 +41,15 @@
 
   <sql-query name="fetch_unsent_notification_email" callable="true">
     <return class="com.tscp.mvne.notification.dao.EmailNotification">
-      <return-property name="notificationId" column="notification_id" />
+      <return-property name="id" column="notification_id" />
       <return-property name="attemptNo" column="attempt_no" />
       <return-property name="bcc" column="email_bcc" />
       <return-property name="body" column="body" />
-      <return-property name="notificationCategory" column="notification_category" />
+      <return-property name="category" column="notification_category" />
       <return-property name="cc" column="email_cc" />
       <return-property name="createDate" column="create_date" />
       <return-property name="from" column="email_from" />
-      <return-property name="notificationType" column="notification_type" />
+      <return-property name="type" column="notification_type" />
       <return-property name="sentDate" column="sent_date" />
       <return-property name="subject" column="email_subject" />
       <return-property name="template" column="email_template" />
