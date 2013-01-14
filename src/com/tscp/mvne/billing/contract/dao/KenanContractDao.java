@@ -28,12 +28,12 @@ public class KenanContractDao {
     query.setParameter("in_duration", contract.getDuration());
     GeneralSPResponse response = getQueryResponse(query.list(), transaction, session);
 
-    if (response != null && response.success()) {
+    if (response != null && response.isSuccess()) {
       transaction.commit();
-      return response.getMvnemsgcode();
+      return response.getCode();
     } else {
       throw new DaoException("Error inserting contract " + contract.getContractType() + " on account " + contract.getAccount().getAccountNo()
-          + ". Fail Reason is : " + response.getMvnemsg());
+          + ". Fail Reason is : " + response.getMsg());
     }
   }
 
@@ -49,10 +49,10 @@ public class KenanContractDao {
     query.setParameter("in_duration", contract.getDuration());
     GeneralSPResponse response = getQueryResponse(query.list(), transaction, session);
 
-    if (response != null && response.success()) {
+    if (response != null && response.isSuccess()) {
       transaction.commit();
     } else {
-      throw new DaoException("Error updating contract " + contract.getContractId() + ". Fail Reason is : " + response.getMvnemsg());
+      throw new DaoException("Error updating contract " + contract.getContractId() + ". Fail Reason is : " + response.getMsg());
     }
   }
 
@@ -82,12 +82,12 @@ public class KenanContractDao {
     query.setParameter("in_trans_date", date);
     GeneralSPResponse response = getQueryResponse(query.list(), transaction, session);
 
-    if (response != null && response.success()) {
+    if (response != null && response.isSuccess()) {
       transaction.commit();
-      return response.getMvnemsgcode();
+      return response.getCode();
     } else {
       throw new DaoException("Error applying coupon payment on account " + account.getAccountNo() + " for " + amount + ". Fail Reason is : "
-          + response.getMvnemsg());
+          + response.getMsg());
     }
   }
 
@@ -98,7 +98,7 @@ public class KenanContractDao {
       session.close();
       response = new GeneralSPResponse();
       response.setStatus("N");
-      response.setMvnemsg("No items returned in cursor");
+      response.setMsg("No items returned in cursor");
     } else {
       response = (GeneralSPResponse) cursor.get(0);
     }

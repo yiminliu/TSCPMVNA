@@ -91,7 +91,7 @@ public class CustPmtMap {
         if (!list.get(0).getStatus().equals("Y")) {
           session.getTransaction().rollback();
           throw new PaymentException("savePaymentOption", "Error saving payment " + getPaymentalias()
-              + ". Fail Reason is : " + list.get(0).getMvnemsg());
+              + ". Fail Reason is : " + list.get(0).getMsg());
         } else {
           session.getTransaction().commit();
         }
@@ -130,7 +130,7 @@ public class CustPmtMap {
         if (!list.get(0).getStatus().equals("Y")) {
           session.getTransaction().rollback();
           throw new PaymentException("savePaymentOption", "Error saving payment " + getPaymentalias()
-              + ". Fail Reason is : " + list.get(0).getMvnemsg());
+              + ". Fail Reason is : " + list.get(0).getMsg());
         } else {
           session.getTransaction().commit();
         }

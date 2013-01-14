@@ -167,10 +167,10 @@ public class PaymentTransaction {
           if (!response.getStatus().equals("Y")) {
             session.getTransaction().rollback();
             throw new PaymentException("savePaymentTransaction", "Error creating transaction for session id :: "
-                + getSessionId() + " and payment id " + getPmtId() + ". Error Message :: " + response.getMvnemsgcode()
-                + "::" + response.getMvnemsg());
+                + getSessionId() + " and payment id " + getPmtId() + ". Error Message :: " + response.getCode()
+                + "::" + response.getMsg());
           } else {
-            setTransId(response.getMvnemsgcode());
+            setTransId(response.getCode());
           }
         }
       }
@@ -193,7 +193,7 @@ public class PaymentTransaction {
           if (!response.getStatus().equals("Y")) {
             session.getTransaction().rollback();
             throw new PaymentException("savePaymentTransaction", "Error updating transaction " + getTransId()
-                + ". Error Message :: " + response.getMvnemsgcode() + "::" + response.getMvnemsg());
+                + ". Error Message :: " + response.getCode() + "::" + response.getMsg());
           }
         }
       }

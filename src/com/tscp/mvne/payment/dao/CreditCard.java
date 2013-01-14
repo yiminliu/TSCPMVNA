@@ -153,10 +153,10 @@ public class CreditCard extends PaymentInformation implements Serializable {
         if (!list.get(0).getStatus().equals("Y")) {
           session.getTransaction().rollback();
           throw new PaymentException("savePaymentOption", "Error saving payment " + getAlias() + ". Fail Reason is : "
-              + list.get(0).getMvnemsg());
+              + list.get(0).getMsg());
         } else {
           if (getPaymentid() == 0) {
-            setPaymentid(list.get(0).getMvnemsgcode());
+            setPaymentid(list.get(0).getCode());
           }
           session.getTransaction().commit();
         }
@@ -302,10 +302,10 @@ public class CreditCard extends PaymentInformation implements Serializable {
         if (!list.get(0).getStatus().equals("Y")) {
           session.getTransaction().rollback();
           throw new PaymentException("deletePaymentOption", "Error deleting payment " + getAlias() + "("
-              + getPaymentid() + ")" + ". Fail Reason is : " + list.get(0).getMvnemsg());
+              + getPaymentid() + ")" + ". Fail Reason is : " + list.get(0).getMsg());
         } else {
-          System.out.println("Status: " + list.get(0).getStatus() + " | MVNEMsgCode: " + list.get(0).getMvnemsgcode()
-              + " | MVNEMsg: " + list.get(0).getMvnemsg());
+          System.out.println("Status: " + list.get(0).getStatus() + " | MVNEMsgCode: " + list.get(0).getCode()
+              + " | MVNEMsg: " + list.get(0).getMsg());
         }
       } else {
         session.getTransaction().rollback();

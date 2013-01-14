@@ -3,46 +3,46 @@ package com.tscp.mvne.hibernate;
 import java.io.Serializable;
 
 public class GeneralSPResponse implements Serializable {
-  private static final long serialVersionUID = 1L;
-  private int mvnemsgcode;
-  private String status;
-  private String mvnemsg;
+	private static final long serialVersionUID = 1L;
+	private int code;
+	private String status;
+	private String msg;
 
-  public GeneralSPResponse() {
-    // do nothing
-  }
+	public GeneralSPResponse() {
+		// do nothing
+	}
 
-  public int getMvnemsgcode() {
-    return mvnemsgcode;
-  }
+	public int getCode() {
+		return code;
+	}
 
-  public void setMvnemsgcode(int mvnemsgcode) {
-    this.mvnemsgcode = mvnemsgcode;
-  }
+	public void setCode(int code) {
+		this.code = code;
+	}
 
-  public String getStatus() {
-    return status;
-  }
+	public String getStatus() {
+		return status;
+	}
 
-  public void setStatus(String status) {
-    this.status = status;
-  }
+	public void setStatus(String status) {
+		this.status = status;
+	}
 
-  public String getMvnemsg() {
-    return mvnemsg;
-  }
+	public String getMsg() {
+		return msg;
+	}
 
-  public void setMvnemsg(String mvnemsg) {
-    this.mvnemsg = mvnemsg;
-  }
+	public void setMsg(String msg) {
+		this.msg = msg;
+	}
 
-  public boolean success() {
-    return getStatus() != null && getStatus().equals("Y");
-  }
+	public boolean isSuccess() {
+		return getStatus() != null && getStatus().equals("Y");
+	}
 
-  @Override
-  public String toString() {
-    return "GeneralSPResponse [mvnemsgcode=" + mvnemsgcode + ", status=" + status + ", mvnemsg=" + mvnemsg + "]";
-  }
+	@Override
+	public String toString() {
+		return "GeneralSPResponse [code=" + code + ", status=" + status + ", msg=" + msg + "]";
+	}
 
 }

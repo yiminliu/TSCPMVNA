@@ -104,10 +104,10 @@ public class PaymentInvoice implements Serializable {
         for (GeneralSPResponse generalSPResponse : generalSPResponseList) {
           if (generalSPResponse.getStatus().equals("Y")) {
             session.getTransaction().commit();
-            setPaymentInvoiceId(generalSPResponse.getMvnemsgcode());
+            setPaymentInvoiceId(generalSPResponse.getCode());
           } else {
             session.getTransaction().rollback();
-            throw new PaymentException("Error inserting payment invoice footprint..." + generalSPResponse.getMvnemsg());
+            throw new PaymentException("Error inserting payment invoice footprint..." + generalSPResponse.getMsg());
           }
         }
       } else {
@@ -135,7 +135,7 @@ public class PaymentInvoice implements Serializable {
         } else {
           session.getTransaction().rollback();
           throw new PaymentException("Error updating payment invoice " + getPaymentInvoiceId() + "..."
-              + generalSPResponse.getMvnemsg());
+              + generalSPResponse.getMsg());
         }
       }
     } else {

@@ -52,7 +52,7 @@ public class KenanPaymentDao {
         if (!list.get(0).getStatus().equals("Y")) {
           transaction.rollback();
           throw new ContractException("reversePayment", "Error reversing payment " + trackingId + " on account " + account.getAccountNo()
-              + ". Fail Reason is : " + list.get(0).getMvnemsg());
+              + ". Fail Reason is : " + list.get(0).getMsg());
         } else {
           transaction.commit();
         }
@@ -96,7 +96,7 @@ public class KenanPaymentDao {
         if (!list.get(0).getStatus().equals("Y")) {
           transaction.rollback();
           throw new ContractException("applyChargeCredit", "Error applying pccharge credit on card " + creditCard.getNameOnCreditCard() + " "
-              + creditCard.getCreditCardNumber() + ". Fail Reason is : " + list.get(0).getMvnemsg());
+              + creditCard.getCreditCardNumber() + ". Fail Reason is : " + list.get(0).getMsg());
         } else {
           transaction.commit();
         }
@@ -127,7 +127,7 @@ public class KenanPaymentDao {
         if (!list.get(0).getStatus().equals("Y")) {
           transaction.rollback();
           session.close();
-          throw new ContractException("applyChargeCredit", "Error applying pccharge credit on card " + ". Fail Reason is : " + list.get(0).getMvnemsg());
+          throw new ContractException("applyChargeCredit", "Error applying pccharge credit on card " + ". Fail Reason is : " + list.get(0).getMsg());
         } else {
           transaction.commit();
         }

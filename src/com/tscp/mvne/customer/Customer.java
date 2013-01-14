@@ -72,9 +72,9 @@ public class Customer {
 
     if (spresponse != null) {
       for (GeneralSPResponse response : spresponse) {
-        System.out.println("STATUS :: " + response.getStatus() + " :: MVNEMSGCODE :: " + response.getMvnemsgcode() + " :: MVNEMSG :: " + response.getMvnemsg());
+        System.out.println("STATUS :: " + response.getStatus() + " :: MVNEMSGCODE :: " + response.getCode() + " :: MVNEMSG :: " + response.getMsg());
         if (!response.getStatus().equals("Y")) {
-          throw new CustomerException("addCustAccts", "Error adding Customer Acct Map:: " + response.getMvnemsgcode() + "::" + response.getMvnemsg());
+          throw new CustomerException("addCustAccts", "Error adding Customer Acct Map:: " + response.getCode() + "::" + response.getMsg());
         }
       }
     } else {
@@ -105,9 +105,9 @@ public class Customer {
 
     if (spresponse != null) {
       for (GeneralSPResponse response : spresponse) {
-        System.out.println("STATUS :: " + response.getStatus() + " :: MVNEMSGCODE :: " + response.getMvnemsgcode() + " :: MVNEMSG :: " + response.getMvnemsg());
+        System.out.println("STATUS :: " + response.getStatus() + " :: MVNEMSGCODE :: " + response.getCode() + " :: MVNEMSG :: " + response.getMsg());
         if (!response.getStatus().equals("Y")) {
-          throw new CustomerException("addCustAccts", "Error deleting Customer Acct Map:: " + response.getMvnemsgcode() + "::" + response.getMvnemsg());
+          throw new CustomerException("addCustAccts", "Error deleting Customer Acct Map:: " + response.getCode() + "::" + response.getMsg());
         }
       }
     } else {

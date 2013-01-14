@@ -136,7 +136,7 @@ public class CustAddress implements Serializable {
     if (generalSPResponseList != null && generalSPResponseList.size() > 0) {
       for (GeneralSPResponse generalSPResponse : generalSPResponseList) {
         if (generalSPResponse.getStatus().equals("Y")) {
-          setAddressId(generalSPResponse.getMvnemsgcode());
+          setAddressId(generalSPResponse.getCode());
           session.getTransaction().commit();
         }
       }
@@ -158,7 +158,7 @@ public class CustAddress implements Serializable {
       for (GeneralSPResponse generalSPResponse : generalSPResponseList) {
         if (!generalSPResponse.getStatus().equals("Y")) {
           session.getTransaction().rollback();
-          throw new CustomerException("Error deleting address..." + generalSPResponse.getMvnemsg());
+          throw new CustomerException("Error deleting address..." + generalSPResponse.getMsg());
         }
       }
       session.getTransaction().commit();
