@@ -21,7 +21,7 @@
       <return-property name="authcode" column="authcode" />
       <return-property name="cvvcode" column="cvvcode" />
     </return>
-    { call MVNE_API_PKG.SBT_PMT_CC_INFO(?,:in_cardno,:in_cardexpdt,:in_seccode,:in_pymntamt,:in_zip,:in_cardholder,:in_street) }
+    { call MVNA_API_PKG.SBT_PMT_CC_INFO(?,:in_cardno,:in_cardexpdt,:in_seccode,:in_pymntamt,:in_zip,:in_cardholder,:in_street) }
   </sql-query>
 
   <sql-query name="sbt_pmt_info" callable="true">
@@ -32,7 +32,7 @@
       <return-property name="authcode" column="authcode" />
       <return-property name="cvvcode" column="cvvcode" />
     </return>
-    { call MVNE_API_PKG.SBT_PMT_INFO(?,:in_cust_id,:in_pmt_id,:in_pymntamt) }
+    { call MVNA_API_PKG.SBT_PMT_INFO(?,:in_cust_id,:in_pmt_id,:in_pymntamt) }
   </sql-query>
 
 

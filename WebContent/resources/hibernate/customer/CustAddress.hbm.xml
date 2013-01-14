@@ -31,38 +31,38 @@
       <return-property name="zip" column="zip" />
       <return-property name="isDefault" column="is_default" />
     </return>
-    { call MVNE_API_PKG.FETCH_CUST_ADDRESS(?,:in_cust_id,:in_address_id) }
+    { call MVNA_API_PKG.FETCH_CUST_ADDRESS(?,:in_cust_id,:in_address_id) }
   </sql-query>
 
   <sql-query name="upd_cust_address" callable="true">
     <return class="com.tscp.mvne.hibernate.GeneralSPResponse">
       <return-property name="status" column="status" />
-      <return-property name="mvnemsg" column="mvnemsg" />
-      <return-property name="mvnemsgcode" column="mvnemsgcode" />
+      <return-property name="msg" column="mvnamsg" />
+      <return-property name="code" column="mvnamsgcode" />
     </return>
     { call
-    MVNE_API_PKG.UPD_CUST_ADDRESS(?,:in_address_id,:in_cust_id,:in_address1,:in_address2,:in_address3,:in_city,:in_state,:in_zip,:in_address_label,:in_is_default)
+    MVNA_API_PKG.UPD_CUST_ADDRESS(?,:in_address_id,:in_cust_id,:in_address1,:in_address2,:in_address3,:in_city,:in_state,:in_zip,:in_address_label,:in_is_default)
     }
   </sql-query>
 
   <sql-query name="ins_cust_address" callable="true">
     <return class="com.tscp.mvne.hibernate.GeneralSPResponse">
       <return-property name="status" column="status" />
-      <return-property name="mvnemsg" column="mvnemsg" />
-      <return-property name="mvnemsgcode" column="mvnemsgcode" />
+      <return-property name="msg" column="mvnamsg" />
+      <return-property name="code" column="mvnamsgcode" />
     </return>
     { call
-    MVNE_API_PKG.INS_CUST_ADDRESS(?,:in_cust_id,:in_address1,:in_address2,:in_address3,:in_city,:in_state,:in_zip,:in_address_label,:in_is_default)
+    MVNA_API_PKG.INS_CUST_ADDRESS(?,:in_cust_id,:in_address1,:in_address2,:in_address3,:in_city,:in_state,:in_zip,:in_address_label,:in_is_default)
     }
   </sql-query>
 
   <sql-query name="del_cust_address" callable="true">
     <return class="com.tscp.mvne.hibernate.GeneralSPResponse">
       <return-property name="status" column="status" />
-      <return-property name="mvnemsg" column="mvnemsg" />
-      <return-property name="mvnemsgcode" column="mvnemsgcode" />
+      <return-property name="msg" column="mvnamsg" />
+      <return-property name="code" column="mvnamsgcode" />
     </return>
-    { call MVNE_API_PKG.DEL_CUST_ADDRESS(?,:in_cust_id,:in_address_id) }
+    { call MVNA_API_PKG.DEL_CUST_ADDRESS(?,:in_cust_id,:in_address_id) }
   </sql-query>
 
 </hibernate-mapping>

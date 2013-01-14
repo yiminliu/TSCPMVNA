@@ -27,25 +27,25 @@
       <return-property name="paymentSource" column="pmt_source" />
       <return-property name="invoiceBody" column="email_body" />
     </return>
-    { call MVNE_API_PKG.fetch_pmt_invoice(?,:in_cust_id,:in_trans_id) }
+    { call MVNA_API_PKG.fetch_pmt_invoice(?,:in_cust_id,:in_trans_id) }
   </sql-query>
 
   <sql-query name="ins_pmt_invoice" callable="true">
     <return class="com.tscp.mvne.hibernate.GeneralSPResponse">
       <return-property name="status" column="status" />
-      <return-property name="mvnemsg" column="mvnemsg" />
-      <return-property name="mvnemsgcode" column="mvnemsgcode" />
+      <return-property name="msg" column="mvnemsg" />
+      <return-property name="code" column="mvnemsgcode" />
     </return>
-    { call MVNE_API_PKG.INS_PMT_INVOICE(?) }
+    { call MVNA_API_PKG.INS_PMT_INVOICE(?) }
   </sql-query>
 
   <sql-query name="upd_pmt_invoice" callable="true">
     <return class="com.tscp.mvne.hibernate.GeneralSPResponse">
       <return-property name="status" column="status" />
-      <return-property name="mvnemsg" column="mvnemsg" />
-      <return-property name="mvnemsgcode" column="mvnemsgcode" />
+      <return-property name="msg" column="mvnemsg" />
+      <return-property name="code" column="mvnemsgcode" />
     </return>
-    { call MVNE_API_PKG.UPD_PMT_INVOICE(?,:in_pmtinvoice_id,:in_trans_id,:in_notification_id) }
+    { call MVNA_API_PKG.UPD_PMT_INVOICE(?,:in_pmtinvoice_id,:in_trans_id,:in_notification_id) }
   </sql-query>
 
 

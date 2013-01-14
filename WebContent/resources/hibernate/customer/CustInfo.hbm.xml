@@ -19,7 +19,7 @@
       <return-property name="middleName" column="middle_name" />
       <return-property name="lastName" column="last_name" />
     </return>
-    { call MVNE_API_PKG.FETCH_CUST_INFO(?,:in_cust_id) }
+    { call MVNA_API_PKG.FETCH_CUST_INFO(?,:in_cust_id) }
   </sql-query>
 
 </hibernate-mapping>	
