@@ -63,8 +63,8 @@
   <sql-query name="ins_device_info" callable="true">
     <return class="com.tscp.mvne.hibernate.GeneralSPResponse">
       <return-property name="status" column="status" />
-      <return-property name="msg" column="mvnemsg" />
-      <return-property name="code" column="mvnemsgcode" />
+      <return-property name="msg" column="mvnamsg" />
+      <return-property name="code" column="mvnamsgcode" />
     </return>
     { call MVNA_API_PKG.INS_DEVICE_INFO(?, :in_cust_id, :in_device_label, :in_device_value, :in_account_no) }
   </sql-query>
@@ -72,8 +72,8 @@
   <sql-query name="upd_device_info" callable="true">
     <return class="com.tscp.mvne.hibernate.GeneralSPResponse">
       <return-property name="status" column="status" />
-      <return-property name="msg" column="mvnemsg" />
-      <return-property name="code" column="mvnemsgcode" />
+      <return-property name="msg" column="mvnamsg" />
+      <return-property name="code" column="mvnamsgcode" />
     </return>
     { call MVNA_API_PKG.UPD_DEVICE_INFO(?, :in_device_id, :in_cust_id, :in_device_label, :in_device_value, :in_device_status_id, :in_eff_date,
     :in_exp_date) }
@@ -82,8 +82,8 @@
   <sql-query name="del_device_info" callable="true">
     <return class="com.tscp.mvne.hibernate.GeneralSPResponse">
       <return-property name="status" column="status" />
-      <return-property name="msg" column="mvnemsg" />
-      <return-property name="code" column="mvnemsgcode" />
+      <return-property name="msg" column="mvnamsg" />
+      <return-property name="code" column="mvnamsgcode" />
     </return>
     { call MVNA_API_PKG.DEL_DEVICE_INFO(?, :in_cust_id, :in_device_id ) }
   </sql-query>
@@ -91,8 +91,8 @@
   <sql-query name="ins_device_assoc_map" callable="true">
     <return class="com.tscp.mvne.hibernate.GeneralSPResponse">
       <return-property name="status" column="status" />
-      <return-property name="msg" column="mvnemsg" />
-      <return-property name="code" column="mvnemsgcode" />
+      <return-property name="msg" column="mvnamsg" />
+      <return-property name="code" column="mvnamsgcode" />
     </return>
     { call MVNA_API_PKG.INS_DEVICE_ASSOC_MAP(?, :in_device_id, :in_subscr_no, :in_value, :in_status ) }
   </sql-query>

@@ -26,8 +26,8 @@
   <sql-query name="ins_payment_reversal" callable="true">
     <return class="com.tscp.mvne.hibernate.GeneralSPResponse">
       <return-property name="status" column="status" />
-      <return-property name="msg" column="mvnemsg" />
-      <return-property name="code" column="mvnemsgcode" />
+      <return-property name="msg" column="mvnamsg" />
+      <return-property name="code" column="mvnamsgcode" />
     </return>
     { call MVNA_API_PKG.ins_payment_reversal(?,:in_account_no,:in_reversal_amount,:in_trans_date,:in_tracking_id,:in_bmf_trans_type) }
   </sql-query>
@@ -35,8 +35,8 @@
   <sql-query name="truconnect_pccharge_credit" callable="true">
     <return class="com.tscp.mvne.hibernate.GeneralSPResponse">
       <return-property name="status" column="status" />
-      <return-property name="msg" column="mvnemsg" />
-      <return-property name="code" column="mvnemsgcode" />
+      <return-property name="msg" column="mvnamsg" />
+      <return-property name="code" column="mvnamsgcode" />
     </return>
     { call MVNA_API_PKG.truconnect_pccharge_credit(?,:in_cardno,:in_cardexpdt,:in_seccode,:in_pymntamt,:in_zip,:in_cardholder,:in_street) }
   </sql-query>
@@ -44,8 +44,8 @@
   <sql-query name="sp_refund_pmt" callable="true">
     <return class="com.tscp.mvne.hibernate.GeneralSPResponse">
       <return-property name="status" column="status" />
-      <return-property name="msg" column="mvnemsg" />
-      <return-property name="code" column="mvnemsgcode" />
+      <return-property name="msg" column="mvnamsg" />
+      <return-property name="code" column="mvnamsgcode" />
     </return>
     { call sp_refund_pmt(?,:in_account_no, :in_tracking_id, :in_refund_amount, :in_refund_by, :in_refund_reason_code, :in_refund_notes) }
   </sql-query>

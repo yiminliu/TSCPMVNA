@@ -82,7 +82,7 @@ import com.tscp.mvne.util.logger.MethodLogger;
 
 @WebService
 public class TSCPMVNA {
-	private static Logger logger = LoggerFactory.getLogger("TSCPMVNE");
+	private static Logger logger = LoggerFactory.getLogger("TSCPMVNA");
 	private static NetworkService networkService;
 	private static BillService billService;
 	private static ContractService contractService;
@@ -92,14 +92,22 @@ public class TSCPMVNA {
 	private static NotificationSender notificationSender;
 
 	@WebMethod
-	public void refundPayment(int accountNo, String amount, int trackingId, String refundBy, int refundCode, String notes) throws ContractException {
+	public void refundPayment(
+			int accountNo,
+			String amount,
+			int trackingId,
+			String refundBy,
+			int refundCode,
+			String notes) throws ContractException {
 		MethodLogger.logMethod("refundPayment", accountNo, amount, trackingId, refundBy);
 		refundService.applyChargeCredit(accountNo, trackingId, amount, refundBy, refundCode, notes);
 		MethodLogger.logMethodExit("refundPayment");
 	}
 
 	@WebMethod
-	public PaymentTransaction getPaymentTransaction(int custId, int transId) throws PaymentException {
+	public PaymentTransaction getPaymentTransaction(
+			int custId,
+			int transId) throws PaymentException {
 		MethodLogger.logMethod("getPaymentTransaction", custId, transId);
 		PaymentTransaction paymentTransaction = refundService.getPaymentTransaction(custId, transId);
 		MethodLogger.logMethodReturn("getPaymentTransaction", paymentTransaction);
@@ -111,7 +119,9 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public NetworkInfo activateService(Customer customer, NetworkInfo networkInfo) {
+	public NetworkInfo activateService(
+			Customer customer,
+			NetworkInfo networkInfo) {
 		MethodLogger.logMethod("activateService", customer, networkInfo);
 		networkService.activateMDN(networkInfo);
 		try {
@@ -139,7 +149,9 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public CreditCard addCreditCard(Customer customer, CreditCard creditCard) {
+	public CreditCard addCreditCard(
+			Customer customer,
+			CreditCard creditCard) {
 		MethodLogger.logMethod("addCreditCard", customer, creditCard);
 		if (creditCard.getPaymentid() != 0) {
 			throw new PaymentException("addCreditCard", "PaymentID must be 0 when adding a payment");
@@ -151,7 +163,9 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public List<CustAddress> addCustAddress(Customer customer, CustAddress custAddress) {
+	public List<CustAddress> addCustAddress(
+			Customer customer,
+			CustAddress custAddress) {
 		if (customer == null) {
 			throw new CustomerException("Invalid customer object");
 		}
@@ -166,7 +180,9 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public Device addDeviceInfoObject(Customer customer, Device device) {
+	public Device addDeviceInfoObject(
+			Customer customer,
+			Device device) {
 		MethodLogger.logMethod("addDeviceInfoObject", customer, device);
 		if (customer == null) {
 			throw new CustomerException("Customer information must be populated");
@@ -190,14 +206,17 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public void applyChargeCredit(CreditCard creditCard, String amount) {
+	public void applyChargeCredit(
+			CreditCard creditCard,
+			String amount) {
 		MethodLogger.logMethod("applyChargeCredit", creditCard, amount);
 		refundService.applyChargeCredit(creditCard, amount);
 		MethodLogger.logMethodExit("applyChargeCredit");
 	}
 
 	@WebMethod
-	public int applyContract(KenanContract contract) {
+	public int applyContract(
+			KenanContract contract) {
 		MethodLogger.logMethod("applyContract", contract);
 		int contractId = contractService.applyContract(contract);
 		logger.info("Contract " + contract.getContractType() + " applied for account " + contract.getAccount().getAccountNo() + " on MDN "
@@ -207,14 +226,19 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public int applyCouponPayment(Account account, String amount, Date date) {
+	public int applyCouponPayment(
+			Account account,
+			String amount,
+			Date date) {
 		MethodLogger.logMethod("applyCouponPayment", account, amount, date);
 		int trackingId = contractService.applyCouponPayment(account, amount, date);
 		MethodLogger.logMethodExit("applyCouponPayment");
 		return trackingId;
 	}
 
-	private void bindServiceInstanceObject(Account account, ServiceInstance serviceInstance) {
+	private void bindServiceInstanceObject(
+			Account account,
+			ServiceInstance serviceInstance) {
 		List<ServiceInstance> serviceInstanceList = billService.getServiceInstanceList(account);
 		if (serviceInstanceList != null) {
 			for (ServiceInstance si : serviceInstanceList) {
@@ -228,7 +252,9 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public Account createBillingAccount(Customer customer, Account account) {
+	public Account createBillingAccount(
+			Customer customer,
+			Account account) {
 		MethodLogger.logMethod("createBillingAccount", customer, account);
 		if (customer == null || customer.getId() <= 0) {
 			throw new WebServiceException("Please specify a customer prior to adding an account.");
@@ -243,7 +269,10 @@ public class TSCPMVNA {
 		return account;
 	}
 
-	private void createReinstallServiceInstance(Account account, ServiceInstance serviceInstance, Device device) {
+	private void createReinstallServiceInstance(
+			Account account,
+			ServiceInstance serviceInstance,
+			Device device) {
 		MethodLogger.logMethod("createReinstallServiceInstance", account, serviceInstance, device);
 		try {
 			account.setServiceinstancelist(billService.getServiceInstanceList(account));
@@ -298,7 +327,9 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public Account createServiceInstance(Account account, ServiceInstance serviceInstance) {
+	public Account createServiceInstance(
+			Account account,
+			ServiceInstance serviceInstance) {
 		MethodLogger.logMethod("createServiceInstance", account, serviceInstance);
 		try {
 			account.setServiceinstancelist(billService.getServiceInstanceList(account));
@@ -397,7 +428,9 @@ public class TSCPMVNA {
 	 * @return
 	 */
 	@WebMethod
-	public List<CustPmtMap> deleteCreditCardPaymentMethod(Customer customer, int paymentId) {
+	public List<CustPmtMap> deleteCreditCardPaymentMethod(
+			Customer customer,
+			int paymentId) {
 		MethodLogger.logMethod("deleteCreditCardPaymentMethod", customer, paymentId);
 		if (paymentId == 0) {
 			throw new PaymentException("deleteCreditCardPaymentMethod", "PaymentID cannot be 0 when deleting a payment");
@@ -408,7 +441,9 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public void deleteCustAcctMapReference(Customer customer, Account account) {
+	public void deleteCustAcctMapReference(
+			Customer customer,
+			Account account) {
 		if (customer == null) {
 			throw new CustomerException("Invalid customer object");
 		}
@@ -419,7 +454,9 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public List<CustAddress> deleteCustAddress(Customer customer, CustAddress custAddress) {
+	public List<CustAddress> deleteCustAddress(
+			Customer customer,
+			CustAddress custAddress) {
 		if (customer == null) {
 			throw new CustomerException("Invalid customer object");
 		}
@@ -435,7 +472,9 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public List<Device> deleteDeviceInfoObject(Customer customer, Device device) {
+	public List<Device> deleteDeviceInfoObject(
+			Customer customer,
+			Device device) {
 		MethodLogger.logMethod("deleteDeviceInfoObject", customer, device);
 		if (customer == null) {
 			throw new CustomerException("Customer Information must be provided");
@@ -456,18 +495,19 @@ public class TSCPMVNA {
 	 * @param networkInfo
 	 */
 	@WebMethod
-	public void disconnectFromNetwork(NetworkInfo networkInfo) {
+	public void disconnectFromNetwork(
+			NetworkInfo networkInfo) {
 		logger.info("Disconnecting from Network MDN " + networkInfo.getMdn());
 		networkService.disconnectService(networkInfo);
 	}
 
 	/**
-	 * Disconnects the device from the Network and Kenan then updates the device's
-	 * status.
+	 * Disconnects the device from the Network and Kenan then updates the device's status.
 	 */
 
 	@WebMethod
-	public void disconnectService(ServiceInstance serviceInstance) {
+	public void disconnectService(
+			ServiceInstance serviceInstance) {
 		MethodLogger.logMethod("disconnectService", serviceInstance);
 		logger.info("Calling Disconnect Service for External ID " + serviceInstance.getExternalId());
 		Account account = new Account();
@@ -538,7 +578,9 @@ public class TSCPMVNA {
 	 * @param serviceInstance
 	 */
 	@WebMethod
-	public void disconnectServiceInstanceFromKenan(Account account, ServiceInstance serviceInstance) {
+	public void disconnectServiceInstanceFromKenan(
+			Account account,
+			ServiceInstance serviceInstance) {
 		List<KenanContract> contracts = contractService.getContracts(account, serviceInstance);
 		if (contracts != null) {
 			for (KenanContract contract : contracts) {
@@ -552,7 +594,8 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public Account getAccountInfo(int accountNumber) {
+	public Account getAccountInfo(
+			int accountNumber) {
 		MethodLogger.logMethod("getAccountInfo", accountNumber);
 		Account account = billService.getAccountByAccountNo(accountNumber);
 		MethodLogger.logMethodReturn("getAccountInfo", account);
@@ -567,8 +610,11 @@ public class TSCPMVNA {
 	 * @param deviceId
 	 * @return
 	 */
-	private AccountStatus getAccountStatus(int custId, int accountNo, Device device, String externalId) throws DeviceException, NetworkException,
-			ProvisionException {
+	private AccountStatus getAccountStatus(
+			int custId,
+			int accountNo,
+			Device device,
+			String externalId) throws DeviceException, NetworkException, ProvisionException {
 		AccountStatus accountStatus = new AccountStatus();
 
 		// get device status
@@ -613,7 +659,10 @@ public class TSCPMVNA {
 	 * @return
 	 */
 	@WebMethod
-	public AccountStatus getAccountStatus(int custId, int accountNo, int deviceId) throws DeviceException, NetworkException, ProvisionException {
+	public AccountStatus getAccountStatus(
+			int custId,
+			int accountNo,
+			int deviceId) throws DeviceException, NetworkException, ProvisionException {
 		ServiceInstance serviceInstance = provisionService.getActiveService(accountNo);
 		return getAccountStatus(custId, accountNo, deviceId, serviceInstance.getExternalId());
 	}
@@ -626,14 +675,19 @@ public class TSCPMVNA {
 	 * @param deviceId
 	 * @return
 	 */
-	private AccountStatus getAccountStatus(int custId, int accountNo, int deviceId, String externalId) throws DeviceException, NetworkException,
-			ProvisionException {
+	private AccountStatus getAccountStatus(
+			int custId,
+			int accountNo,
+			int deviceId,
+			String externalId) throws DeviceException, NetworkException, ProvisionException {
 		Device device = deviceService.getDevice(custId, deviceId, accountNo);
 		return getAccountStatus(custId, accountNo, device, externalId);
 	}
 
 	@WebMethod
-	public List<KenanContract> getContracts(Account account, ServiceInstance serviceInstance) {
+	public List<KenanContract> getContracts(
+			Account account,
+			ServiceInstance serviceInstance) {
 		MethodLogger.logMethod("getContracts", account, serviceInstance);
 		List<KenanContract> contracts = contractService.getContracts(account, serviceInstance);
 		MethodLogger.logMethodExit("getContracts");
@@ -641,7 +695,8 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public CreditCard getCreditCardDetail(int paymentId) {
+	public CreditCard getCreditCardDetail(
+			int paymentId) {
 		MethodLogger.logMethod("getCreditCardDetail", paymentId);
 		CreditCard creditCard = new CreditCard();
 		creditCard.setPaymentid(paymentId);
@@ -651,7 +706,9 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public List<CustAddress> getCustAddressList(Customer customer, int addressId) {
+	public List<CustAddress> getCustAddressList(
+			Customer customer,
+			int addressId) {
 		if (customer == null) {
 			throw new CustomerException("Customer object must be specified");
 		}
@@ -662,13 +719,15 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public CustAcctMapDAO getCustFromAccount(int accountno) {
+	public CustAcctMapDAO getCustFromAccount(
+			int accountno) {
 		Customer customer = new Customer();
 		return customer.getCustAcctMapDAOfromAccount(accountno);
 	}
 
 	@WebMethod
-	public CustInfo getCustInfo(Customer customer) {
+	public CustInfo getCustInfo(
+			Customer customer) {
 		if (customer == null || customer.getId() <= 0) {
 			throw new CustomerException("Invalid Customer object");
 		}
@@ -676,7 +735,8 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public List<CustAcctMapDAO> getCustomerAccounts(int customerId) {
+	public List<CustAcctMapDAO> getCustomerAccounts(
+			int customerId) {
 		MethodLogger.logMethod("getCustomerAccounts", customerId);
 		Customer cust = new Customer();
 		cust.setId(customerId);
@@ -690,12 +750,19 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public List<UsageDetail> getCustomerChargeHistory(Customer customer, int accountNo, String mdn) {
+	public List<UsageDetail> getCustomerChargeHistory(
+			Customer customer,
+			int accountNo,
+			String mdn) {
 		return customer.getChargeHistory(accountNo, mdn);
 	}
 
 	@WebMethod
-	public List<UsageDetail> getActivity(int accountNo, String mdn, Date startDate, Date endDate) {
+	public List<UsageDetail> getActivity(
+			int accountNo,
+			String mdn,
+			Date startDate,
+			Date endDate) {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 		session.beginTransaction();
 		Query q;
@@ -716,7 +783,9 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public PaymentInvoice getCustomerInvoice(Customer customer, int transId) {
+	public PaymentInvoice getCustomerInvoice(
+			Customer customer,
+			int transId) {
 		if (customer == null) {
 			throw new CustomerException("Invalid customer object");
 		}
@@ -724,7 +793,9 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public List<CustPmtMap> getCustPaymentList(int customerId, int paymentId) {
+	public List<CustPmtMap> getCustPaymentList(
+			int customerId,
+			int paymentId) {
 		MethodLogger.logMethod("getCustPaymentList", customerId, paymentId);
 		Customer cust = new Customer();
 		cust.setId(customerId);
@@ -738,7 +809,9 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public CustTopUp getCustTopUpAmount(Customer customer, Account account) {
+	public CustTopUp getCustTopUpAmount(
+			Customer customer,
+			Account account) {
 		MethodLogger.logMethod("getCustTopUpAmount", customer, account);
 		CustTopUp topUp = customer.getTopupAmount(account);
 		MethodLogger.logMethodReturn("getCustTopUpAmount", topUp);
@@ -746,7 +819,8 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public List<Device> getDeviceList(Customer customer) {
+	public List<Device> getDeviceList(
+			Customer customer) {
 		MethodLogger.logMethod("getDeviceList", customer);
 		if (customer == null || customer.getId() <= 0) {
 			throw new CustomerException("Customer object must be provided");
@@ -756,7 +830,8 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public List<KenanPayment> getKenanPayments(Account account) {
+	public List<KenanPayment> getKenanPayments(
+			Account account) {
 		MethodLogger.logMethod("getKenanPayments", account);
 		List<KenanPayment> payments = refundService.getKenanPayments(account);
 		MethodLogger.logMethodExit("getKenanPayments");
@@ -764,7 +839,9 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public NetworkInfo getNetworkInfo(String esn, String mdn) throws NetworkException {
+	public NetworkInfo getNetworkInfo(
+			String esn,
+			String mdn) throws NetworkException {
 		MethodLogger.logMethod("getNetworkInfo", esn, mdn);
 		NetworkInfo networkInfo = networkService.getNetworkInfo(esn, mdn);
 		MethodLogger.logMethodReturn("getNetworkInfo", networkInfo);
@@ -772,12 +849,15 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public List<PaymentRecord> getPaymentHistory(Customer customer) {
+	public List<PaymentRecord> getPaymentHistory(
+			Customer customer) {
 		return customer.getPaymentHistory();
 	}
 
 	@WebMethod
-	public NetworkInfo getSwapNetworkInfo(String esn, String mdn) {
+	public NetworkInfo getSwapNetworkInfo(
+			String esn,
+			String mdn) {
 		MethodLogger.logMethod("getSwapNetworkInfo", esn, mdn);
 		NetworkInfo networkInfo = networkService.getSwapNetworkInfo(esn, mdn);
 		MethodLogger.logMethodReturn("getSwapNetworkInfo", networkInfo);
@@ -785,7 +865,9 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public UsageSummary getUsageSummary(Customer customer, ServiceInstance serviceInstance) {
+	public UsageSummary getUsageSummary(
+			Customer customer,
+			ServiceInstance serviceInstance) {
 		MethodLogger.logMethod("getUsageSummary", serviceInstance);
 		UsageSummary usage = new UsageSummary();
 		try {
@@ -844,7 +926,7 @@ public class TSCPMVNA {
 	@WebMethod(exclude = true)
 	public void init() {
 		// logger = new TscpmvneLogger();
-		logger = LoggerFactory.getLogger("TSCPMVNE");
+		logger = LoggerFactory.getLogger("TSCPMVNA");
 		networkService = new NetworkService();
 		billService = new BillService();
 		contractService = new ContractService();
@@ -855,7 +937,12 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public PaymentUnitResponse makePaymentById(String sessionId, int custId, int accountNo, int paymentId, String amount) {
+	public PaymentUnitResponse makePaymentById(
+			String sessionId,
+			int custId,
+			int accountNo,
+			int paymentId,
+			String amount) {
 		logger.debug("makePayment called");
 		Account account = getAccountInfo(accountNo);
 		Customer customer = new Customer();
@@ -863,7 +950,8 @@ public class TSCPMVNA {
 		return submitPaymentByPaymentId(sessionId, customer, paymentId, account, amount);
 	}
 
-	private void paymentUpdatedRoutine(Customer customer) {
+	private void paymentUpdatedRoutine(
+			Customer customer) {
 		logger.info("Begin paymentUpdateRoutine(custId:{})", customer.getId());
 		if (customer == null || customer.getId() <= 0) {
 			throw new CustomerException("invalid customer object");
@@ -894,27 +982,29 @@ public class TSCPMVNA {
 	}
 
 	/**
-	 * Reactivates the billing account in Kenan. An account is deactivated when
-	 * there are no active services on Bill Run.
+	 * Reactivates the billing account in Kenan. An account is deactivated when there are no active services on Bill Run.
 	 * 
 	 * @param accountNumber
 	 * @throws BillingException
 	 */
 	@WebMethod
-	private void reactivateBillingAccount(int accountNumber) throws BillingException {
+	private void reactivateBillingAccount(
+			int accountNumber) throws BillingException {
 		billService.reactivateBillingAccount(accountNumber);
 	}
 
 	/**
-	 * Used to reinstate the customer's Device when it is deactivated and add the
-	 * appropriate component. This will assign a new MDN to the device.
+	 * Used to reinstate the customer's Device when it is deactivated and add the appropriate component. This will assign
+	 * a new MDN to the device.
 	 * 
 	 * @param customer
 	 * @param device
 	 * @return
 	 */
 	@WebMethod
-	public NetworkInfo reinstallCustomerDevice(Customer customer, Device device) {
+	public NetworkInfo reinstallCustomerDevice(
+			Customer customer,
+			Device device) {
 		MethodLogger.logMethod("reinstallCustomerDevice", customer, device);
 		NetworkInfo networkInfo = new NetworkInfo();
 		int accountNo = 0;
@@ -1055,7 +1145,10 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public void restoreAccount(int custId, int accountNo, int deviceId) throws BillingException, ProvisionException, DeviceException, NetworkException {
+	public void restoreAccount(
+			int custId,
+			int accountNo,
+			int deviceId) throws BillingException, ProvisionException, DeviceException, NetworkException {
 		logger.info("Begin restoreAccount(custId:{},accountNo:{},deviceId:{})", new Object[] { custId, accountNo, deviceId });
 		ServiceInstance serviceInstance = provisionService.getActiveService(accountNo);
 		logger.debug("   ...restoreAccount[{}] with MDN {}", accountNo, serviceInstance.getExternalId());
@@ -1110,14 +1203,20 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public void reverseKenanPayment(Account account, String amount, Date transDate, String trackingId) {
+	public void reverseKenanPayment(
+			Account account,
+			String amount,
+			Date transDate,
+			String trackingId) {
 		MethodLogger.logMethod("reversePayment", account, amount, transDate, trackingId);
 		refundService.reversePayment(account, amount, transDate, trackingId);
 		MethodLogger.logMethodExit("reversePayment");
 	}
 
 	@WebMethod
-	public void sendNotification(Customer customer, EmailNotification notification) {
+	public void sendNotification(
+			Customer customer,
+			EmailNotification notification) {
 		if (customer == null || customer.getId() <= 0)
 			throw new CustomerException("Customer must be provided");
 		if (notification == null)
@@ -1131,14 +1230,17 @@ public class TSCPMVNA {
 		notificationSender.send(notification);
 	}
 
-	private void sendPaymentFailedNotification(Customer customer, Account account, PaymentTransaction paymentTransaction) {
+	private void sendPaymentFailedNotification(
+			Customer customer,
+			Account account,
+			PaymentTransaction paymentTransaction) {
 		logger.debug("Preparing Failed Notification message");
 		if (account.getFirstname() == null || account.getLastname() == null || account.getContact_email() == null) {
 			logger.debug("Binding account information");
 			account = billService.getAccountByAccountNo(account.getAccountNo());
 		}
 		if (account.getContact_email() == null || account.getContact_email().trim().isEmpty()) {
-			account.setContact_email("trualert@telscape.net");
+			account.setContact_email("wotgalert@telscape.net");
 		}
 
 		String customerName = account.getFirstname() + " " + account.getLastname();
@@ -1153,12 +1255,10 @@ public class TSCPMVNA {
 		notificationParametersList.add(new NotificationParameter("firstName", account.getFirstname()));
 		notificationParametersList.add(new NotificationParameter("lastName", account.getLastname()));
 
-		logger.debug("PaymentTransaction.getPaymentUnitMessage() has value: {}", paymentTransaction.getPaymentUnitMessage().toLowerCase());
 		String paymentUnitMsg = paymentTransaction.getPaymentUnitMessage().toLowerCase();
 		String customerMsg = null;
 		for (PaymentUnitMsg msg : PaymentUnitMsg.values()) {
 			if (msg.getMsg().toLowerCase().contains(paymentUnitMsg)) {
-				logger.debug("match found for value {} in error messages: {}", msg, msg.getMsg().toLowerCase());
 				switch (msg) {
 					case INVALID_CARD:
 						customerMsg = "Invalid Card";
@@ -1184,17 +1284,16 @@ public class TSCPMVNA {
 				}
 			}
 		}
-		logger.debug("customer messages is: {}", customerMsg);
 		notificationParametersList.add(new NotificationParameter("failureMsg", customerMsg));
 
 		EmailNotification notification = new EmailNotification();
 		notification.setCategory(NotificationCategory.WARNING);
 		notification.setType(NotificationType.EMAIL);
-		notification.setTemplate(Template.PAYMENT_FAILURE);
+		notification.setTemplate(Template.TOPUP_FAILURE);
 		notification.setToList(toList);
 		notification.setFrom(NOTIFICATION.from);
 		notification.setBccList(NOTIFICATION.bccList);
-		notification.setSubject("Top-Up Payment processing failure");
+		notification.setSubject("Urgent Attention Required – Web on the Go Suspended");
 		notification.setParameters(notificationParametersList);
 		notification.setCustId(customer.getId());
 		logger.info("Sending " + notification.getTemplate() + " email");
@@ -1202,7 +1301,10 @@ public class TSCPMVNA {
 		notificationSender.send(notification);
 	}
 
-	private void sendPaymentSuccessNotification(Customer customer, Account account, PaymentTransaction paymentTransaction) {
+	private void sendPaymentSuccessNotification(
+			Customer customer,
+			Account account,
+			PaymentTransaction paymentTransaction) {
 		assert customer != null && customer.getId() > 0 : "Customer invalid";
 		assert account != null && account.getAccountNo() > 0 : "Account invalid";
 		logger.debug("retrieving top up amount");
@@ -1258,7 +1360,7 @@ public class TSCPMVNA {
 		notificationParameterList.add(new NotificationParameter("balance", NumberFormat.getCurrencyInstance().format(balance)));
 
 		// truconnectManagesite
-		notificationParameterList.add(new NotificationParameter("truconnectManageSite", DOMAIN.urlManage));
+		notificationParameterList.add(new NotificationParameter("manageSite", DOMAIN.urlManage));
 
 		// billAddress1
 		String billAddress1 = creditCard.getAddress1() == null ? " " : creditCard.getAddress1();
@@ -1330,13 +1432,14 @@ public class TSCPMVNA {
 		notification.setToList(toList);
 		notification.setFrom(NOTIFICATION.from);
 		notification.setBccList(NOTIFICATION.bccList);
-		notification.setSubject("Thank you for your payment");
+		notification.setSubject("Thank you for your Web on the Go payment ");
 		notification.setParameters(notificationParameterList);
-		if (billAddress2 == null || billAddress2.trim().isEmpty()) {
-			notification.setTemplate(Template.TOPUP_NOADDRESS2);
-		} else {
-			notification.setTemplate(Template.TOPUP);
-		}
+
+		if (billAddress2 == null || billAddress2.trim().isEmpty())
+			notification.setTemplate(Template.TOPUP_SUCCESS_02);
+		else
+			notification.setTemplate(Template.TOPUP_SUCCESS_01);
+
 		notification.setCategory(NotificationCategory.INFO);
 		notification.setType(NotificationType.EMAIL);
 		notification.setCustId(customer.getId());
@@ -1353,7 +1456,9 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public void testSendWelcomeNotification(int custId, int accountNo) {
+	public void testSendWelcomeNotification(
+			int custId,
+			int accountNo) {
 		Customer customer = new Customer();
 		customer.setId(custId);
 		Account account = getAccountInfo(accountNo);
@@ -1361,7 +1466,9 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public void testSendPaymentFailedNotification(int custId, int accountNo) {
+	public void testSendPaymentFailedNotification(
+			int custId,
+			int accountNo) {
 		Customer customer = new Customer();
 		customer.setId(custId);
 		Account account = getAccountInfo(accountNo);
@@ -1369,13 +1476,16 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public void sendActivationSuccessNotice(Customer customer, Account account) {
-		if (customer == null || customer.getId() <= 0) {
+	public void sendActivationSuccessNotice(
+			Customer customer,
+			Account account) {
+
+		if (customer == null || customer.getId() <= 0)
 			throw new CustomerException("invalid customer object");
-		}
-		if (account == null || account.getAccountNo() <= 0) {
+
+		if (account == null || account.getAccountNo() <= 0)
 			throw new BillingException("account object is invalid.");
-		}
+
 		if (account.getFirstname() == null || account.getFirstname().trim().isEmpty() || account.getLastname() == null || account.getLastname().trim().isEmpty()
 				|| account.getContact_email() == null || account.getContact_email().trim().isEmpty()) {
 			account = billService.getAccountByAccountNo(account.getAccountNo());
@@ -1386,19 +1496,10 @@ public class TSCPMVNA {
 		}
 
 		Set<NotificationParameter> notificationParameterList = new HashSet<NotificationParameter>();
-		NotificationParameter np = null;
-
-		np = new NotificationParameter("firstName", account.getFirstname());
-		notificationParameterList.add(np);
-
-		np = new NotificationParameter("lastName", account.getLastname());
-		notificationParameterList.add(np);
-
-		np = new NotificationParameter("email", account.getContact_email());
-		notificationParameterList.add(np);
-
-		np = new NotificationParameter("truconnectManageSite", DOMAIN.urlManage);
-		notificationParameterList.add(np);
+		notificationParameterList.add(new NotificationParameter("firstName", account.getFirstname()));
+		notificationParameterList.add(new NotificationParameter("lastName", account.getLastname()));
+		notificationParameterList.add(new NotificationParameter("email", account.getContact_email()));
+		notificationParameterList.add(new NotificationParameter("manageSite", DOMAIN.urlManage));
 
 		EmailNotification notification = new EmailNotification();
 
@@ -1412,7 +1513,7 @@ public class TSCPMVNA {
 		notification.setToList(toList);
 		notification.setFrom(NOTIFICATION.from);
 		notification.setBccList(NOTIFICATION.bccList);
-		notification.setSubject("Your new WebOnTheGo Account");
+		notification.setSubject("Your new WebOnTheGo Device");
 		notification.setParameters(notificationParameterList);
 		notification.setTemplate(Template.ACTIVATION_SUCCESS);
 		notification.setCategory(NotificationCategory.INFO);
@@ -1423,15 +1524,15 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public void sendRegistrationSuccessNotice(int custId, String email, String username) {
+	public void sendRegistrationSuccessNotice(
+			int custId,
+			String email,
+			String username) {
 		Set<NotificationParameter> notificationParameterList = new HashSet<NotificationParameter>();
-		NotificationParameter np = null;
 
-		np = new NotificationParameter("username", username);
-		notificationParameterList.add(np);
-
-		np = new NotificationParameter("MANAGE_SITE", DOMAIN.urlManage);
-		notificationParameterList.add(np);
+		notificationParameterList.add(new NotificationParameter("username", username));
+		notificationParameterList.add(new NotificationParameter("email", email));
+		notificationParameterList.add(new NotificationParameter("MANAGE_SITE", DOMAIN.urlManage));
 
 		EmailNotification notification = new EmailNotification();
 
@@ -1445,7 +1546,7 @@ public class TSCPMVNA {
 		notification.setToList(toList);
 		notification.setFrom(NOTIFICATION.from);
 		notification.setBccList(NOTIFICATION.bccList);
-		notification.setSubject("Your new WebOnTheGo Account");
+		notification.setSubject("Welcome to Web on the Go");
 		notification.setParameters(notificationParameterList);
 		notification.setTemplate(Template.REGISTRATION_SUCCESS);
 		notification.setCategory(NotificationCategory.INFO);
@@ -1456,7 +1557,10 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public CustTopUp setCustTopUpAmount(Customer customer, String topUpAmount, Account account) {
+	public CustTopUp setCustTopUpAmount(
+			Customer customer,
+			String topUpAmount,
+			Account account) {
 		MethodLogger.logMethod("setCustTopUpAmount", customer, topUpAmount, account);
 		CustTopUp topUp = customer.setTopupAmount(account, topUpAmount);
 		MethodLogger.logMethodReturn("setCustTopUpAmount", topUp);
@@ -1464,8 +1568,7 @@ public class TSCPMVNA {
 	}
 
 	/**
-	 * Use submitPaymentByaymentId as all credit cards should be saved in the
-	 * database.
+	 * Use submitPaymentByaymentId as all credit cards should be saved in the database.
 	 * 
 	 * @param sessionId
 	 * @param account
@@ -1475,7 +1578,11 @@ public class TSCPMVNA {
 	 */
 	@Deprecated
 	@WebMethod
-	public PaymentUnitResponse submitPaymentByCreditCard(String sessionId, Account account, CreditCard creditCard, String paymentAmount) {
+	public PaymentUnitResponse submitPaymentByCreditCard(
+			String sessionId,
+			Account account,
+			CreditCard creditCard,
+			String paymentAmount) {
 		MethodLogger.logMethod("submitPaymentByCreditCard", sessionId, account, creditCard, paymentAmount);
 		if (creditCard == null) {
 			logger.warn("SessionId " + sessionId + ":: CreditCard Information must be present to submit a CreditCard Payment");
@@ -1590,7 +1697,12 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public PaymentUnitResponse submitPaymentByPaymentId(String sessionId, Customer customer, int paymentId, Account account, String paymentAmount) {
+	public PaymentUnitResponse submitPaymentByPaymentId(
+			String sessionId,
+			Customer customer,
+			int paymentId,
+			Account account,
+			String paymentAmount) {
 		MethodLogger.logMethod("submitPaymentByPaymentId", sessionId, customer, paymentId, account, paymentAmount);
 		if (customer == null || customer.getId() <= 0) {
 			logger.warn("SessionId " + sessionId + "::Customer cannot be empty");
@@ -1857,7 +1969,10 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public void suspendAccount(int custId, int accountNo, int deviceId) throws BillingException, ProvisionException, DeviceException, NetworkException {
+	public void suspendAccount(
+			int custId,
+			int accountNo,
+			int deviceId) throws BillingException, ProvisionException, DeviceException, NetworkException {
 		logger.info("Begin suspendAccount(custId:{},accountNo:{},deviceId:{})", new Object[] { custId, accountNo, deviceId });
 		ServiceInstance serviceInstance = provisionService.getActiveService(accountNo);
 		logger.debug("   ...suspendAccount[{}] with MDN {}", accountNo, serviceInstance.getExternalId());
@@ -1905,7 +2020,11 @@ public class TSCPMVNA {
 		billService.updateServiceInstanceStatus(serviceInstance, PROVISION.SERVICE.HOTLINE);
 	}
 
-	protected void updateDeviceHistory(int deviceId, String value, ServiceInstance serviceInstance, DeviceStatus status) {
+	protected void updateDeviceHistory(
+			int deviceId,
+			String value,
+			ServiceInstance serviceInstance,
+			DeviceStatus status) {
 		logger.info("updating device history for device {}:{} subscriber {} with status {}", new Object[] { deviceId, value, serviceInstance.getSubscriberNumber(),
 				status.getDescription() });
 		DeviceAssociation deviceAssociation = new DeviceAssociation();
@@ -1918,7 +2037,10 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public NetworkInfo swapDevice(Customer customer, NetworkInfo oldNetworkInfo, Device newDevice) {
+	public NetworkInfo swapDevice(
+			Customer customer,
+			NetworkInfo oldNetworkInfo,
+			Device newDevice) {
 		MethodLogger.logMethod("swapDevice", customer, oldNetworkInfo, newDevice);
 		if (customer == null || customer.getId() <= 0) {
 			throw new CustomerException("Customer object must be provided");
@@ -2004,7 +2126,8 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public void updateAccountEmailAddress(Account account) {
+	public void updateAccountEmailAddress(
+			Account account) {
 		MethodLogger.logMethod("updateAccountEmailAddress", account);
 		if (account == null) {
 			logger.info("updatingAccountEmailAddress(account) account object is null");
@@ -2016,7 +2139,8 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public void updateContract(KenanContract contract) {
+	public void updateContract(
+			KenanContract contract) {
 		MethodLogger.logMethod("updateContract", contract);
 		contractService.updateContract(contract);
 		logger.info("Contract " + contract.getContractType() + " updated for account " + contract.getAccount().getAccountNo() + " on MDN "
@@ -2031,7 +2155,9 @@ public class TSCPMVNA {
 	 * @return
 	 */
 	@WebMethod
-	public List<CustPmtMap> updateCreditCardPaymentMethod(Customer customer, CreditCard creditCard) {
+	public List<CustPmtMap> updateCreditCardPaymentMethod(
+			Customer customer,
+			CreditCard creditCard) {
 		MethodLogger.logMethod("updateCreditCardPaymentMethod", customer, creditCard);
 		if (creditCard.getPaymentid() == 0) {
 			throw new PaymentException("addCreditCard", "PaymentID cannot be 0 when updating a payment");
@@ -2049,7 +2175,9 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public List<CustAddress> updateCustAddress(Customer customer, CustAddress custAddress) {
+	public List<CustAddress> updateCustAddress(
+			Customer customer,
+			CustAddress custAddress) {
 		if (customer == null) {
 			throw new CustomerException("Invalid customer object");
 		}
@@ -2064,7 +2192,8 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public List<CustPmtMap> updateCustPaymentMap(CustPmtMap custPmtMap) {
+	public List<CustPmtMap> updateCustPaymentMap(
+			CustPmtMap custPmtMap) {
 		if (custPmtMap == null) {
 			throw new PaymentException("CustPmtMap must be specified");
 		}
@@ -2092,7 +2221,9 @@ public class TSCPMVNA {
 	}
 
 	@WebMethod
-	public void updateDeviceInfoObject(Customer customer, Device device) {
+	public void updateDeviceInfoObject(
+			Customer customer,
+			Device device) {
 		MethodLogger.logMethod("updateDeviceInfoObject", customer, device);
 		if (customer == null) {
 			throw new CustomerException("Customer information must be populated");

@@ -31,8 +31,8 @@
   <sql-query name="upd_notification_email" callable="true">
     <return class="com.tscp.mvne.hibernate.GeneralSPResponse">
       <return-property name="status" column="status" />
-      <return-property name="msg" column="mvnemsg" />
-      <return-property name="code" column="mvnemsgcode" />
+      <return-property name="msg" column="mvnamsg" />
+      <return-property name="code" column="mvnamsgcode" />
     </return>
     { call
     MVNA_API_PKG.UPD_NOTIFICATION_EMAIL(?,:in_notification_id,:in_cust_id,:in_notification_type,:in_notification_category,:in_attempt_no,:in_email_template,:in_email_to,:in_email_cc,:in_email_bcc,:in_email_from,:in_email_subject,:in_email_body,:in_sent_date)
@@ -61,8 +61,8 @@
   <sql-query name="ins_notification_param" callable="true">
     <return class="com.tscp.mvne.hibernate.GeneralSPResponse">
       <return-property name="status" column="status" />
-      <return-property name="msg" column="mvnemsg" />
-      <return-property name="code" column="mvnemsgcode" />
+      <return-property name="msg" column="mvnamsg" />
+      <return-property name="code" column="mvnamsgcode" />
     </return>
     { call MVNA_API_PKG.INS_NOTIFICATION_PARAM(?,:in_notification_id,:in_param_key,:in_param_value) }
   </sql-query>

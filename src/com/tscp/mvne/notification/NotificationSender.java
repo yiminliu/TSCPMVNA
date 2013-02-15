@@ -12,4 +12,14 @@ public class NotificationSender extends AbstractQueueSender {
 		setDestination(NOTIFICATION.destination);
 	}
 
+	public static void main(String[] args) {
+		System.out.println("Hello world");
+
+		NotificationSender ns = new NotificationSender();
+		System.out.println(ns.getConnectionFactory());
+		System.out.println(ns.getDestination());
+		
+		
+		System.out.println("exiting...");
+	}
 }

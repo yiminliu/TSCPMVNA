@@ -3,6 +3,9 @@ package com.tscp.mvne.network.service;
 import java.util.Iterator;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.tscp.mvne.config.DEVICE;
 import com.tscp.mvne.network.NetworkInfo;
 import com.tscp.mvne.network.exception.NetworkException;
@@ -18,6 +21,7 @@ import com.tscp.mvno.webservices.PendingSubscriptionNPA;
 import com.tscp.mvno.webservices.Sali2;
 
 public class NetworkService {
+	private static Logger logger = LoggerFactory.getLogger("TSCPMVNA");
   protected static final API3 port = NetworkGatewayProvider.getInstance();
 
   public NetworkService() {
@@ -50,7 +54,8 @@ public class NetworkService {
     } else {
       ESN = networkinfo.getEsnmeiddec();
     }
-    activatereservesubscription.setESN(networkinfo.getEsnmeiddec());
+    logger.trace("activating MDN " + networkinfo.getMdn() + " on ESN " + ESN + " with MSID " + networkinfo.getMsid());
+    activatereservesubscription.setESN(ESN);
     activatereservesubscription.setMDN(networkinfo.getMdn());
     activatereservesubscription.setMSID(networkinfo.getMsid());
 

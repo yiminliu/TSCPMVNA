@@ -28,4 +28,8 @@ public class ResponseReader {
 		return responseList.get(0).getCode();
 	}
 
+	public static String getMessage(List<GeneralSPResponse> responseList) {
+		return responseList.get(0).getMsg();
+	}
+
 }

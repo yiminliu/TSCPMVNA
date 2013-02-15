@@ -18,7 +18,7 @@ public class CONFIG {
 	public static final String provisionFile = "com/tscp/mvne/config/provision.properties";
 	public static final String billingFile = "com/tscp/mvne/config/billing.properties";
 	public static final String notificationFile = "com/tscp/mvne/config/notification.properties";
-	protected static final Logger logger = LoggerFactory.getLogger("TSCPMVNE");
+	protected static final Logger logger = LoggerFactory.getLogger("TSCPMVNA");
 	protected static Set<String> loadedFiles = new HashSet<String>();
 	protected static Properties props = new Properties();
 	protected static boolean production = false;

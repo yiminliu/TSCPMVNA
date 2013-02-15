@@ -12,9 +12,9 @@
   </appender>
 
   <appender name="ROLLINGFILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <File>../logs/TSCPMVNE.log</File>
+    <File>../logs/TSCPMVNA.log</File>
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      <FileNamePattern>../logs/TSCPMVNE/TSCPMVNE.%d{yyyy-MM-dd}.%i.log.zip</FileNamePattern>
+      <FileNamePattern>../logs/TSCPMVNA/TSCPMVNA.%d{yyyy-MM-dd}.%i.log.zip</FileNamePattern>
       <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
         <maxFileSize>5MB</maxFileSize>
       </timeBasedFileNamingAndTriggeringPolicy>
@@ -25,9 +25,9 @@
   </appender>
 
   <appender name="ROLLINGFILE-AOP" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <File>../logs/TSCPMVNE-AOP.log</File>
+    <File>../logs/TSCPMVNA-AOP.log</File>
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      <FileNamePattern>../logs/TSCPMVNE/TSCPMVNE-AOP.%d{yyyy-MM-dd}.%i.log.zip</FileNamePattern>
+      <FileNamePattern>../logs/TSCPMVNA/TSCPMVNA-AOP.%d{yyyy-MM-dd}.%i.log.zip</FileNamePattern>
       <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
         <maxFileSize>5MB</maxFileSize>
       </timeBasedFileNamingAndTriggeringPolicy>
@@ -37,15 +37,38 @@
     </encoder>
   </appender>
 
-  <logger name="TSCPMVNE" level="ALL">
+  <appender name="HIBERNATE_ROLLINGFILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <File>../logs/TSCPMVNA_hibernate.log</File>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <FileNamePattern>../logs/TSCPMVNA/TSCPMVNA_hibernate.%d{yyyy-MM-dd}.%i.log.zip</FileNamePattern>
+      <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+        <maxFileSize>5MB</maxFileSize>
+      </timeBasedFileNamingAndTriggeringPolicy>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level: %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <!-- set to debug for more info -->
+  <logger name="org.hibernate.SQL" level="WARN">
+    <appender-ref ref="HIBERNATE_ROLLINGFILE" />
+  </logger>
+
+  <!-- set to trace for more info -->
+  <logger name="org.hibernate.type" level="WARN">
+    <appender-ref ref="HIBERNATE_ROLLINGFILE" />
+  </logger>
+
+  <logger name="TSCPMVNA" level="ALL">
     <appender-ref ref="ROLLINGFILE" />
   </logger>
 
-  <logger name="TSCPMVNE-AOP" level="ALL">
+  <logger name="TSCPMVNA-AOP" level="ALL">
     <appender-ref ref="ROLLINGFILE-AOP" />
   </logger>
 
-  <root>
+  <root level="WARN">
     <appender-ref ref="STDOUT" />
   </root>
 

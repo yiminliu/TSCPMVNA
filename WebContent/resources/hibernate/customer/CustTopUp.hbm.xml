@@ -23,8 +23,8 @@
   <sql-query name="upd_cust_topup_amt" callable="true">
     <return class="com.tscp.mvne.hibernate.GeneralSPResponse">
       <return-property name="status" column="status" />
-      <return-property name="msg" column="mvnemsg" />
-      <return-property name="code" column="mvnemsgcode" />
+      <return-property name="msg" column="mvnamsg" />
+      <return-property name="code" column="mvnamsgcode" />
     </return>
     { call MVNA_API_PKG.UPD_CUST_TOPUP_AMT(?,:in_cust_id,:in_topup_amt,:in_account_no) }
   </sql-query>

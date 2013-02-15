@@ -23,8 +23,8 @@
   <sql-query name="ins_pmt_cc_info" callable="true">
     <return class="com.tscp.mvne.hibernate.GeneralSPResponse">
       <return-property name="status" column="status" />
-      <return-property name="msg" column="mvnemsg" />
-      <return-property name="code" column="mvnemsgcode" />
+      <return-property name="msg" column="mvnamsg" />
+      <return-property name="code" column="mvnamsgcode" />
     </return>
     { call MVNA_API_PKG.INS_PMT_CC_INFO(?,:in_cust_name,:in_addr1,:in_addr2,:in_city,:in_state,:in_zip,:in_cardno,:in_exp_dt,:in_sec_code) }
   </sql-query>
@@ -50,8 +50,8 @@
   <sql-query name="del_pmt_cc_info" callable="true">
     <return class="com.tscp.mvne.hibernate.GeneralSPResponse">
       <return-property name="status" column="status" />
-      <return-property name="msg" column="mvnemsg" />
-      <return-property name="code" column="mvnemsgcode" />
+      <return-property name="msg" column="mvnamsg" />
+      <return-property name="code" column="mvnamsgcode" />
     </return>
     { call MVNA_API_PKG.del_pmt_cc_info(?,:in_payment_id) }
   </sql-query>
@@ -59,8 +59,8 @@
   <sql-query name="upd_pmt_cc_info" callable="true">
     <return class="com.tscp.mvne.hibernate.GeneralSPResponse">
       <return-property name="status" column="status" />
-      <return-property name="msg" column="mvnemsg" />
-      <return-property name="code" column="mvnemsgcode" />
+      <return-property name="msg" column="mvnamsg" />
+      <return-property name="code" column="mvnamsgcode" />
     </return>
     { call
     MVNA_API_PKG.upd_pmt_cc_info(?,:in_pmt_id,:in_cust_name,:in_addr1,:in_addr2,:in_city,:in_state,:in_zip,:in_cardno,:in_exp_dt,:in_sec_code) }

@@ -21,38 +21,39 @@ import com.tscp.mvno.webservices.API3Service;
  * 
  */
 public final class NetworkGatewayProvider {
-  private static final Logger logger = LoggerFactory.getLogger("TSCPMVNE");
-  private static final API3Service service = loadInterface();
-  private static final API3 port = service.getAPI3Port();
+	private static final Logger logger = LoggerFactory.getLogger("TSCPMVNA");
+	private static final API3Service service = loadInterface();
+	private static final API3 port = service.getAPI3Port();
 
-  protected NetworkGatewayProvider() {
-    // prevent instantiation
-  }
+	protected NetworkGatewayProvider() {
+		// prevent instantiation
+	}
 
-  /**
-   * Loads and returns the API3 Service.
-   * 
-   * @return
-   */
-  protected static final API3Service loadInterface() throws InitializationException {
-    CONFIG.initAll();
-    try {
-      URL url = new URL(CONNECTION.networkWSDL);
-      QName qName = new QName(CONNECTION.networkNameSpace, CONNECTION.networkServiceName);
-      logger.info("{} has been initialized WSDL:{}", CONNECTION.networkServiceName, CONNECTION.networkWSDL);
-      return new API3Service(url, qName);
-    } catch (MalformedURLException url_ex) {
-      logger.error("{} failed to initialize WSDL:{}", CONNECTION.networkServiceName, CONNECTION.networkWSDL);
-      throw new InitializationException(url_ex);
-    }
-  }
+	/**
+	 * Loads and returns the API3 Service.
+	 * 
+	 * @return
+	 */
+	protected static final API3Service loadInterface() throws InitializationException {
+		CONFIG.initAll();
+		try {
+			URL url = new URL(CONNECTION.networkWSDL);
+			QName qName = new QName(CONNECTION.networkNameSpace, CONNECTION.networkServiceName);
+			logger.info("{} has been initialized WSDL:{}", CONNECTION.networkServiceName, CONNECTION.networkWSDL);
+			return new API3Service(url, qName);
+		} catch (MalformedURLException url_ex) {
+			logger.error("{} failed to initialize WSDL:{}", CONNECTION.networkServiceName, CONNECTION.networkWSDL);
+			throw new InitializationException(url_ex);
+		}
+	}
 
-  /**
-   * Returns the singleton instance of the API3 Service.
-   * 
-   * @return
-   */
-  public static final API3 getInstance() {
-    return port;
-  }
+	/**
+	 * Returns the singleton instance of the API3 Service.
+	 * 
+	 * @return
+	 */
+	public static final API3 getInstance() {
+		logger.debug("returning port for network service. Instance is:" + port);
+		return port;
+	}
 }

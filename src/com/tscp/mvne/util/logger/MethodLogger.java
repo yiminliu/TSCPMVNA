@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MethodLogger {
-  private static final Logger logger = LoggerFactory.getLogger("TSCPMVNE");
+  private static final Logger logger = LoggerFactory.getLogger("TSCPMVNA");
 
   public static void logMethodExit(String methodName) {
     logger.info("Exiting {}", methodName);
