@@ -602,6 +602,12 @@ public class TSCPMVNA {
 		return account;
 	}
 
+	@WebMethod
+	public Account getUnlinkedAccount(
+			int custId) {
+		return billService.getUnlinkedAccount(custId);
+	}
+
 	/**
 	 * Temporary "lightweight" method to get the full state of the account.
 	 * 

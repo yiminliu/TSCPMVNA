@@ -2,12 +2,16 @@ package com.tscp.mvne.network.service;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
+import javax.xml.ws.BindingProvider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.xml.ws.client.BindingProviderProperties;
+import com.sun.xml.ws.developer.JAXWSProperties;
 import com.tscp.mvne.config.CONFIG;
 import com.tscp.mvne.config.CONNECTION;
 import com.tscp.mvne.exception.InitializationException;
@@ -37,12 +41,11 @@ public final class NetworkGatewayProvider {
 	protected static final API3Service loadInterface() throws InitializationException {
 		CONFIG.initAll();
 		try {
-			URL url = new URL(CONNECTION.networkWSDL);
-			QName qName = new QName(CONNECTION.networkNameSpace, CONNECTION.networkServiceName);
-			logger.info("{} has been initialized WSDL:{}", CONNECTION.networkServiceName, CONNECTION.networkWSDL);
-			return new API3Service(url, qName);
+			API3Service service = new API3Service(new URL(CONNECTION.networkWSDL), new QName(CONNECTION.networkNameSpace, CONNECTION.networkServiceName));
+			logger.info("Service initialized to " + service.getWSDLDocumentLocation().toString());
+			return service;
 		} catch (MalformedURLException url_ex) {
-			logger.error("{} failed to initialize WSDL:{}", CONNECTION.networkServiceName, CONNECTION.networkWSDL);
+			logger.error("Exception initializing service at " + CONNECTION.networkWSDL, url_ex);
 			throw new InitializationException(url_ex);
 		}
 	}
@@ -53,7 +56,11 @@ public final class NetworkGatewayProvider {
 	 * @return
 	 */
 	public static final API3 getInstance() {
-		logger.debug("returning port for network service. Instance is:" + port);
+
+		Map<String, Object> requestContext = ((BindingProvider) port).getRequestContext();
+		requestContext.put(BindingProviderProperties.REQUEST_TIMEOUT, 120000);
+		requestContext.put(BindingProviderProperties.CONNECT_TIMEOUT, 120000);
+
 		return port;
 	}
 }
