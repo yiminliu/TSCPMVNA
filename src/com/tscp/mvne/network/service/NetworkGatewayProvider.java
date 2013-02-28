@@ -10,8 +10,7 @@ import javax.xml.ws.BindingProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.xml.ws.client.BindingProviderProperties;
-import com.sun.xml.ws.developer.JAXWSProperties;
+import com.sun.xml.internal.ws.client.BindingProviderProperties;
 import com.tscp.mvne.config.CONFIG;
 import com.tscp.mvne.config.CONNECTION;
 import com.tscp.mvne.exception.InitializationException;
@@ -58,8 +57,8 @@ public final class NetworkGatewayProvider {
 	public static final API3 getInstance() {
 
 		Map<String, Object> requestContext = ((BindingProvider) port).getRequestContext();
-		requestContext.put(BindingProviderProperties.REQUEST_TIMEOUT, 120000);
-		requestContext.put(BindingProviderProperties.CONNECT_TIMEOUT, 120000);
+		requestContext.put(BindingProviderProperties.REQUEST_TIMEOUT, 180000);
+		requestContext.put(BindingProviderProperties.CONNECT_TIMEOUT, 180000);
 
 		return port;
 	}
