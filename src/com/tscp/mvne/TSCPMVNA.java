@@ -77,6 +77,7 @@ import com.tscp.mvne.payment.dao.PaymentTransaction;
 import com.tscp.mvne.payment.dao.PaymentUnitResponse;
 import com.tscp.mvne.payment.response.PaymentUnitMsg;
 import com.tscp.mvne.refund.KenanPayment;
+import com.tscp.mvne.refund.RefundException;
 import com.tscp.mvne.refund.RefundService;
 import com.tscp.mvne.util.logger.MethodLogger;
 
@@ -94,13 +95,14 @@ public class TSCPMVNA {
 	@WebMethod
 	public void refundPayment(
 			int accountNo,
+			int transId,
 			String amount,
 			int trackingId,
 			String refundBy,
 			int refundCode,
-			String notes) throws ContractException {
+			String notes) throws RefundException {
 		MethodLogger.logMethod("refundPayment", accountNo, amount, trackingId, refundBy);
-		refundService.applyChargeCredit(accountNo, trackingId, amount, refundBy, refundCode, notes);
+		refundService.refundPayment(accountNo, transId, trackingId, amount, refundBy, refundCode, notes);
 		MethodLogger.logMethodExit("refundPayment");
 	}
 
