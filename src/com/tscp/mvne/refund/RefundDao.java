@@ -26,7 +26,7 @@ public class RefundDao {
 	      query.setParameter("in_tracking_id", trackingId);
 	      query.setParameter("in_refund_amount", amount);
 	      query.setParameter("in_refund_by", refundBy);
-	      query.setParameter("in_refund_code", refundCode);
+	      query.setParameter("in_refund_reason_code", refundCode);
 	      query.setParameter("in_refund_notes", notes);
 	      list = query.list();
 	      
