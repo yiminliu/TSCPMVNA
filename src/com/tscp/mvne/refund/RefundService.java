@@ -14,6 +14,8 @@ import com.tscp.mvne.payment.dao.PaymentTransaction;
 
 public class RefundService {
 
+  private RefundDao refundDao = new RefundDao();
+  
   public List<KenanPayment> getKenanPayments(Account account) throws RefundException {
     return KenanPaymentDao.getKenanPayments(account);
   }
@@ -26,8 +28,8 @@ public class RefundService {
     KenanPaymentDao.applyChargeCredit(creditCard, amount);
   }
 
-  public void applyChargeCredit(int accountNo, int trackingId, String amount, String refundBy, int refundCode, String notes) throws RefundException {
-    KenanPaymentDao.applyChargeCredit(accountNo, trackingId, amount, refundBy, refundCode, notes);
+  public void refundPayment(int accountNo, int transId, int trackingId, String amount, String refundBy, int refundCode, String notes) throws RefundException {
+    refundDao.refundPayment(accountNo, transId, trackingId, amount, refundBy, refundCode, notes);
   }
 
   public PaymentTransaction getPaymentTransaction(int custId, int transId) throws PaymentException {
@@ -49,5 +51,6 @@ public class RefundService {
       throw new PaymentException("No payment transaction found with transId " + transId + " for cust " + custId);
     }
   }
+  
 
 }
