@@ -1,6 +1,5 @@
 package com.tscp.mvne.refund;
 
-import java.util.Date;
 import java.util.List;
 
 import org.hibernate.HibernateException;
@@ -8,29 +7,12 @@ import org.hibernate.Query;
 import org.hibernate.Transaction;
 import org.hibernate.classic.Session;
 
-import com.tscp.mvne.billing.Account;
-import com.tscp.mvne.billing.contract.exception.ContractException;
-import com.tscp.mvne.exception.DaoException;
 import com.tscp.mvne.hibernate.GeneralSPResponse;
 import com.tscp.mvne.hibernate.HibernateUtil;
-import com.tscp.mvne.payment.dao.CreditCard;
 
 @SuppressWarnings("unchecked")
 public class RefundDao {
- 
-  public static void main(String[] args){
-	  RefundDao dao = new RefundDao();
-	  try{
-		  
-	     //dao.refundPayment(757620, 6875300, 5723215, "10", "wotg", 1, "test sp");
-	     dao.refundPayment(757617, 6875300, 5723214, "10", "wotg", 1, "test sp");
-	     //System.out.println(dao.isRefunded(687535));
-	  }
-	  catch(Exception e){
-		  e.printStackTrace();
-	  }
-  }
-  
+     
   public int refundPayment(int accountNo, int transId, int trackingId, String amount, String refundBy, int refundCode, String notes) throws RefundException {
 	    if(isRefunded(transId)) {
 	       throw new RefundException("Refund was alread applied for the transaction with transId = "+ transId);
@@ -88,13 +70,13 @@ public class RefundDao {
 	    return response;
 	  }
   
-  private boolean isRefunded(int transId){
+  public boolean isRefunded(int transId){
 	  Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 	  Refund refund = getRefundByTransId(session, transId);
 	  return (refund != null);
   }
   
-  private Refund getRefundByTransId(Session session, int transId){
+  public Refund getRefundByTransId(Session session, int transId){
 	  Transaction transaction = session.beginTransaction();
 	  Refund refund = null;
 	  try {
