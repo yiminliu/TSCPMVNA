@@ -28,10 +28,15 @@ public class RefundService {
     KenanPaymentDao.applyChargeCredit(creditCard, amount);
   }
 
-  public void refundPayment(int accountNo, int transId, int trackingId, String amount, String refundBy, int refundCode, String notes) throws RefundException {
-    refundDao.refundPayment(accountNo, transId, trackingId, amount, refundBy, refundCode, notes);
+  public int refundPayment(int accountNo, int transId, int trackingId, String amount, 
+		                   String refundBy, int refundCode, String notes) throws RefundException {
+    return refundDao.refundPayment(accountNo, transId, trackingId, amount, refundBy, refundCode, notes);
   }
 
+  public Refund getRefundByTransId(int transId){
+	  return refundDao.getRefundByTransId(transId);
+  }
+  
   public PaymentTransaction getPaymentTransaction(int custId, int transId) throws PaymentException {
     Session session = HibernateUtil.getSessionFactory().getCurrentSession();
     session.beginTransaction();

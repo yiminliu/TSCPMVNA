@@ -13,7 +13,8 @@ import com.tscp.mvne.hibernate.HibernateUtil;
 @SuppressWarnings("unchecked")
 public class RefundDao {
      
-  public int refundPayment(int accountNo, int transId, int trackingId, String amount, String refundBy, int refundCode, String notes) throws RefundException {
+  public int refundPayment(int accountNo, int transId, int trackingId, String amount, 
+		                   String refundBy, int refundCode, String notes) throws RefundException {
 	    if(isRefunded(transId)) {
 	       throw new RefundException("Refund was alread applied for the transaction with transId = "+ transId);
 	    } 	   
@@ -42,7 +43,7 @@ public class RefundDao {
 	    	if(transaction != null && !transaction.wasRolledBack())
 	           transaction.rollback(); 
 	        he.printStackTrace();
-	        throw new RefundException("applyChargeCredit", he.getMessage());
+	        throw new RefundException("refundPayment", he.getMessage());
 	    }finally {
 	       if(session.isOpen()) {
 	          try {
@@ -52,6 +53,35 @@ public class RefundDao {
 	          }
 	       }
 	    }  
+  }
+
+  
+  public Refund getRefundByTransId(int transId){
+	  Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+	  Transaction transaction = session.beginTransaction();
+	  Refund refund = null;
+	  try {
+	      refund = (Refund)session.get(Refund.class, transId);
+	      if(!transaction.wasCommitted())
+	    	 transaction.commit(); 
+	  }
+	  catch (HibernateException he){
+		  if(!transaction.wasRolledBack())
+			  transaction.rollback();
+	      he.printStackTrace();
+	      throw new RefundException("getRefundByTransId", he.getMessage());
+	  }
+      finally {
+        if(session.isOpen()) {
+           try {
+              session.close();
+           }
+           catch (HibernateException e) {
+             e.printStackTrace();
+           }
+        }
+     }  
+     return refund;	  
   }
   
   private static GeneralSPResponse getQueryResponse(List cursor, Transaction transaction, Session session) {
@@ -71,34 +101,8 @@ public class RefundDao {
 	  }
   
   public boolean isRefunded(int transId){
-	  Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-	  Refund refund = getRefundByTransId(session, transId);
+	  Refund refund = getRefundByTransId(transId);
 	  return (refund != null);
   }
-  
-  public Refund getRefundByTransId(Session session, int transId){
-	  Transaction transaction = session.beginTransaction();
-	  Refund refund = null;
-	  try {
-	      refund = (Refund)session.get(Refund.class, transId);
-	      if(!transaction.wasCommitted())
-	    	 transaction.commit(); 
-	  }
-	  catch (HibernateException he){
-		  if(!transaction.wasRolledBack())
-			  transaction.rollback();
-	      he.printStackTrace();
-	  }
-      finally {
-        if(session.isOpen()) {
-           try {
-              session.close();
-           }
-           catch (HibernateException e) {
-             e.printStackTrace();
-           }
-        }
-     }  
-     return refund;	  
-  }
+
 }

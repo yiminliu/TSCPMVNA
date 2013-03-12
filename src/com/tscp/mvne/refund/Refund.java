@@ -2,9 +2,6 @@ package com.tscp.mvne.refund;
 
 import java.util.Date;
 
-
-//@Entity
-//@Table(name="Refund")
 public class Refund {
 	
 	private int transId;
@@ -13,8 +10,6 @@ public class Refund {
 	private int refundReasonCode;
 	private String notes;
 	
-	//@Id
-	//@Column(name="trans_id")
 	public int getTransId() {
 		return transId;
 	}
@@ -23,7 +18,6 @@ public class Refund {
 		this.transId = transId;
 	}
 	
-	//@Column(name="refund_date")
 	public Date getRefundDate() {
 		return refundDate;
 	}
@@ -31,7 +25,6 @@ public class Refund {
 		this.refundDate = refundDate;
 	}
 	
-	//@Column(name="refund_by")
 	public String getRefundBy() {
 		return refundBy;
 	}
@@ -39,15 +32,13 @@ public class Refund {
 		this.refundBy = refundBy;
 	}
 	
-	//@Column(name="refund_reason_code")
 	public int getRefundReasonCode() {
 		return refundReasonCode;
 	}
 	public void setRefundReasonCode(int refundReasonCode) {
 		this.refundReasonCode = refundReasonCode;
 	}
-	
-	//@Column(name="notes")
+
 	public String getNotes() {
 		return notes;
 	}
