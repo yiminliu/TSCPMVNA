@@ -2,13 +2,10 @@ package com.tscp.mvne.unittest;
 
 import static org.junit.Assert.*;
 
-import org.hibernate.classic.Session;
-import org.hibernate.Transaction;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.tscp.mvne.hibernate.HibernateUtil;
 import com.tscp.mvne.refund.RefundDao;
 
 public class RefundTest {
@@ -43,8 +40,7 @@ public class RefundTest {
 
 	@Test
 	public void testGetRefundByTransId() {
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-		assertNotNull(dao.getRefundByTransId(session, 757617));
+		assertNotNull(dao.getRefundByTransId(757617));
 	}
 
 }
