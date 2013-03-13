@@ -28,7 +28,7 @@ public class RefundService {
     KenanPaymentDao.applyChargeCredit(creditCard, amount);
   }
 
-  public int refundPayment(int accountNo, int transId, int trackingId, String amount, 
+  public synchronized int refundPayment(int accountNo, int transId, int trackingId, String amount, 
 		                   String refundBy, int refundCode, String notes) throws RefundException {
     return refundDao.refundPayment(accountNo, transId, trackingId, amount, refundBy, refundCode, notes);
   }
