@@ -11,6 +11,14 @@
     <property name="amount" column="trans_amount" />
     <property name="trackingIdServer" column="tracking_id_server" />
   </class>
+  
+  <class name="com.tscp.mvne.refund.Refund">
+    <id column="trans_id" name="transId"/>
+    <property column="refund_date" generated="never" lazy="false" name="refundDate"/>
+    <property column="refund_by" generated="never" lazy="false" name="refundBy"/>
+    <property column="refund_reason_code" generated="never" lazy="false" name="refundReasonCode"/>
+    <property column="notes" generated="never" lazy="false" name="notes"/>
+  </class>
 
   <sql-query name="get_kenan_payments" callable="true">
     <return class="com.tscp.mvne.refund.KenanPayment">
