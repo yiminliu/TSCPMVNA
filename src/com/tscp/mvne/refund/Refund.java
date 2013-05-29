@@ -9,6 +9,8 @@ public class Refund {
 	private String refundBy;
 	private int refundReasonCode;
 	private String notes;
+	private String creditCardNo;
+	private String confirmationNo;
 	
 	public int getTransId() {
 		return transId;
@@ -45,4 +47,22 @@ public class Refund {
 	public void setNotes(String notes) {
 		this.notes = notes;
 	}
+
+	public String getCreditCardNo() {
+		return creditCardNo;
+	}
+
+	public void setCreditCardNo(String creditCardNo) {
+		this.creditCardNo = creditCardNo;
+	}
+
+	public String getConfirmationNo() {
+		return confirmationNo;
+	}
+
+	public void setConfirmationNo(String confirmationNo) {
+		this.confirmationNo = confirmationNo;
+	}
+	
+	
 }

@@ -18,6 +18,8 @@
     <property column="refund_by" generated="never" lazy="false" name="refundBy"/>
     <property column="refund_reason_code" generated="never" lazy="false" name="refundReasonCode"/>
     <property column="notes" generated="never" lazy="false" name="notes"/>
+    <property column="creditcard_no" generated="never" lazy="false" name="creditCardNo"/>
+    <property column="confirmation_no" generated="never" lazy="false" name="confirmationNo"/>
   </class>
 
   <sql-query name="get_kenan_payments" callable="true">
